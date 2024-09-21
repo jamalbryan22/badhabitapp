@@ -14,12 +14,15 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   login() {
+    console.log('Login attempt:', this.username);
     this.authService.login(this.username, this.password).subscribe(
       (response: any) => {
+        console.log('Login successful:', response);
         this.authService.storeToken(response.token);  // Store JWT token
         this.router.navigate(['/']);  // Redirect to home after login
       },
       error => {
+        console.error('Login failed:', error);
         this.errorMessage = 'Invalid username or password';
       }
     );

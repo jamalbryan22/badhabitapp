@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BadHabitApp.Services;
+using BadHabitApp.Models;  // Import your models for login and registration
 
 namespace BadHabitApp.Controllers
 {
@@ -14,22 +15,28 @@ namespace BadHabitApp.Controllers
 			_authService = authService;
 		}
 
+		// Register endpoint expects a JSON body with username and password
 		[HttpPost("register")]
-		public IActionResult Register(string username, string password)
+		public IActionResult Register([FromBody] RegisterRequest registerRequest)
 		{
-			var result = _authService.Register(username, password);
+			var result = _authService.Register(registerRequest.Username, registerRequest.Password);
 			if (result == "Username already exists.")
 				return BadRequest(result);
 
 			return Ok(result);
 		}
 
+		// Login endpoint expects a JSON body with username and password
 		[HttpPost("login")]
-		public IActionResult Login(string username, string password)
+		public IActionResult Login([FromBody] LoginRequest loginRequest)
 		{
-			if (_authService.Login(username, password, out var token))
+			if (_authService.Login(loginRequest.Username, loginRequest.Password, out var token))
+			{
+				Console.WriteLine($"Login successful for {loginRequest.Username}");
 				return Ok(new { token });
+			}
 
+			Console.WriteLine($"Login failed for {loginRequest.Username}");
 			return Unauthorized("Invalid username or password.");
 		}
 	}

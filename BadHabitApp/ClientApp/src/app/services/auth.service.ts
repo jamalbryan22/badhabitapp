@@ -6,16 +6,18 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:5000/api/auth';  // URL of the .NET backend
+  private baseUrl = 'https://localhost:5150/api/auth';  // URL of the .NET backend
 
   constructor(private http: HttpClient) { }
 
   register(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, { username, password });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post(`${this.baseUrl}/register`, { username, password }, { headers });
   }
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { username, password });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post(`${this.baseUrl}/login`, { username, password }, { headers });
   }
 
   // Store the JWT token in localStorage

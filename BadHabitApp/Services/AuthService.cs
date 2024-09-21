@@ -41,22 +41,35 @@ namespace BadHabitApp.Services
 		public bool Login(string username, string password, out string token)
 		{
 			token = null;
+
+			// Log input
+			Console.WriteLine($"Login attempt with Username: {username}");
+
 			var user = _context.Users.SingleOrDefault(u => u.Username == username);
+
+			// Log database lookup result
+			if (user == null)
+			{
+				Console.WriteLine($"No user found with Username: {username}");
+				return false;
+			}
 
 			if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
 			{
+				Console.WriteLine($"Invalid password for Username: {username}");
 				return false;
 			}
 
 			// Generate JWT token
 			token = GenerateJwtToken(user);
+			Console.WriteLine($"Login successful for Username: {username}");
 			return true;
 		}
 
 		public string GenerateJwtToken(User user)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.UTF8.GetBytes("YourSecretKeyHere"); // Use a strong secret key
+			var key = Encoding.UTF8.GetBytes("ThisisATempSecreteKeyForDevelopmentOnly!!"); // Use a strong secret key
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{

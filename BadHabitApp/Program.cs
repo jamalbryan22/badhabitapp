@@ -23,6 +23,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 	};
 });
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAll",
+		policy => policy.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader());
+});
+
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
@@ -57,6 +66,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
