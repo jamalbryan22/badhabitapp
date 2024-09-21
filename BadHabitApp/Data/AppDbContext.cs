@@ -21,7 +21,8 @@ namespace BadHabitApp.Data
 				context.Users.Add(new User
 				{
 					Username = "admin",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123") // Admin password
+					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // Admin password
+					Email = "admin@admin.net"
 				});
 
 				context.SaveChanges();
