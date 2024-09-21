@@ -24,17 +24,17 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove=".github\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove=".github\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="ClientApp\src\app\guards\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include=".github\workflows\test.yml" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
