@@ -1,23 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RegisterComponent } from './register.component';
+import { LoginComponent } from './login.component';
 import { AuthService } from '../services/auth.service';
 import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { fakeAsync, tick } from '@angular/core/testing';
 
-describe('RegisterComponent', () => {
-  let component: RegisterComponent;
-  let fixture: ComponentFixture<RegisterComponent>;
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
   let authServiceMock: any;
   let routerMock: any;
 
   beforeEach(async () => {
-    authServiceMock = jasmine.createSpyObj('AuthService', ['register']);
+    authServiceMock = jasmine.createSpyObj('AuthService', ['login', 'storeToken']);  // Mock storeToken
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      declarations: [RegisterComponent],
+      declarations: [LoginComponent],
       imports: [FormsModule],
       providers: [
         { provide: AuthService, useValue: authServiceMock },
@@ -27,7 +27,7 @@ describe('RegisterComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RegisterComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -36,28 +36,28 @@ describe('RegisterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call AuthService.register on register and redirect on success', fakeAsync(() => {
-    authServiceMock.register.and.returnValue(of({ message: 'User registered successfully.' }));
+  it('should call AuthService.login on login and redirect on success', fakeAsync(() => {
+    authServiceMock.login.and.returnValue(of({ token: 'test-token' }));
 
     component.username = 'testUser';
     component.password = 'testPassword';
-    component.register();
+    component.login();
 
+    // Simulate passage of time for setTimeout (2000ms)
     tick(2000);
 
-    expect(authServiceMock.register).toHaveBeenCalledWith('testUser', 'testPassword');
-    expect(component.successMessage).toBe('User registered successfully.');
+    expect(authServiceMock.login).toHaveBeenCalledWith('testUser', 'testPassword');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
   }));
 
-  it('should handle error when registration fails', () => {
-    authServiceMock.register.and.returnValue(throwError({ error: { message: 'Username already exists.' } }));
+  it('should handle error when login fails', () => {
+    authServiceMock.login.and.returnValue(throwError({ error: 'Invalid username or password' }));
 
     component.username = 'testUser';
     component.password = 'testPassword';
-    component.register();
+    component.login();
 
-    expect(component.errorMessage).toBe('Username already exists.');
+    expect(component.errorMessage).toBe('Invalid username or password');
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

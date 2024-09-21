@@ -14,10 +14,7 @@ module.exports = function (config) {
     ],
     client: {
       jasmine: {
-        // you can add configuration options for Jasmine here
-        // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
-        // for example, you can disable the random execution with `random: false`
-        // or set a specific seed with `seed: 4321`
+        // Jasmine configuration options can be added here
       },
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
@@ -38,8 +35,27 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
-    singleRun: false,
-    restartOnFileChange: true
-  });
-};
+    singleRun: false, // Keep it false for local testing, true for CI
+    restartOnFileChange: true,
 
+    // Custom launchers for CI environments
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu']  // Required for CI environments
+      }
+    }
+  });
+
+  // Set `singleRun` to true in CI environments
+  if (process.env.CI) {
+    config.set({
+      browsers: ['ChromeHeadlessCI'],
+      singleRun: true,  // Ensures tests run once in CI
+      autoWatch: false, // Disable watching file changes in CI
+      client: {
+        clearContext: true // Ensures Jasmine context is cleared in CI
+      }
+    });
+  }
+};
