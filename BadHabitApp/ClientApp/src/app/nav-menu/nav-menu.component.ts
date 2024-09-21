@@ -20,6 +20,10 @@ export class NavMenuComponent {
     this.isExpanded = !this.isExpanded;
   }
 
+  getUsername(): string | null {
+    return this.authService.getUsername();
+  }
+
   isLoggedIn(): boolean {
     return this.authService.isAuthenticated();
   }

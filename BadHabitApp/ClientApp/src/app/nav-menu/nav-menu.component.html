@@ -20,30 +20,31 @@
         [ngClass]="{ show: isExpanded }"
       >
         <ul class="navbar-nav flex-grow">
-          <li
-            class="nav-item"
-            [routerLinkActive]="['link-active']"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
+          <li class="nav-item"
+              [routerLinkActive]="['link-active']"
+              [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isLoggedIn()">
-            <a class="nav-link text-dark" [routerLink]="['/counter']"
-              >Counter</a
-            >
+            <a class="nav-link text-dark" [routerLink]="['/counter']">Counter</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/fetch-data']"
-              >Fetch data</a
-            >
+            <a class="nav-link text-dark" [routerLink]="['/fetch-data']">Fetch data</a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="!isLoggedIn()">
-            <a class="nav-link text-dark" [routerLink]="['/register']">Register</a>
-            </li>
-          <li class="nav-item" *ngIf="!isLoggedIn()">
+
+          <!-- Show login/register if not authenticated -->
+          <li *ngIf="!isLoggedIn()" class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/login']">Login</a>
-            </li>
-          <li class="nav-item" *ngIf="isLoggedIn()">
+          </li>
+          <li *ngIf="!isLoggedIn()" class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/register']">Register</a>
+          </li>
+
+          <!-- Show username and logout if authenticated -->
+          <li *ngIf="isLoggedIn()" class="nav-item">
+            <span class="nav-link text-dark">Welcome, {{ getUsername() }}</span>
+          </li>
+          <li *ngIf="isLoggedIn()" class="nav-item">
             <a class="nav-link text-dark" (click)="logout()">Logout</a>
           </li>
         </ul>

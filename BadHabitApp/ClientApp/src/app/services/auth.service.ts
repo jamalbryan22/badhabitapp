@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private baseUrl = 'https://localhost:5150/api/auth';  // URL of the .NET backend
+  private jwtHelper = new JwtHelperService();
 
   constructor(private http: HttpClient) { }
 
@@ -28,6 +30,16 @@ export class AuthService {
   // Retrieve the JWT token from localStorage
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  // Extract and return the username from the JWT token
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (token) {
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      return decodedToken?.username || null; // Assuming the token has a 'username' field
+    }
+    return null;
   }
 
   // Check if the user is authenticated
