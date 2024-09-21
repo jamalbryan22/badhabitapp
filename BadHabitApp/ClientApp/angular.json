@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "BadHabitApp"
+  "defaultProject": "BadHabitApp",
+  "cli": {
+    "analytics": false
+  }
 }
