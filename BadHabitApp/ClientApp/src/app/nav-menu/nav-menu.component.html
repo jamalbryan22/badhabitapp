@@ -27,7 +27,7 @@
           >
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isLoggedIn()">
             <a class="nav-link text-dark" [routerLink]="['/counter']"
               >Counter</a
             >
@@ -36,6 +36,12 @@
             <a class="nav-link text-dark" [routerLink]="['/fetch-data']"
               >Fetch data</a
             >
+          </li>
+          <li class="nav-item" *ngIf="!isLoggedIn()">
+            <a class="nav-link text-dark" [routerLink]="['/login']">Login</a>
+            </li>
+          <li class="nav-item" *ngIf="isLoggedIn()">
+            <a class="nav-link text-dark" (click)="logout()">Logout</a>
           </li>
         </ul>
       </div>

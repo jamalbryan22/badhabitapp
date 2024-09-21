@@ -1,13 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BadHabitApp.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using BadHabitApp.Data;
+using BadHabitApp.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = "BadHabitApp.net",
+		ValidAudience = "BadHabitApp.net",
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey"))
+	};
+});
+
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
-// Configure Entity Framework (From Startup.cs)
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -15,6 +34,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Build the app
 var app = builder.Build();
+
+// Ensure database is created and seed data is added
+using (var scope = app.Services.CreateScope())
+{
+	var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+	context.Database.Migrate();
+	AppDbContext.Seed(context);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -31,6 +58,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 

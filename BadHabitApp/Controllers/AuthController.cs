@@ -1,37 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using BadHabitApp.Services;
 
 namespace BadHabitApp.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
-    {
-        // This method is for user registration
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(string username, string password)
-        {
-            // Placeholder logic for registration (we can integrate with a real user service later)
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-            {
-                return BadRequest("Username or password cannot be empty");
-            }
+	[ApiController]
+	[Route("api/[controller]")]
+	public class AuthController : ControllerBase
+	{
+		private readonly AuthService _authService;
 
-            // Simulate user registration logic
-            return Ok(new { message = "User registered successfully!" });
-        }
+		public AuthController(AuthService authService)
+		{
+			_authService = authService;
+		}
 
-        // This method is for user login
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(string username, string password)
-        {
-            // Placeholder logic for login (replace with real authentication logic)
-            if (username == "test" && password == "password")
-            {
-                return Ok(new { token = "fake-jwt-token" });
-            }
+		[HttpPost("register")]
+		public IActionResult Register(string username, string password)
+		{
+			var result = _authService.Register(username, password);
+			if (result == "Username already exists.")
+				return BadRequest(result);
 
-            return Unauthorized("Invalid credentials");
-        }
-    }
+			return Ok(result);
+		}
+
+		[HttpPost("login")]
+		public IActionResult Login(string username, string password)
+		{
+			if (_authService.Login(username, password, out var token))
+				return Ok(new { token });
+
+			return Unauthorized("Invalid username or password.");
+		}
+	}
 }
