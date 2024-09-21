@@ -21,17 +21,24 @@ namespace BadHabitApp.Services
 
 		public string Register(string username, string password)
 		{
+			if (username.Length < 4 || password.Length < 8)
+				return "Username must be at least 4 characters and password must be at least 8 characters.";
+
+			// Check if the username already exists
 			if (_context.Users.Any(u => u.Username == username))
 				return "Username already exists.";
 
+			// Hash the password
 			var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
+			// Create a new user
 			var user = new User
 			{
 				Username = username,
 				PasswordHash = hashedPassword
 			};
 
+			// Save the user to the database
 			_context.Users.Add(user);
 			_context.SaveChanges();
 

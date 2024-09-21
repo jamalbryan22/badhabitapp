@@ -21,9 +21,12 @@ namespace BadHabitApp.Controllers
 		{
 			var result = _authService.Register(registerRequest.Username, registerRequest.Password);
 			if (result == "Username already exists.")
-				return BadRequest(result);
+				return BadRequest(new { message = result });
 
-			return Ok(result);
+			if (result == "Username must be at least 4 characters and password must be at least 8 characters.")
+				return BadRequest(new { message = result });
+
+			return Ok(new { message = result });
 		}
 
 		// Login endpoint expects a JSON body with username and password
