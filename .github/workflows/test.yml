@@ -24,14 +24,18 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - run: npm install
+    # Set the correct working directory if package.json is in ClientApp folder
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./BadHabitApp/ClientApp  # Set this to the path where package.json is located
 
     - name: Run unit tests
       run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      working-directory: ./BadHabitApp/ClientApp  # Set this to the path where package.json is located
 
     - name: Archive test results
       if: always()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: coverage/
+        path: ClientApp/coverage/  # Adjust the path to the coverage folder
