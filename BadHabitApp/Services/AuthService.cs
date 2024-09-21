@@ -19,7 +19,7 @@ namespace BadHabitApp.Services
 			_context = context;
 		}
 
-		public string Register(string username, string password)
+		public string Register(string username, string password, string email)
 		{
 			if (username.Length < 4 || password.Length < 8)
 				return "Username must be at least 4 characters and password must be at least 8 characters.";
@@ -28,6 +28,10 @@ namespace BadHabitApp.Services
 			if (_context.Users.Any(u => u.Username == username))
 				return "Username already exists.";
 
+			// Check if the email already exists
+			if (_context.Users.Any(u => u.Email == email))
+			 	return "Email already exists.";
+
 			// Hash the password
 			var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -35,7 +39,8 @@ namespace BadHabitApp.Services
 			var user = new User
 			{
 				Username = username,
-				PasswordHash = hashedPassword
+				PasswordHash = hashedPassword,
+				Email = email
 			};
 
 			// Save the user to the database
@@ -45,7 +50,7 @@ namespace BadHabitApp.Services
 			return "User registered successfully.";
 		}
 
-		public bool Login(string username, string password, out string token)
+		public bool Login(string username, string password, out string? token)
 		{
 			token = null;
 

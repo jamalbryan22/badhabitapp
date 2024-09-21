@@ -6,11 +6,18 @@
       <input id="username" [(ngModel)]="username" name="username" required />
     </div>
     <div>
+      <label for="email">Email:</label>
+      <input id="email" [(ngModel)]="email" name="email" type="email" required />
+    </div>
+    <div>
       <label for="password">Password:</label>
       <input id="password" [(ngModel)]="password" type="password" name="password" required />
     </div>
+
+    <!-- Error and Success messages -->
     <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
     <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
     <button type="submit">Register</button>
   </form>
 </div>

@@ -9,13 +9,14 @@ import { Router } from '@angular/router';
 export class RegisterComponent {
   username: string = '';
   password: string = '';
+  email: string = '';
   errorMessage: string = '';
   successMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
 
   register() {
-    this.authService.register(this.username, this.password).subscribe(
+    this.authService.register(this.username, this.password, this.email).subscribe(
       (response: any) => {
         this.successMessage = response.message;
         this.errorMessage = '';

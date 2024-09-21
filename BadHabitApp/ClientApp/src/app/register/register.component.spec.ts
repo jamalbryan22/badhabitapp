@@ -41,11 +41,12 @@ describe('RegisterComponent', () => {
 
     component.username = 'testUser';
     component.password = 'testPassword';
+    component.email = 'test@example.com';
     component.register();
 
     tick(2000);
 
-    expect(authServiceMock.register).toHaveBeenCalledWith('testUser', 'testPassword');
+    expect(authServiceMock.register).toHaveBeenCalledWith('testUser', 'testPassword', 'test@example.com');
     expect(component.successMessage).toBe('User registered successfully.');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
   }));
@@ -55,6 +56,7 @@ describe('RegisterComponent', () => {
 
     component.username = 'testUser';
     component.password = 'testPassword';
+    component.email = 'test@example.com';
     component.register();
 
     expect(component.errorMessage).toBe('Username already exists.');
