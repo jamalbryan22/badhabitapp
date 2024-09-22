@@ -20,10 +20,10 @@ namespace BadHabitApp.Controllers
 		public IActionResult Register([FromBody] RegisterRequest registerRequest)
 		{
 			var result = _authService.Register(registerRequest.Username, registerRequest.Password, registerRequest.Email);
-			if (result == "Username already exists." || result == "Email already exists.")
+			if (result == ValidationMessages.UsernameExists || result == ValidationMessages.EmailExists)
 				return BadRequest(new { message = result });
 
-			if (result == "Username must be at least 4 characters and password must be at least 8 characters.")
+			if (result == ValidationMessages.InvalidUsernameOrPassword)
 				return BadRequest(new { message = result });
 
 			return Ok(new { message = result });

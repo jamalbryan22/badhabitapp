@@ -3,6 +3,7 @@ using System.Linq;
 using BCrypt.Net;
 using BadHabitApp.Data;
 using BadHabitApp.Models;
+using BadHabitApp.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,15 +23,19 @@ namespace BadHabitApp.Services
 		public string Register(string username, string password, string email)
 		{
 			if (username.Length < 4 || password.Length < 8)
-				return "Username must be at least 4 characters and password must be at least 8 characters.";
+				return ValidationMessages.InvalidUsernameOrPassword;
 
 			// Check if the username already exists
 			if (_context.Users.Any(u => u.Username == username))
-				return "Username already exists.";
+				return ValidationMessages.UsernameExists;
 
 			// Check if the email already exists
 			if (_context.Users.Any(u => u.Email == email))
-			 	return "Email already exists.";
+				return ValidationMessages.EmailExists;
+
+			// Check if the email is in a valid format
+			if (!email.Contains("@") || !email.Contains("."))
+				return ValidationMessages.InvalidEmail;
 
 			// Hash the password
 			var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
@@ -47,7 +52,7 @@ namespace BadHabitApp.Services
 			_context.Users.Add(user);
 			_context.SaveChanges();
 
-			return "User registered successfully.";
+			return ValidationMessages.UserRegistered;
 		}
 
 		public bool Login(string username, string password, out string? token)
