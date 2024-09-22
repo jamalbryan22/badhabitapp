@@ -1,19 +1,45 @@
+/* Navbar Brand */
 a.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #00796b; /* Teal for brand */
   white-space: normal;
   text-align: center;
   word-break: break-all;
 }
 
+  a.navbar-brand:hover {
+    color: #004d40; /* Darker teal for hover */
+  }
+
+/* Navbar Links */
+.nav-link {
+  color: #00796b; /* Teal links */
+  font-weight: 500;
+}
+
+  .nav-link:hover {
+    color: #004d40; /* Darker teal for hover */
+  }
+
+/* Box Shadow for elements */
+.box-shadow {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Font Sizing */
 html {
   font-size: 14px;
 }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
 }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+/* Navbar Background */
+.navbar {
+  background-color: #ffffff; /* White for a clean feel */
+  border-bottom: 1px solid #ddd;
 }
-

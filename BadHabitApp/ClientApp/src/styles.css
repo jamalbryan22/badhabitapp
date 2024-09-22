@@ -1,21 +1,90 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #e0f7fa; /* Soft pastel blue */
+  color: #333; /* Darker grey text for better readability */
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
 
-/* Provide sufficient contrast against white background */
+/* Links */
 a {
-  color: #0366d6;
+  color: #00796b; /* Green-teal for links */
+  text-decoration: none;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  a:hover {
+    color: #004d40; /* Darker teal for hover */
+  }
+
+/* Buttons */
+.btn-primary {
+  color: #fff;
+  background-color: #00796b; /* Teal for buttons */
+  border-color: #004d40;
+  transition: background-color 0.3s ease;
 }
 
+  .btn-primary:hover {
+    background-color: #004d40;
+  }
+
+/* Focus Styles */
+.btn:focus, .btn:active:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #00796b;
+}
+
+/* Text Inputs */
+input[type="text"], input[type="email"], input[type="password"], textarea {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 4px;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: #00796b;
+  }
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #00796b; /* Teal for motivational headings */
+}
+
+h2 {
+  font-size: 2rem;
+  color: #004d40;
+}
+
+/* Code */
 code {
   color: #e01a76;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* Card */
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
+/* Button Styling */
+button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.btn-link {
+  color: #00796b;
+}
