@@ -14,7 +14,7 @@ namespace BadHabitApp.Services
 			if (!userHabits.ContainsKey(username))
 				userHabits[username] = new List<Habit>();
 
-			userHabits[username].Add(new Habit { Name = habitName, StartDate = DateTime.Now });
+			//userHabits[username].Add(new Habit { HabitName = habitName, StartDate = DateTime.Now });
 			return $"Habit '{habitName}' added for {username}.";
 		}
 
@@ -30,7 +30,7 @@ namespace BadHabitApp.Services
 		// Remove a habit
 		public string RemoveHabit(string username, string habitName)
 		{
-			if (!userHabits.ContainsKey(username) || userHabits[username].RemoveAll(h => h.Name == habitName) == 0)
+			if (!userHabits.ContainsKey(username) || userHabits[username].RemoveAll(h => h.HabitName == habitName) == 0)
 				return "Habit not found.";
 
 			return $"Habit '{habitName}' removed for {username}.";

@@ -74,6 +74,8 @@ namespace BadHabitApp.Services
 
 			// Generate JWT token
 			token = GenerateJwtToken(user);
+			user.LastLogin = DateTime.UtcNow;
+			_context.SaveChanges();
 			Console.WriteLine($"Login successful for Username: {username}");
 			return true;
 		}
