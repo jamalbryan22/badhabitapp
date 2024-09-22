@@ -13,7 +13,7 @@ describe('LoginComponent', () => {
   let routerMock: any;
 
   beforeEach(async () => {
-    authServiceMock = jasmine.createSpyObj('AuthService', ['login', 'storeToken']);  // Mock storeToken
+    authServiceMock = jasmine.createSpyObj('AuthService', ['login', 'storeToken']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -37,13 +37,12 @@ describe('LoginComponent', () => {
   });
 
   it('should call AuthService.login on login and redirect on success', fakeAsync(() => {
-    authServiceMock.login.and.returnValue(of({ token: 'test-token' }));
+    authServiceMock.login.and.returnValue(of({ isSuccess: true, data: { token: 'test-token' } }));
 
     component.username = 'testUser';
     component.password = 'testPassword';
     component.login();
 
-    // Simulate passage of time for setTimeout (2000ms)
     tick(2000);
 
     expect(authServiceMock.login).toHaveBeenCalledWith('testUser', 'testPassword');
@@ -51,13 +50,15 @@ describe('LoginComponent', () => {
   }));
 
   it('should handle error when login fails', () => {
-    authServiceMock.login.and.returnValue(throwError({ error: 'Invalid username or password' }));
+    authServiceMock.login.and.returnValue(
+      throwError({ error: { messages: ['Invalid username or password'] } })
+    );
 
     component.username = 'testUser';
     component.password = 'testPassword';
     component.login();
 
-    expect(component.errorMessage).toBe('Invalid username or password');
+    expect(component.errorMessages).toEqual(['Invalid username or password']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

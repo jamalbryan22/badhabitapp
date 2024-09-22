@@ -37,7 +37,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should call AuthService.register on register and redirect on success', fakeAsync(() => {
-    authServiceMock.register.and.returnValue(of({ message: 'User registered successfully.' }));
+    authServiceMock.register.and.returnValue(of({ isSuccess: true, messages: ['User registered successfully.'] }));
 
     component.username = 'testUser';
     component.password = 'testPassword';
@@ -52,14 +52,16 @@ describe('RegisterComponent', () => {
   }));
 
   it('should handle error when registration fails', () => {
-    authServiceMock.register.and.returnValue(throwError({ error: { message: 'Username already exists.' } }));
+    authServiceMock.register.and.returnValue(
+      throwError({ error: { messages: ['Username already exists.'] } })
+    );
 
     component.username = 'testUser';
     component.password = 'testPassword';
     component.email = 'test@example.com';
     component.register();
 
-    expect(component.errorMessage).toBe('Username already exists.');
+    expect(component.errorMessages).toEqual(['Username already exists.']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

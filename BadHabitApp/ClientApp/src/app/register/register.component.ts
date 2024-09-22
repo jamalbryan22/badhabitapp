@@ -11,7 +11,7 @@ export class RegisterComponent {
   username: string = '';
   password: string = '';
   email: string = '';
-  errorMessage: string = '';
+  errorMessages: string[] = [];
   successMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
@@ -19,13 +19,17 @@ export class RegisterComponent {
   register() {
     this.authService.register(this.username, this.password, this.email).subscribe(
       (response: any) => {
-        this.successMessage = response.message;
-        this.errorMessage = '';
-
-        setTimeout(() => this.router.navigate(['/']), 2000);  // Redirect after 2 seconds
+        if (response.isSuccess) {
+          this.successMessage = response.messages[0];
+          this.errorMessages = [];
+          setTimeout(() => this.router.navigate(['/']), 2000);  // Redirect after 2 seconds
+        } else {
+          this.errorMessages = response.messages;
+          this.successMessage = '';
+        }
       },
-      (error) => {
-        this.errorMessage = error.error.message;
+      error => {
+        this.errorMessages = error.error.messages || ['Unknown error occurred'];
         this.successMessage = '';
       }
     );

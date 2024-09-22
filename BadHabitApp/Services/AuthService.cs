@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BadHabitApp.Services
 {
@@ -20,22 +21,54 @@ namespace BadHabitApp.Services
 			_context = context;
 		}
 
-		public string Register(string username, string password, string email)
+		public ApiResponse Register(string username, string password, string email)
 		{
-			if (username.Length < 4 || password.Length < 8)
-				return ValidationMessages.InvalidUsernameOrPassword;
+			List<string> errorMessages = new List<string>();
+
+			if (username.Length < 4)
+				errorMessages.Add(ValidationMessages.InvalidUsername);
+
+			if (username.Length > 20)
+				errorMessages.Add(ValidationMessages.UsernameTooLong);
+
+			if (email.Length > 254)
+				errorMessages.Add(ValidationMessages.EmailTooLong);
+
+			if (password.Length < 8)
+				errorMessages.Add(ValidationMessages.InvalidPassword);
+
+			if (password.Length > 64)
+				errorMessages.Add(ValidationMessages.PasswordTooLong);
+
+			// check for uppercase, lowercase, number, and special character
+			if (!password.Any(char.IsUpper))
+				errorMessages.Add(ValidationMessages.PasswordMustContainUppercase);
+
+			if (!password.Any(char.IsLower))
+				errorMessages.Add(ValidationMessages.PasswordMustContainLowercase);
+
+			if (!password.Any(char.IsDigit))
+				errorMessages.Add(ValidationMessages.PasswordMustContainNumber);
+
+			if (!password.Any(char.IsSymbol) && !password.Any(char.IsPunctuation))
+				errorMessages.Add(ValidationMessages.PasswordMustContainSpecialCharacter);
+
 
 			// Check if the username already exists
 			if (_context.Users.Any(u => u.Username == username))
-				return ValidationMessages.UsernameExists;
+				errorMessages.Add(ValidationMessages.UsernameExists);
 
 			// Check if the email already exists
 			if (_context.Users.Any(u => u.Email == email))
-				return ValidationMessages.EmailExists;
+				errorMessages.Add(ValidationMessages.EmailExists);
 
-			// Check if the email is in a valid format
-			if (!email.Contains("@") || !email.Contains("."))
-				return ValidationMessages.InvalidEmail;
+			var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+			if (!emailRegex.IsMatch(email))
+				errorMessages.Add(ValidationMessages.InvalidEmail);
+
+			// If there are any errors, return them
+			if (errorMessages.Count > 0)
+				return new ApiResponse(false, errorMessages);
 
 			// Hash the password
 			var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
@@ -52,10 +85,10 @@ namespace BadHabitApp.Services
 			_context.Users.Add(user);
 			_context.SaveChanges();
 
-			return ValidationMessages.UserRegistered;
+			return new ApiResponse(true, ValidationMessages.UserRegistered);
 		}
 
-		public bool Login(string username, string password, out string? token)
+		public ApiResponse Login(string username, string password, out string? token)
 		{
 			token = null;
 
@@ -64,25 +97,15 @@ namespace BadHabitApp.Services
 
 			var user = _context.Users.SingleOrDefault(u => u.Username == username);
 
-			// Log database lookup result
-			if (user == null)
-			{
-				Console.WriteLine($"No user found with Username: {username}");
-				return false;
-			}
-
-			if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
-			{
-				Console.WriteLine($"Invalid password for Username: {username}");
-				return false;
-			}
+        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            return new ApiResponse(false, ValidationMessages.UserDoesNotExistOrPasswordIsIncorrect);
 
 			// Generate JWT token
 			token = GenerateJwtToken(user);
 			user.LastLogin = DateTime.UtcNow;
 			_context.SaveChanges();
 			Console.WriteLine($"Login successful for Username: {username}");
-			return true;
+			return new ApiResponse(true, "Login successful", new { token });
 		}
 
 		public string GenerateJwtToken(User user)

@@ -15,7 +15,12 @@
     </div>
 
     <!-- Error and Success messages -->
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="errorMessages.length > 0" class="error-message">
+      <ul>
+        <li *ngFor="let message of errorMessages">{{ message }}</li>
+      </ul>
+    </div>
+
     <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
     <button type="submit">Register</button>

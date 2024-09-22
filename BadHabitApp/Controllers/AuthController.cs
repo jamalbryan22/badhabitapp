@@ -17,30 +17,24 @@ namespace BadHabitApp.Controllers
 
 		// Register endpoint expects a JSON body with username and password
 		[HttpPost("register")]
-		public IActionResult Register([FromBody] RegisterRequest registerRequest)
+		public IActionResult Register([FromBody] RegisterRequest request)
 		{
-			var result = _authService.Register(registerRequest.Username, registerRequest.Password, registerRequest.Email);
-			if (result == ValidationMessages.UsernameExists || result == ValidationMessages.EmailExists)
-				return BadRequest(new { message = result });
+			var response = _authService.Register(request.Username, request.Password, request.Email);
+			if (!response.IsSuccess)
+				return BadRequest(response);
 
-			if (result == ValidationMessages.InvalidUsernameOrPassword)
-				return BadRequest(new { message = result });
-
-			return Ok(new { message = result });
+			return Ok(response);
 		}
 
 		// Login endpoint expects a JSON body with username and password
 		[HttpPost("login")]
-		public IActionResult Login([FromBody] LoginRequest loginRequest)
+		public IActionResult Login([FromBody] LoginRequest request)
 		{
-			if (_authService.Login(loginRequest.Username, loginRequest.Password, out var token))
-			{
-				Console.WriteLine($"Login successful for {loginRequest.Username}");
-				return Ok(new { token });
-			}
+			var response = _authService.Login(request.Username, request.Password, out string? token);
+			if (!response.IsSuccess)
+				return Unauthorized(response);
 
-			Console.WriteLine($"Login failed for {loginRequest.Username}");
-			return Unauthorized("Invalid username or password.");
+			return Ok(response);
 		}
 	}
 }

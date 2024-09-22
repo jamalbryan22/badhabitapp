@@ -10,21 +10,23 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent {
   username: string = '';
   password: string = '';
-  errorMessage: string = '';
+  errorMessages: string[] = [];
 
   constructor(private authService: AuthService, private router: Router) { }
 
   login() {
-    console.log('Login attempt:', this.username);
     this.authService.login(this.username, this.password).subscribe(
       (response: any) => {
-        console.log('Login successful:', response);
-        this.authService.storeToken(response.token);  // Store JWT token
-        this.router.navigate(['/']);  // Redirect to home after login
+        if (response.isSuccess) {
+          this.authService.storeToken(response.data.token);  // Store JWT token
+          this.router.navigate(['/']);  // Redirect to home after login
+        } else {
+          this.errorMessages = response.messages;
+        }
       },
       error => {
         console.error('Login failed:', error);
-        this.errorMessage = 'Invalid username or password';
+        this.errorMessages = error.error.messages || ['Unknown error occurred'];
       }
     );
   }
