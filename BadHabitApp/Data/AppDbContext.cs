@@ -3,24 +3,24 @@ using BadHabitApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BadHabitApp.Data
 {
-	public class AppDbContext : DbContext
+	public class AppDbContext : IdentityDbContext<ApplicationUser>
 	{
 		public AppDbContext(DbContextOptions<AppDbContext> options)
 			: base(options)
 		{
 		}
 
-		public DbSet<User> Users { get; set; }
 		public DbSet<Habit> Habits { get; set; }
 		public DbSet<UserHabit> UserHabits { get; set; }
 		public DbSet<Relapse> Relapses { get; set; }
 		public DbSet<Goal> Goals { get; set; }
 
 		// Seed method to add initial data
-		public static void Seed(AppDbContext context)
+		/*public static void Seed(AppDbContext context)
 		{
 			// Seed Users
 
@@ -264,12 +264,14 @@ namespace BadHabitApp.Data
 				context.Goals.AddRange(goals);
 				context.SaveChanges();
 			}
-		}
+		}*/
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			// Configure User entity
-			modelBuilder.Entity<User>()
+            base.OnModelCreating(modelBuilder);
+
+/*            // Configure User entity
+            modelBuilder.Entity<User>()
 				.HasIndex(u => u.Username)
 				.IsUnique();
 
@@ -311,7 +313,7 @@ namespace BadHabitApp.Data
 				.Property(g => g.GoalValue)
 				.HasColumnType("decimal(18,2)");
 
-			base.OnModelCreating(modelBuilder);
+			base.OnModelCreating(modelBuilder);*/
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace BadHabitApp.Models
 		[Range(MinHabitCost,MaxHabitCost, ErrorMessage = "Habit cost outside range of acceptablevalues")]
 		public decimal AverageCostPerOccurrence { get; set; }
 
-		// Navigation property
-		public ICollection<UserHabit> UserHabits { get; set; }
+/*		// Navigation property
+		public ICollection<UserHabit> UserHabits { get; set; }*/
 	}
 }

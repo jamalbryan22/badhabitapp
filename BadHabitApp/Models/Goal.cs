@@ -19,7 +19,7 @@ namespace BadHabitApp.Models
         public DateTime? AchievedDate { get; set; }
 		public bool IsAchieved { get; set; } = false;
 
-		// Navigation property
-		public UserHabit UserHabit { get; set; }
+/*		// Navigation property
+		public UserHabit UserHabit { get; set; }*/
 	}
 }

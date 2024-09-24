@@ -30,7 +30,7 @@ namespace BadHabitApp.Models
 		[DataType(DataType.Date)]
 		public DateTime? LastLogin { get; set; }
 
-		// Navigation property
-		public ICollection<UserHabit> UserHabits { get; set; }
+/*		// Navigation property
+		public ICollection<UserHabit> UserHabits { get; set; }*/
 	}
 }

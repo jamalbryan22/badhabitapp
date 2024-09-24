@@ -31,10 +31,11 @@ namespace BadHabitApp.Models
 		[Required]
 		public bool IsActive { get; set; } = true;
 
-		// Navigation properties
-		public User User { get; set; }
-		public Habit Habit { get; set; }
-		public ICollection<Relapse> Relapses { get; set; }
-		public ICollection<Goal> Goals { get; set; }
+		/*		// Navigation properties
+				public User User { get; set; }
+				public Habit Habit { get; set; }
+				public ICollection<Relapse> Relapses { get; set; }
+				public ICollection<Goal> Goals { get; set; }
+			}*/
 	}
 }

@@ -16,7 +16,7 @@ namespace BadHabitApp.Models
 
 		public string Comments { get; set; } = string.Empty;
 
-		// Navigation property
-		public UserHabit UserHabit { get; set; }
+/*		// Navigation property
+		public UserHabit UserHabit { get; set; }*/
 	}
 }

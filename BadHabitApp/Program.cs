@@ -4,12 +4,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BadHabitApp.Data;
 using BadHabitApp.Services;
+using Microsoft.AspNetCore.Identity;
+using BadHabitApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
@@ -21,7 +23,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 		ValidAudience = "BadHabitApp.net",
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretkey"))
 	};
-});
+});*/
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
+
+builder.Services.AddIdentityCore<ApplicationUser>()
+	.AddEntityFrameworkStores<AppDbContext>()
+	.AddApiEndpoints();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -38,7 +47,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<AuthService>();
+/*builder.Services.AddScoped<AuthService>();*/
 builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -52,7 +61,7 @@ using (var scope = app.Services.CreateScope())
 {
 	var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 	context.Database.Migrate();
-	AppDbContext.Seed(context);
+	/*AppDbContext.Seed(context)*/;
 }
 
 // Configure the HTTP request pipeline.
@@ -77,6 +86,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseCors("AllowAll");
+
+app.MapIdentityApi<ApplicationUser>();
 
 app.UseAuthentication();
 app.UseAuthorization();
