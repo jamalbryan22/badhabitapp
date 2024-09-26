@@ -18,302 +18,273 @@ namespace BadHabitApp.Data
 		public DbSet<UserHabit> UserHabits { get; set; }
 		public DbSet<Relapse> Relapses { get; set; }
 		public DbSet<Goal> Goals { get; set; }
-
-		// Seed method to add initial data
-		/*public static void Seed(AppDbContext context)
-		{
-			// Seed Users
-
-			var userList = new List<User>
-			{
-				new User
-				{
-					Username = "admin",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"), // Admin password
-					Email = "admin@admin.net",
-					RegistrationDate = DateTime.UtcNow,
-					LastLogin = DateTime.UtcNow
-				},
-				new User
-				{
-					Username = "ifc21a",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1!"),
-					Email = "igor.couto@example.com",
-					RegistrationDate = DateTime.UtcNow.AddDays(-30),
-					LastLogin = DateTime.UtcNow.AddHours(-10)
-				},
-				new User
-				{
-					Username = "mws19b",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password2@"),
-					Email = "matthew.schueder@example.com",
-					RegistrationDate = DateTime.UtcNow.AddDays(-25),
-					LastLogin = DateTime.UtcNow.AddHours(-5)
-				},
-				new User
-				{
-					Username = "jma21c",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password3#"),
-					Email = "joey.aschenbrenner@example.com",
-					RegistrationDate = DateTime.UtcNow.AddDays(-20),
-					LastLogin = DateTime.UtcNow.AddHours(-2)
-				},
-				new User
-				{
-					Username = "jb23bf",
-					PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password4$"),
-					Email = "jamal.bryan@example.com",
-					RegistrationDate = DateTime.UtcNow.AddDays(-15),
-					LastLogin = DateTime.UtcNow.AddHours(-1)
-				},
-				// Add more users as needed
-			};
-
-			// Check and reseed each user if they don't exist
-			foreach (var user in userList)
-			{
-				if (!context.Users.Any(u => u.Username == user.Username))
-				{
-					context.Users.Add(user);
-				}
-			}
-
-			context.SaveChanges();
-
-
-			// Seed Habits
-			if (!context.Habits.Any())
-			{
-				var habits = new List<Habit>
-				{
-					new Habit
-					{
-						HabitName = "Smoking",
-						Description = "Smoking cigarettes",
-						AverageCostPerOccurrence = 10.00m
-					},
-					new Habit
-					{
-						HabitName = "Nail Biting",
-						Description = "Biting nails",
-						AverageCostPerOccurrence = 0.00m
-					},
-					new Habit
-					{
-						HabitName = "Drinking Alcohol",
-						Description = "Consuming alcoholic beverages",
-						AverageCostPerOccurrence = 5.00m
-					},
-					new Habit
-					{
-						HabitName = "Procrastination",
-						Description = "Delaying tasks",
-						AverageCostPerOccurrence = 0.00m
-					},
-					new Habit
-					{
-						HabitName = "Fast Food",
-						Description = "Eating unhealthy fast food",
-						AverageCostPerOccurrence = 8.00m
-					},
-					new Habit
-					{
-						HabitName = "Overspending",
-						Description = "Spending more than budgeted",
-						AverageCostPerOccurrence = 20.00m
-					},
-                    // Add more habits as needed
-                };
-
-				context.Habits.AddRange(habits);
-				context.SaveChanges();
-			}
-
-			// Seed UserHabits
-			if (!context.UserHabits.Any())
-			{
-				var users = context.Users.ToList();
-				var habits = context.Habits.ToList();
-
-				var userHabits = new List<UserHabit>
-				{
-					new UserHabit
-					{
-						UserId = users.First(u => u.Username == "ifc21a").Id,
-						HabitId = habits.First(h => h.HabitName == "Smoking").Id,
-						StartDate = DateTime.UtcNow.AddDays(-15),
-						LastRelapseDate = DateTime.UtcNow.AddDays(-5),
-						CostPerOccurrence = 11.00m,
-						FrequencyPerDay = 2,
-						IsActive = true
-					},
-					new UserHabit
-					{
-						UserId = users.First(u => u.Username == "mws19b").Id,
-						HabitId = habits.First(h => h.HabitName == "Procrastination").Id,
-						StartDate = DateTime.UtcNow.AddDays(-20),
-						LastRelapseDate = null,
-						CostPerOccurrence = 0.00m,
-						FrequencyPerDay = 1,
-						IsActive = true
-					},
-					new UserHabit
-					{
-						UserId = users.First(u => u.Username == "jma21c").Id,
-						HabitId = habits.First(h => h.HabitName == "Fast Food").Id,
-						StartDate = DateTime.UtcNow.AddDays(-10),
-						LastRelapseDate = DateTime.UtcNow.AddDays(-2),
-						CostPerOccurrence = 8.50m,
-						FrequencyPerDay = 1,
-						IsActive = true
-					},
-					new UserHabit
-					{
-						UserId = users.First(u => u.Username == "jb23bf").Id,
-						HabitId = habits.First(h => h.HabitName == "Overspending").Id,
-						StartDate = DateTime.UtcNow.AddDays(-5),
-						LastRelapseDate = DateTime.UtcNow.AddDays(-1),
-						CostPerOccurrence = 25.00m,
-						FrequencyPerDay = 1,
-						IsActive = true
-					},
-                    // Add more user habits as needed
-                };
-
-				context.UserHabits.AddRange(userHabits);
-				context.SaveChanges();
-			}
-
-			// Seed Relapses
-			if (!context.Relapses.Any())
-			{
-				var userHabits = context.UserHabits.Include(uh => uh.User).Include(uh => uh.Habit).ToList();
-
-				var relapses = new List<Relapse>
-				{
-					new Relapse
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "ifc21a" && uh.Habit.HabitName == "Smoking").Id,
-						RelapseDate = DateTime.UtcNow.AddDays(-5),
-						Quantity = 4,
-						Comments = "Smoked during a stressful day"
-					},
-					new Relapse
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "jma21c" && uh.Habit.HabitName == "Fast Food").Id,
-						RelapseDate = DateTime.UtcNow.AddDays(-2),
-						Quantity = 1,
-						Comments = "Ate fast food due to time constraints"
-					},
-					new Relapse
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "jb23bf" && uh.Habit.HabitName == "Overspending").Id,
-						RelapseDate = DateTime.UtcNow.AddDays(-1),
-						Quantity = 50,
-						Comments = "Bought unnecessary items on sale"
-					},
-                    // Add more relapses as needed
-                };
-
-				context.Relapses.AddRange(relapses);
-				context.SaveChanges();
-			}
-
-			// Seed Goals
-			if (!context.Goals.Any())
-			{
-				var userHabits = context.UserHabits.Include(uh => uh.User).Include(uh => uh.Habit).ToList();
-
-				var goals = new List<Goal>
-				{
-					new Goal
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "ifc21a" && uh.Habit.HabitName == "Smoking").Id,
-						GoalType = "TimeWithoutHabit",
-						GoalValue = 30, // days
-                        AchievedDate = null,
-						IsAchieved = false
-					},
-					new Goal
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "mws19b" && uh.Habit.HabitName == "Procrastination").Id,
-						GoalType = "TasksCompleted",
-						GoalValue = 10, // tasks
-                        AchievedDate = DateTime.UtcNow.AddDays(-2),
-						IsAchieved = true
-					},
-					new Goal
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "jma21c" && uh.Habit.HabitName == "Fast Food").Id,
-						GoalType = "MoneySaved",
-						GoalValue = 50.00m, // dollars
-                        AchievedDate = null,
-						IsAchieved = false
-					},
-					new Goal
-					{
-						UserHabitId = userHabits.First(uh => uh.User.Username == "jb23bf" && uh.Habit.HabitName == "Overspending").Id,
-						GoalType = "SpendingLimit",
-						GoalValue = 100.00m, // dollars
-                        AchievedDate = null,
-						IsAchieved = false
-					},
-                    // Add more goals as needed
-                };
-
-				context.Goals.AddRange(goals);
-				context.SaveChanges();
-			}
-		}*/
+		public DbSet<UserGoal> UserGoals { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
             base.OnModelCreating(modelBuilder);
 
-/*            // Configure User entity
-            modelBuilder.Entity<User>()
-				.HasIndex(u => u.Username)
+			// Configure relationships and constraints
+
+			// Unique constraint on UserHabit: UserId and HabitId
+			modelBuilder.Entity<UserHabit>()
+				.HasIndex(uh => new { uh.UserId, uh.HabitId })
 				.IsUnique();
 
-			modelBuilder.Entity<User>()
-				.HasIndex(u => u.Email)
-				.IsUnique();
+			// Configure one-to-many relationship between ApplicationUser and Habit (CreatedHabits)
+			modelBuilder.Entity<Habit>()
+				.HasOne(h => h.CreatedByUser)
+				.WithMany(u => u.CreatedHabits)
+				.HasForeignKey(h => h.CreatedByUserId)
+				.OnDelete(DeleteBehavior.Restrict);
 
-			// Configure relationships
+			// Configure one-to-many relationship between ApplicationUser and UserHabit
 			modelBuilder.Entity<UserHabit>()
 				.HasOne(uh => uh.User)
 				.WithMany(u => u.UserHabits)
-				.HasForeignKey(uh => uh.UserId);
+				.HasForeignKey(uh => uh.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
 
+			// Configure one-to-many relationship between Habit and UserHabit
 			modelBuilder.Entity<UserHabit>()
 				.HasOne(uh => uh.Habit)
 				.WithMany(h => h.UserHabits)
-				.HasForeignKey(uh => uh.HabitId);
+				.HasForeignKey(uh => uh.HabitId)
+				.OnDelete(DeleteBehavior.Cascade);
 
+			// Configure one-to-many relationship between UserHabit and Relapse
 			modelBuilder.Entity<Relapse>()
 				.HasOne(r => r.UserHabit)
 				.WithMany(uh => uh.Relapses)
-				.HasForeignKey(r => r.UserHabitId);
+				.HasForeignKey(r => r.UserHabitId)
+				.OnDelete(DeleteBehavior.Cascade);
 
+			// Configure one-to-many relationship between ApplicationUser and Goal (CreatedGoals)
 			modelBuilder.Entity<Goal>()
-				.HasOne(g => g.UserHabit)
-				.WithMany(uh => uh.Goals)
-				.HasForeignKey(g => g.UserHabitId);
+				.HasOne(g => g.CreatedByUser)
+				.WithMany(u => u.CreatedGoals)
+				.HasForeignKey(g => g.CreatedByUserId)
+				.OnDelete(DeleteBehavior.Restrict);
 
-			// Configure decimal precision
-			modelBuilder.Entity<Habit>()
-				.Property(h => h.AverageCostPerOccurrence)
-				.HasColumnType("decimal(18,2)");
+			// Configure one-to-many relationship between ApplicationUser and UserGoal
+			modelBuilder.Entity<UserGoal>()
+				.HasOne(ug => ug.User)
+				.WithMany(u => u.UserGoals)
+				.HasForeignKey(ug => ug.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
 
-			modelBuilder.Entity<UserHabit>()
-				.Property(uh => uh.CostPerOccurrence)
-				.HasColumnType("decimal(18,2)");
+			// Configure relationships in UserGoal
+			modelBuilder.Entity<UserGoal>()
+				.HasOne(ug => ug.Goal)
+				.WithMany(g => g.UserGoals)
+				.HasForeignKey(ug => ug.GoalId)
+				.OnDelete(DeleteBehavior.Cascade);
 
-			modelBuilder.Entity<Goal>()
-				.Property(g => g.GoalValue)
-				.HasColumnType("decimal(18,2)");
+			// Resolve multiple cascade paths by using DeleteBehavior.NoAction for UserHabit in UserGoal
+			modelBuilder.Entity<UserGoal>()
+				.HasOne(ug => ug.UserHabit)
+				.WithMany(uh => uh.UserGoals)
+				.HasForeignKey(ug => ug.UserHabitId)
+				.OnDelete(DeleteBehavior.NoAction);  // Use NoAction to prevent cascade path conflict
 
-			base.OnModelCreating(modelBuilder);*/
+			// Seed Default Habits
+			modelBuilder.Entity<Habit>().HasData(
+				new Habit
+				{
+					HabitId = 1,
+					Name = "Smoking",
+					Description = "Smoking cigarettes or other tobacco products.",
+					DefaultCostPerOccurrence = 0.50m,
+					DefaultOccurrencesPerDay = 15,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 2,
+					Name = "Nail Biting",
+					Description = "Biting your fingernails.",
+					DefaultCostPerOccurrence = 0m,
+					DefaultOccurrencesPerDay = 20,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				// Add more default habits...
+				new Habit
+				{
+					HabitId = 3,
+					Name = "Drinking Soda",
+					Description = "Consuming sugary sodas.",
+					DefaultCostPerOccurrence = 1.50m,
+					DefaultOccurrencesPerDay = 3,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 4,
+					Name = "Fast Food Consumption",
+					Description = "Eating fast food meals.",
+					DefaultCostPerOccurrence = 7.00m,
+					DefaultOccurrencesPerDay = 1,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 5,
+					Name = "Excessive Screen Time",
+					Description = "Spending too much time on screens.",
+					DefaultCostPerOccurrence = 0m,
+					DefaultOccurrencesPerDay = 5, // hours per day
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 6,
+					Name = "Skipping Exercise",
+					Description = "Not engaging in physical activity.",
+					DefaultCostPerOccurrence = 0m,
+					DefaultOccurrencesPerDay = 1,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 7,
+					Name = "Procrastination",
+					Description = "Delaying tasks that need to be done.",
+					DefaultCostPerOccurrence = 0m,
+					DefaultOccurrencesPerDay = 2,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 8,
+					Name = "Impulse Buying",
+					Description = "Making unplanned purchases.",
+					DefaultCostPerOccurrence = 20.00m,
+					DefaultOccurrencesPerDay = 0.5m, // Every other day
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 9,
+					Name = "Overeating",
+					Description = "Consuming more food than necessary.",
+					DefaultCostPerOccurrence = 5.00m,
+					DefaultOccurrencesPerDay = 1,
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Habit
+				{
+					HabitId = 10,
+					Name = "Late Night Snacking",
+					Description = "Eating snacks late at night.",
+					DefaultCostPerOccurrence = 2.00m,
+					DefaultOccurrencesPerDay = 1,
+					IsDefault = true,
+					CreatedByUserId = null
+				}
+			);
+
+			// Seed Default Goals
+			modelBuilder.Entity<Goal>().HasData(
+				new Goal
+				{
+					GoalId = 1,
+					Name = "Quit Smoking",
+					Description = "Completely stop smoking.",
+					GoalType = "Quit",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 2,
+					Name = "Reduce Nail Biting",
+					Description = "Reduce nail biting occurrences.",
+					GoalType = "Reduce",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 3,
+					Name = "Limit Soda Intake",
+					Description = "Reduce soda consumption to one can per day.",
+					GoalType = "Reduce",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 4,
+					Name = "Avoid Fast Food",
+					Description = "Stop eating fast food.",
+					GoalType = "Quit",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 5,
+					Name = "Reduce Screen Time",
+					Description = "Limit screen time to 2 hours per day.",
+					GoalType = "Reduce",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 6,
+					Name = "Exercise Regularly",
+					Description = "Engage in physical activity 5 times a week.",
+					GoalType = "Increase",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 7,
+					Name = "Stop Procrastinating",
+					Description = "Complete tasks promptly.",
+					GoalType = "Improve",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 8,
+					Name = "Control Impulse Buying",
+					Description = "Only make planned purchases.",
+					GoalType = "Quit",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 9,
+					Name = "Eat Mindfully",
+					Description = "Avoid overeating by eating slowly.",
+					GoalType = "Improve",
+					IsDefault = true,
+					CreatedByUserId = null
+				},
+				new Goal
+				{
+					GoalId = 10,
+					Name = "Stop Late Night Snacking",
+					Description = "Avoid eating after 8 PM.",
+					GoalType = "Quit",
+					IsDefault = true,
+					CreatedByUserId = null
+				}
+			);
 		}
 	}
 }

@@ -10,7 +10,10 @@ namespace BadHabitApp.Models
         [DataType(DataType.Date)]
         public DateTime? LastLogin { get; set; }
 
-     /*   // Navigation property
-        public ICollection<UserHabit> UserHabits { get; set; }*/
-    }
+		// Navigation properties
+		public ICollection<Habit> CreatedHabits { get; set; } = new List<Habit>();
+		public ICollection<UserHabit> UserHabits { get; set; } = new List<UserHabit>();
+		public ICollection<Goal> CreatedGoals { get; set; } = new List<Goal>();
+		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
+	}
 }

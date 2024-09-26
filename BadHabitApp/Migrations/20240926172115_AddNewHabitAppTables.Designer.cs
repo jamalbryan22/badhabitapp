@@ -4,6 +4,7 @@ using BadHabitApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BadHabitApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240926172115_AddNewHabitAppTables")]
+    partial class AddNewHabitAppTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,6 +105,7 @@ namespace BadHabitApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GoalId"));
 
                     b.Property<string>("CreatedByUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
@@ -127,88 +131,6 @@ namespace BadHabitApp.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Goals");
-
-                    b.HasData(
-                        new
-                        {
-                            GoalId = 1,
-                            Description = "Completely stop smoking.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Quit Smoking"
-                        },
-                        new
-                        {
-                            GoalId = 2,
-                            Description = "Reduce nail biting occurrences.",
-                            GoalType = "Reduce",
-                            IsDefault = true,
-                            Name = "Reduce Nail Biting"
-                        },
-                        new
-                        {
-                            GoalId = 3,
-                            Description = "Reduce soda consumption to one can per day.",
-                            GoalType = "Reduce",
-                            IsDefault = true,
-                            Name = "Limit Soda Intake"
-                        },
-                        new
-                        {
-                            GoalId = 4,
-                            Description = "Stop eating fast food.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Avoid Fast Food"
-                        },
-                        new
-                        {
-                            GoalId = 5,
-                            Description = "Limit screen time to 2 hours per day.",
-                            GoalType = "Reduce",
-                            IsDefault = true,
-                            Name = "Reduce Screen Time"
-                        },
-                        new
-                        {
-                            GoalId = 6,
-                            Description = "Engage in physical activity 5 times a week.",
-                            GoalType = "Increase",
-                            IsDefault = true,
-                            Name = "Exercise Regularly"
-                        },
-                        new
-                        {
-                            GoalId = 7,
-                            Description = "Complete tasks promptly.",
-                            GoalType = "Improve",
-                            IsDefault = true,
-                            Name = "Stop Procrastinating"
-                        },
-                        new
-                        {
-                            GoalId = 8,
-                            Description = "Only make planned purchases.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Control Impulse Buying"
-                        },
-                        new
-                        {
-                            GoalId = 9,
-                            Description = "Avoid overeating by eating slowly.",
-                            GoalType = "Improve",
-                            IsDefault = true,
-                            Name = "Eat Mindfully"
-                        },
-                        new
-                        {
-                            GoalId = 10,
-                            Description = "Avoid eating after 8 PM.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Stop Late Night Snacking"
-                        });
                 });
 
             modelBuilder.Entity("BadHabitApp.Models.Habit", b =>
@@ -220,6 +142,7 @@ namespace BadHabitApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HabitId"));
 
                     b.Property<string>("CreatedByUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal?>("DefaultCostPerOccurrence")
@@ -246,98 +169,6 @@ namespace BadHabitApp.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Habits");
-
-                    b.HasData(
-                        new
-                        {
-                            HabitId = 1,
-                            DefaultCostPerOccurrence = 0.50m,
-                            DefaultOccurrencesPerDay = 15m,
-                            Description = "Smoking cigarettes or other tobacco products.",
-                            IsDefault = true,
-                            Name = "Smoking"
-                        },
-                        new
-                        {
-                            HabitId = 2,
-                            DefaultCostPerOccurrence = 0m,
-                            DefaultOccurrencesPerDay = 20m,
-                            Description = "Biting your fingernails.",
-                            IsDefault = true,
-                            Name = "Nail Biting"
-                        },
-                        new
-                        {
-                            HabitId = 3,
-                            DefaultCostPerOccurrence = 1.50m,
-                            DefaultOccurrencesPerDay = 3m,
-                            Description = "Consuming sugary sodas.",
-                            IsDefault = true,
-                            Name = "Drinking Soda"
-                        },
-                        new
-                        {
-                            HabitId = 4,
-                            DefaultCostPerOccurrence = 7.00m,
-                            DefaultOccurrencesPerDay = 1m,
-                            Description = "Eating fast food meals.",
-                            IsDefault = true,
-                            Name = "Fast Food Consumption"
-                        },
-                        new
-                        {
-                            HabitId = 5,
-                            DefaultCostPerOccurrence = 0m,
-                            DefaultOccurrencesPerDay = 5m,
-                            Description = "Spending too much time on screens.",
-                            IsDefault = true,
-                            Name = "Excessive Screen Time"
-                        },
-                        new
-                        {
-                            HabitId = 6,
-                            DefaultCostPerOccurrence = 0m,
-                            DefaultOccurrencesPerDay = 1m,
-                            Description = "Not engaging in physical activity.",
-                            IsDefault = true,
-                            Name = "Skipping Exercise"
-                        },
-                        new
-                        {
-                            HabitId = 7,
-                            DefaultCostPerOccurrence = 0m,
-                            DefaultOccurrencesPerDay = 2m,
-                            Description = "Delaying tasks that need to be done.",
-                            IsDefault = true,
-                            Name = "Procrastination"
-                        },
-                        new
-                        {
-                            HabitId = 8,
-                            DefaultCostPerOccurrence = 20.00m,
-                            DefaultOccurrencesPerDay = 0.5m,
-                            Description = "Making unplanned purchases.",
-                            IsDefault = true,
-                            Name = "Impulse Buying"
-                        },
-                        new
-                        {
-                            HabitId = 9,
-                            DefaultCostPerOccurrence = 5.00m,
-                            DefaultOccurrencesPerDay = 1m,
-                            Description = "Consuming more food than necessary.",
-                            IsDefault = true,
-                            Name = "Overeating"
-                        },
-                        new
-                        {
-                            HabitId = 10,
-                            DefaultCostPerOccurrence = 2.00m,
-                            DefaultOccurrencesPerDay = 1m,
-                            Description = "Eating snacks late at night.",
-                            IsDefault = true,
-                            Name = "Late Night Snacking"
-                        });
                 });
 
             modelBuilder.Entity("BadHabitApp.Models.Relapse", b =>
@@ -580,7 +411,8 @@ namespace BadHabitApp.Migrations
                     b.HasOne("BadHabitApp.Models.ApplicationUser", "CreatedByUser")
                         .WithMany("CreatedGoals")
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreatedByUser");
                 });
@@ -590,7 +422,8 @@ namespace BadHabitApp.Migrations
                     b.HasOne("BadHabitApp.Models.ApplicationUser", "CreatedByUser")
                         .WithMany("CreatedHabits")
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreatedByUser");
                 });

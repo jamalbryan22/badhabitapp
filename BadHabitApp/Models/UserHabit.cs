@@ -1,41 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BadHabitApp.Models
 {
 	public class UserHabit
 	{
 		[Key]
-		public int Id { get; set; }
+		public int UserHabitId { get; set; }
 
 		[Required]
-		public int UserId { get; set; }
+		public string UserId { get; set; } = string.Empty;
 
 		[Required]
 		public int HabitId { get; set; }
 
 		[Required]
-		[DataType(DataType.Date)]
 		public DateTime StartDate { get; set; }
 
-		[DataType(DataType.Date)]
-		public DateTime? LastRelapseDate { get; set; }
+		[Column(TypeName = "decimal(10,2)")]
+		public decimal? CostPerOccurrence { get; set; }
 
-		[Required]
-		public decimal CostPerOccurrence { get; set; }
+		[Column(TypeName = "decimal(10,2)")]
+		public decimal? OccurrencesPerDay { get; set; }
 
-		[Required]
-		public int FrequencyPerDay { get; set; }
+		public bool IsActive { get; set; }
 
-		[Required]
-		public bool IsActive { get; set; } = true;
-
-		/*		// Navigation properties
-				public User User { get; set; }
-				public Habit Habit { get; set; }
-				public ICollection<Relapse> Relapses { get; set; }
-				public ICollection<Goal> Goals { get; set; }
-			}*/
+		// Navigation properties
+		public ApplicationUser User { get; set; } = new ApplicationUser();
+		public Habit Habit { get; set; } = new Habit();
+		public ICollection<Relapse> Relapses { get; set; } = new List<Relapse>();
+		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
 	}
 }

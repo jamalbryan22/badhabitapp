@@ -5,21 +5,25 @@ namespace BadHabitApp.Models
 	public class Goal
 	{
 		[Key]
-		public int Id { get; set; }
-
-		public int UserHabitId { get; set; }
+		public int GoalId { get; set; }
 
 		[Required]
-		public string GoalType { get; set; } = string.Empty;
+		[StringLength(100)]
+		public string Name { get; set; } = string.Empty;
+
+		[StringLength(500)]
+		public string Description { get; set; } = string.Empty;
 
 		[Required]
-		public decimal GoalValue { get; set; }
+		[StringLength(50)]
+		public string GoalType { get; set; } = string.Empty; // e.g., 'Quit', 'Reduce'
 
-        [DataType(DataType.Date)]
-        public DateTime? AchievedDate { get; set; }
-		public bool IsAchieved { get; set; } = false;
+		public bool IsDefault { get; set; }
 
-/*		// Navigation property
-		public UserHabit UserHabit { get; set; }*/
+		public string? CreatedByUserId { get; set; }
+
+		// Navigation properties
+		public ApplicationUser? CreatedByUser { get; set; }
+		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
 	}
 }

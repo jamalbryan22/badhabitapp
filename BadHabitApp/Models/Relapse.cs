@@ -1,22 +1,19 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BadHabitApp.Models
 {
 	public class Relapse
 	{
 		[Key]
-		public int Id { get; set; }
+		public int RelapseId { get; set; }
 
+		[Required]
 		public int UserHabitId { get; set; }
 
-		public DateTime RelapseDate { get; set; }
+		[Required]
+		public DateTime DateTime { get; set; }
 
-		public int Quantity { get; set; }
-
-		public string Comments { get; set; } = string.Empty;
-
-/*		// Navigation property
-		public UserHabit UserHabit { get; set; }*/
+		// Navigation property
+		public UserHabit UserHabit { get; set; } = new UserHabit();
 	}
 }
