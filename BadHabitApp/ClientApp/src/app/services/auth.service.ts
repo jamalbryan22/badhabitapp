@@ -2,24 +2,43 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { tap } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'https://localhost:5150/api/auth';  // URL of the .NET backend
+  private baseUrl = 'https://localhost:7159';  // URL of the .NET backend
   private jwtHelper = new JwtHelperService();
 
   constructor(private http: HttpClient) { }
 
-  register(username: string, password: string, email: string): Observable<any> {
+  register(email: string, password: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}/register`, { username, password, email }, { headers });
+    return this.http.post(`${this.baseUrl}/Account/register`, { email, password }, { headers });
   }
 
-  login(username: string, password: string): Observable<any> {
+  login(email: string, password: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}/login`, { username, password }, { headers });
+    return this.http.post(`${this.baseUrl}/Account/login`, { email, password }, { headers }).pipe(
+      tap((response: any) => {
+        if (response.token) {
+          this.storeToken(response.token);  // Store JWT token
+        }
+      })
+    );
+  }
+
+  // Send the token with each authenticated request
+  getProfile(): Observable<any> {
+    const token = this.getToken();  // Get the stored JWT token
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`  // Attach the token as Bearer
+    });
+
+    return this.http.get(`${this.baseUrl}/profile`, { headers });
   }
 
   // Store the JWT token in localStorage
@@ -37,7 +56,7 @@ export class AuthService {
     const token = this.getToken();
     if (token) {
       const decodedToken = this.jwtHelper.decodeToken(token);
-      return decodedToken?.username || null; // Assuming the token has a 'username' field
+      return decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || null; // Extract from 'name' claim
     }
     return null;
   }

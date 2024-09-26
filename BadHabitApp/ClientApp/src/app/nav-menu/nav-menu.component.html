@@ -45,7 +45,7 @@
             <span class="nav-link text-dark">Welcome, {{ getUsername() }}</span>
           </li>
           <li *ngIf="isLoggedIn()" class="nav-item">
-            <a class="nav-link text-dark" (click)="logout()">Logout</a>
+            <a class="nav-link text-dark" style = "cursor: pointer;" (click)="logout()">Logout</a>
           </li>
         </ul>
       </div>

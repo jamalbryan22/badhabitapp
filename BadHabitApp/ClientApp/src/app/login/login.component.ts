@@ -8,26 +8,24 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  username: string = '';
+  email: string = '';
   password: string = '';
   errorMessages: string[] = [];
 
   constructor(private authService: AuthService, private router: Router) { }
 
   login() {
-    this.authService.login(this.username, this.password).subscribe(
-      (response: any) => {
-        if (response.isSuccess) {
-          this.authService.storeToken(response.data.token);  // Store JWT token
-          this.router.navigate(['/']);  // Redirect to home after login
-        } else {
-          this.errorMessages = response.messages;
-        }
+    this.authService.login(this.email, this.password).subscribe({
+      next: (response: any) => {
+        this.router.navigate(['/']);  // Redirect to home after login
       },
-      error => {
+      error: (error: any) => {
         console.error('Login failed:', error);
-        this.errorMessages = error.error.messages || ['Unknown error occurred'];
+        this.errorMessages = error?.error?.messages || ['Incorrect Email or Password.'];
+      },
+      complete: () => {
+        console.log('Login request complete.');
       }
-    );
+    });
   }
 }

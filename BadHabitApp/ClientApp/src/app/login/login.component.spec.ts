@@ -13,7 +13,7 @@ describe('LoginComponent', () => {
   let routerMock: any;
 
   beforeEach(async () => {
-    authServiceMock = jasmine.createSpyObj('AuthService', ['login', 'storeToken']);
+    authServiceMock = jasmine.createSpyObj('AuthService', ['login']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -37,28 +37,39 @@ describe('LoginComponent', () => {
   });
 
   it('should call AuthService.login on login and redirect on success', fakeAsync(() => {
-    authServiceMock.login.and.returnValue(of({ isSuccess: true, data: { token: 'test-token' } }));
+    authServiceMock.login.and.returnValue(of({ isSuccess: true }));
 
-    component.username = 'testUser';
+    component.email = 'testEmail@test.com';
     component.password = 'testPassword';
     component.login();
 
-    tick(2000);
+    tick(); // Fast forward the async call
 
-    expect(authServiceMock.login).toHaveBeenCalledWith('testUser', 'testPassword');
+    expect(authServiceMock.login).toHaveBeenCalledWith('testEmail@test.com', 'testPassword');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
   }));
 
   it('should handle error when login fails', () => {
     authServiceMock.login.and.returnValue(
-      throwError({ error: { messages: ['Invalid username or password'] } })
+      throwError({ error: { messages: ['Invalid email or password'] } })
     );
 
-    component.username = 'testUser';
+    component.email = 'testEmail@test.com';
     component.password = 'testPassword';
     component.login();
 
-    expect(component.errorMessages).toEqual(['Invalid username or password']);
+    expect(component.errorMessages).toEqual(['Invalid email or password']);
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should display default error message if no specific messages are provided', () => {
+    authServiceMock.login.and.returnValue(throwError({}));
+
+    component.email = 'testEmail@test.com';
+    component.password = 'testPassword';
+    component.login();
+
+    expect(component.errorMessages).toEqual(['Incorrect Email or Password.']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });
