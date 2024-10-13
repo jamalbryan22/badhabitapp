@@ -1,4 +1,5 @@
 <div class="container mt-4">
+  <!-- User's Tracked Habits -->
   <h2>Your Habits</h2>
   <div *ngIf="userHabits.length === 0">
     <p>You have no habits associated yet.</p>
@@ -18,7 +19,7 @@
         <tr *ngFor="let userHabit of userHabits">
           <td>{{ userHabit.habit.name }}</td>
           <td>{{ userHabit.habit.description }}</td>
-          <td>{{ userHabit.costPerOccurrence }}</td>
+          <td>{{ userHabit.costPerOccurrence | currency:'USD':'symbol':'1.2-2' }}</td>
           <td>{{ userHabit.occurrencesPerDay }}</td>
           <td>
             <button class="btn btn-danger btn-sm" (click)="deleteUserHabit(userHabit.userHabitId)">Delete</button>
@@ -30,41 +31,28 @@
 
   <hr>
 
-  <h2>Associate Default Habit</h2>
-  <div *ngIf="defaultHabits.length === 0">
-    <p>No default habits available.</p>
-  </div>
-  <div *ngIf="defaultHabits.length > 0">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Default Cost Per Occurrence</th>
-          <th>Default Occurrences Per Day</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let habit of defaultHabits">
-          <td>{{ habit.name }}</td>
-          <td>{{ habit.description }}</td>
-          <td>{{ habit.defaultCostPerOccurrence }}</td>
-          <td>{{ habit.defaultOccurrencesPerDay }}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" (click)="associateHabit(habit.habitId)">Associate</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Add New Habit Section -->
+  <h2>Add a New Habit</h2>
+
+  <!-- Step 1: Select a Default Habit -->
+  <div *ngIf="defaultHabits.length > 0" class="mb-4">
+    <label for="selectedDefaultHabit">Select Default Habit (Optional)</label>
+    <div class="input-group">
+      <select [(ngModel)]="selectedDefaultHabit" (change)="populateFormWithDefaultHabit()" id="selectedDefaultHabit" class="form-control">
+        <option [ngValue]="null">-- Select a default habit --</option>
+        <option *ngFor="let habit of defaultHabits" [ngValue]="habit">{{ habit.name }}</option>
+      </select>
+      <div class="input-group-append">
+        <span class="input-group-text"><i class="fas fa-chevron-down"></i></span>
+      </div>
+    </div>
+    <small class="text-muted">You can select a default habit to use or modify below.</small>
   </div>
 
-  <hr>
-
-  <h2>Create Custom Habit</h2>
-  <form (ngSubmit)="createCustomHabit()">
+  <!-- Step 2: Create or Modify a Habit -->
+  <form (ngSubmit)="saveHabit()">
     <div class="form-group">
-      <label for="name">Name</label>
+      <label for="name">Habit Name</label>
       <input [(ngModel)]="newHabit.name" name="name" id="name" class="form-control" required>
     </div>
     <div class="form-group">
@@ -72,16 +60,16 @@
       <textarea [(ngModel)]="newHabit.description" name="description" id="description" class="form-control"></textarea>
     </div>
     <div class="form-group">
-      <label for="defaultCostPerOccurrence">Default Cost Per Occurrence</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultCostPerOccurrence" name="defaultCostPerOccurrence" id="defaultCostPerOccurrence" class="form-control">
+      <label for="costPerOccurrence">Cost Per Occurrence</label>
+      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultCostPerOccurrence" name="costPerOccurrence" id="costPerOccurrence" class="form-control">
     </div>
     <div class="form-group">
-      <label for="defaultOccurrencesPerDay">Default Occurrences Per Day</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultOccurrencesPerDay" name="defaultOccurrencesPerDay" id="defaultOccurrencesPerDay" class="form-control">
+      <label for="occurrencesPerDay">Occurrences Per Day</label>
+      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultOccurrencesPerDay" name="occurrencesPerDay" id="occurrencesPerDay" class="form-control">
     </div>
     <div *ngIf="errorMessage" class="alert alert-danger">
       {{ errorMessage }}
     </div>
-    <button type="submit" class="btn btn-success">Create Habit</button>
+    <button type="submit" class="btn btn-success">Save Habit</button>
   </form>
 </div>

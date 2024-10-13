@@ -9,6 +9,7 @@ import { HabitService, Habit, UserHabit } from '../services/habit.service';
 export class HabitsComponent implements OnInit {
   defaultHabits: Habit[] = [];
   userHabits: UserHabit[] = [];
+  selectedDefaultHabit: Habit | null = null;
   newHabit: any = {
     name: '',
     description: '',
@@ -38,20 +39,20 @@ export class HabitsComponent implements OnInit {
     );
   }
 
-  associateHabit(habitId: number): void {
-    this.habitService.associateHabit(habitId).subscribe(
-      (userHabit) => {
-        this.userHabits.push(userHabit);
-        alert('Habit associated successfully.');
-      },
-      (error) => {
-        console.error('Error associating habit', error);
-        alert('Failed to associate habit.');
-      }
-    );
+  populateFormWithDefaultHabit(): void {
+    if (this.selectedDefaultHabit) {
+      this.newHabit = {
+        name: this.selectedDefaultHabit.name,
+        description: this.selectedDefaultHabit.description,
+        defaultCostPerOccurrence: this.selectedDefaultHabit.defaultCostPerOccurrence,
+        defaultOccurrencesPerDay: this.selectedDefaultHabit.defaultOccurrencesPerDay
+      };
+    } else {
+      this.resetForm();
+    }
   }
 
-  createCustomHabit(): void {
+  saveHabit(): void {
     if (!this.newHabit.name.trim()) {
       this.errorMessage = 'Name is required.';
       return;
@@ -60,20 +61,25 @@ export class HabitsComponent implements OnInit {
     this.habitService.createCustomHabit(this.newHabit).subscribe(
       (userHabit) => {
         this.userHabits.push(userHabit);
-        this.newHabit = {
-          name: '',
-          description: '',
-          defaultCostPerOccurrence: null,
-          defaultOccurrencesPerDay: null
-        };
-        this.errorMessage = '';
-        alert('Custom habit created and associated successfully.');
+        this.resetForm();
+        alert('Habit created and associated successfully.');
       },
       (error) => {
-        console.error('Error creating custom habit', error);
-        alert('Failed to create custom habit.');
+        console.error('Error creating habit', error);
+        alert('Failed to create habit.');
       }
     );
+  }
+
+  resetForm(): void {
+    this.newHabit = {
+      name: '',
+      description: '',
+      defaultCostPerOccurrence: null,
+      defaultOccurrencesPerDay: null
+    };
+    this.selectedDefaultHabit = null;
+    this.errorMessage = '';
   }
 
   deleteUserHabit(userHabitId: number): void {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HabitsComponent } from './habits.component';
-import { HabitService, UserHabit } from '../services/habit.service';
+import { HabitService, UserHabit, Habit } from '../services/habit.service';
 import { of } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -27,6 +27,15 @@ describe('HabitsComponent', () => {
     startDate: '2024-01-01',
   };
 
+  const mockDefaultHabit: Habit = {
+    habitId: 2,
+    name: 'Default Test Habit',
+    description: 'This is a default test habit',
+    defaultCostPerOccurrence: 20,
+    defaultOccurrencesPerDay: 2,
+    isDefault: true,
+  };
+
   beforeEach(async () => {
     const habitServiceMock = jasmine.createSpyObj('HabitService', [
       'getDefaultHabits',
@@ -47,8 +56,8 @@ describe('HabitsComponent', () => {
     habitService = TestBed.inject(HabitService) as jasmine.SpyObj<HabitService>;
 
     // Mock return values for service methods
-    habitService.getDefaultHabits.and.returnValue(of([])); // Simulating empty array of habits
-    habitService.getUserHabits.and.returnValue(of([])); // Simulating empty array of user habits
+    habitService.getDefaultHabits.and.returnValue(of([mockDefaultHabit])); // Simulating one default habit
+    habitService.getUserHabits.and.returnValue(of([mockUserHabit])); // Simulating one user habit
     habitService.associateHabit.and.returnValue(of(mockUserHabit)); // Simulating a UserHabit response
     habitService.createCustomHabit.and.returnValue(of(mockUserHabit)); // Simulating a UserHabit response
     habitService.deleteUserHabit.and.returnValue(of(void 0)); // Simulating void response
@@ -62,19 +71,35 @@ describe('HabitsComponent', () => {
 
   it('should load default habits on init', () => {
     expect(habitService.getDefaultHabits).toHaveBeenCalled();
+    expect(component.defaultHabits.length).toBe(1);
   });
 
   it('should load user habits on init', () => {
     expect(habitService.getUserHabits).toHaveBeenCalled();
-  });
-
-  it('should associate a habit', () => {
-    component.associateHabit(1);
-    expect(habitService.associateHabit).toHaveBeenCalledWith(1);
     expect(component.userHabits.length).toBe(1);
   });
 
-  it('should create a custom habit', () => {
+  it('should populate form when a default habit is selected', () => {
+    component.selectedDefaultHabit = mockDefaultHabit;
+    component.populateFormWithDefaultHabit();
+
+    expect(component.newHabit.name).toBe('Default Test Habit');
+    expect(component.newHabit.description).toBe('This is a default test habit');
+    expect(component.newHabit.defaultCostPerOccurrence).toBe(20);
+    expect(component.newHabit.defaultOccurrencesPerDay).toBe(2);
+  });
+
+  it('should reset form when no default habit is selected', () => {
+    component.selectedDefaultHabit = null;
+    component.populateFormWithDefaultHabit(); // This should reset the form
+
+    expect(component.newHabit.name).toBe('');
+    expect(component.newHabit.description).toBe('');
+    expect(component.newHabit.defaultCostPerOccurrence).toBeNull();
+    expect(component.newHabit.defaultOccurrencesPerDay).toBeNull();
+  });
+
+  it('should save a custom habit', () => {
     // Setting the values for the custom habit to be created
     component.newHabit = {
       name: 'Test Habit',
@@ -83,7 +108,7 @@ describe('HabitsComponent', () => {
       defaultOccurrencesPerDay: 1
     };
 
-    component.createCustomHabit();
+    component.saveHabit();
 
     expect(habitService.createCustomHabit).toHaveBeenCalledWith({
       name: 'Test Habit',
@@ -91,7 +116,27 @@ describe('HabitsComponent', () => {
       defaultCostPerOccurrence: 10,
       defaultOccurrencesPerDay: 1
     });
-    expect(component.userHabits.length).toBe(1);
+    expect(component.userHabits.length).toBe(2); // Should add to existing user habits
+  });
+
+  it('should save a modified default habit', () => {
+    component.selectedDefaultHabit = mockDefaultHabit;
+    component.newHabit = {
+      name: 'Modified Habit',
+      description: 'Modified Description',
+      defaultCostPerOccurrence: 25,
+      defaultOccurrencesPerDay: 3
+    };
+
+    component.saveHabit();
+
+    expect(habitService.createCustomHabit).toHaveBeenCalledWith({
+      name: 'Modified Habit',
+      description: 'Modified Description',
+      defaultCostPerOccurrence: 25,
+      defaultOccurrencesPerDay: 3
+    });
+    expect(component.userHabits.length).toBe(2); // Adds the modified habit
   });
 
   it('should delete a user habit when confirmed', () => {
