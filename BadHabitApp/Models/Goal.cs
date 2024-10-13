@@ -20,10 +20,7 @@ namespace BadHabitApp.Models
 
 		public bool IsDefault { get; set; }
 
-		public string? CreatedByUserId { get; set; }
-
 		// Navigation properties
-		public ApplicationUser? CreatedByUser { get; set; }
 		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
 	}
 }

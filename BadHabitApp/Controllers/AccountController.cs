@@ -37,18 +37,12 @@ namespace BadHabitApp.Controllers
 
 				// Generate JWT token
 				var authClaims = new List<Claim>
-				{
-					new Claim(ClaimTypes.Name, user.Email ?? throw new ArgumentNullException(nameof(user.Email))),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-				};
-
-				// Uncomment the following if we want to use roles
-				// Include user roles if any
-				//var userRoles = await _userManager.GetRolesAsync(user);
-				//foreach (var role in userRoles)
-				//{
-				//	authClaims.Add(new Claim(ClaimTypes.Role, role));
-				//}
+		{
+			// Add NameIdentifier claim with the user ID
+			new Claim(ClaimTypes.NameIdentifier, user.Id),
+			new Claim(ClaimTypes.Name, user.Email ?? throw new ArgumentNullException(nameof(user.Email))),
+			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+		};
 
 				var jwtKey = _configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key");
 				var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

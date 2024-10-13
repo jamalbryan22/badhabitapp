@@ -53,8 +53,12 @@ builder.Services.AddCors(options =>
 			  .AllowAnyHeader());
 });
 
-// Add MVC Controllers and Views
-builder.Services.AddControllersWithViews();
+// Add MVC Controllers and Views with JSON options to handle circular references
+builder.Services.AddControllersWithViews()
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+	});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

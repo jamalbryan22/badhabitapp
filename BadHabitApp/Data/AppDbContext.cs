@@ -31,13 +31,6 @@ namespace BadHabitApp.Data
 				.HasIndex(uh => new { uh.UserId, uh.HabitId })
 				.IsUnique();
 
-			// Configure one-to-many relationship between ApplicationUser and Habit (CreatedHabits)
-			modelBuilder.Entity<Habit>()
-				.HasOne(h => h.CreatedByUser)
-				.WithMany(u => u.CreatedHabits)
-				.HasForeignKey(h => h.CreatedByUserId)
-				.OnDelete(DeleteBehavior.Restrict);
-
 			// Configure one-to-many relationship between ApplicationUser and UserHabit
 			modelBuilder.Entity<UserHabit>()
 				.HasOne(uh => uh.User)
@@ -58,13 +51,6 @@ namespace BadHabitApp.Data
 				.WithMany(uh => uh.Relapses)
 				.HasForeignKey(r => r.UserHabitId)
 				.OnDelete(DeleteBehavior.Cascade);
-
-			// Configure one-to-many relationship between ApplicationUser and Goal (CreatedGoals)
-			modelBuilder.Entity<Goal>()
-				.HasOne(g => g.CreatedByUser)
-				.WithMany(u => u.CreatedGoals)
-				.HasForeignKey(g => g.CreatedByUserId)
-				.OnDelete(DeleteBehavior.Restrict);
 
 			// Configure one-to-many relationship between ApplicationUser and UserGoal
 			modelBuilder.Entity<UserGoal>()
@@ -96,8 +82,7 @@ namespace BadHabitApp.Data
 					Description = "Smoking cigarettes or other tobacco products.",
 					DefaultCostPerOccurrence = 0.50m,
 					DefaultOccurrencesPerDay = 15,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -106,8 +91,7 @@ namespace BadHabitApp.Data
 					Description = "Biting your fingernails.",
 					DefaultCostPerOccurrence = 0m,
 					DefaultOccurrencesPerDay = 20,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				// Add more default habits...
 				new Habit
@@ -117,8 +101,7 @@ namespace BadHabitApp.Data
 					Description = "Consuming sugary sodas.",
 					DefaultCostPerOccurrence = 1.50m,
 					DefaultOccurrencesPerDay = 3,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -127,8 +110,7 @@ namespace BadHabitApp.Data
 					Description = "Eating fast food meals.",
 					DefaultCostPerOccurrence = 7.00m,
 					DefaultOccurrencesPerDay = 1,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -137,8 +119,7 @@ namespace BadHabitApp.Data
 					Description = "Spending too much time on screens.",
 					DefaultCostPerOccurrence = 0m,
 					DefaultOccurrencesPerDay = 5, // hours per day
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -147,8 +128,7 @@ namespace BadHabitApp.Data
 					Description = "Not engaging in physical activity.",
 					DefaultCostPerOccurrence = 0m,
 					DefaultOccurrencesPerDay = 1,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -157,8 +137,7 @@ namespace BadHabitApp.Data
 					Description = "Delaying tasks that need to be done.",
 					DefaultCostPerOccurrence = 0m,
 					DefaultOccurrencesPerDay = 2,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -167,8 +146,7 @@ namespace BadHabitApp.Data
 					Description = "Making unplanned purchases.",
 					DefaultCostPerOccurrence = 20.00m,
 					DefaultOccurrencesPerDay = 0.5m, // Every other day
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -177,8 +155,7 @@ namespace BadHabitApp.Data
 					Description = "Consuming more food than necessary.",
 					DefaultCostPerOccurrence = 5.00m,
 					DefaultOccurrencesPerDay = 1,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Habit
 				{
@@ -187,8 +164,7 @@ namespace BadHabitApp.Data
 					Description = "Eating snacks late at night.",
 					DefaultCostPerOccurrence = 2.00m,
 					DefaultOccurrencesPerDay = 1,
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				}
 			);
 
@@ -200,8 +176,7 @@ namespace BadHabitApp.Data
 					Name = "Quit Smoking",
 					Description = "Completely stop smoking.",
 					GoalType = "Quit",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -209,8 +184,7 @@ namespace BadHabitApp.Data
 					Name = "Reduce Nail Biting",
 					Description = "Reduce nail biting occurrences.",
 					GoalType = "Reduce",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -218,8 +192,7 @@ namespace BadHabitApp.Data
 					Name = "Limit Soda Intake",
 					Description = "Reduce soda consumption to one can per day.",
 					GoalType = "Reduce",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -227,8 +200,7 @@ namespace BadHabitApp.Data
 					Name = "Avoid Fast Food",
 					Description = "Stop eating fast food.",
 					GoalType = "Quit",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -236,8 +208,7 @@ namespace BadHabitApp.Data
 					Name = "Reduce Screen Time",
 					Description = "Limit screen time to 2 hours per day.",
 					GoalType = "Reduce",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -245,8 +216,7 @@ namespace BadHabitApp.Data
 					Name = "Exercise Regularly",
 					Description = "Engage in physical activity 5 times a week.",
 					GoalType = "Increase",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -254,8 +224,7 @@ namespace BadHabitApp.Data
 					Name = "Stop Procrastinating",
 					Description = "Complete tasks promptly.",
 					GoalType = "Improve",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -263,8 +232,7 @@ namespace BadHabitApp.Data
 					Name = "Control Impulse Buying",
 					Description = "Only make planned purchases.",
 					GoalType = "Quit",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -272,8 +240,7 @@ namespace BadHabitApp.Data
 					Name = "Eat Mindfully",
 					Description = "Avoid overeating by eating slowly.",
 					GoalType = "Improve",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				},
 				new Goal
 				{
@@ -281,8 +248,7 @@ namespace BadHabitApp.Data
 					Name = "Stop Late Night Snacking",
 					Description = "Avoid eating after 8 PM.",
 					GoalType = "Quit",
-					IsDefault = true,
-					CreatedByUserId = null
+					IsDefault = true
 				}
 			);
 		}

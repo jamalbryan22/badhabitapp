@@ -1,0 +1,87 @@
+<div class="container mt-4">
+  <h2>Your Habits</h2>
+  <div *ngIf="userHabits.length === 0">
+    <p>You have no habits associated yet.</p>
+  </div>
+  <div *ngIf="userHabits.length > 0">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Cost Per Occurrence</th>
+          <th>Occurrences Per Day</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let userHabit of userHabits">
+          <td>{{ userHabit.habit.name }}</td>
+          <td>{{ userHabit.habit.description }}</td>
+          <td>{{ userHabit.costPerOccurrence }}</td>
+          <td>{{ userHabit.occurrencesPerDay }}</td>
+          <td>
+            <button class="btn btn-danger btn-sm" (click)="deleteUserHabit(userHabit.userHabitId)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <h2>Associate Default Habit</h2>
+  <div *ngIf="defaultHabits.length === 0">
+    <p>No default habits available.</p>
+  </div>
+  <div *ngIf="defaultHabits.length > 0">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Default Cost Per Occurrence</th>
+          <th>Default Occurrences Per Day</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let habit of defaultHabits">
+          <td>{{ habit.name }}</td>
+          <td>{{ habit.description }}</td>
+          <td>{{ habit.defaultCostPerOccurrence }}</td>
+          <td>{{ habit.defaultOccurrencesPerDay }}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" (click)="associateHabit(habit.habitId)">Associate</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <h2>Create Custom Habit</h2>
+  <form (ngSubmit)="createCustomHabit()">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input [(ngModel)]="newHabit.name" name="name" id="name" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea [(ngModel)]="newHabit.description" name="description" id="description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="defaultCostPerOccurrence">Default Cost Per Occurrence</label>
+      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultCostPerOccurrence" name="defaultCostPerOccurrence" id="defaultCostPerOccurrence" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="defaultOccurrencesPerDay">Default Occurrences Per Day</label>
+      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultOccurrencesPerDay" name="defaultOccurrencesPerDay" id="defaultOccurrencesPerDay" class="form-control">
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    <button type="submit" class="btn btn-success">Create Habit</button>
+  </form>
+</div>

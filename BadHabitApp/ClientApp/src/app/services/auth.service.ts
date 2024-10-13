@@ -64,19 +64,7 @@ export class AuthService {
   // Check if the user is authenticated
   isAuthenticated(): boolean {
     const token = this.getToken();
-
-    // Check if token exists
-    if (!token) {
-      return false;
-    }
-
-    // Check if the token is expired
-    const isExpired = this.jwtHelper.isTokenExpired(token);
-    if (isExpired) {
-      return false;
-    }
-
-    return true;
+    return token != null && !this.jwtHelper.isTokenExpired(token);
   }
 
   // Clear token on logout

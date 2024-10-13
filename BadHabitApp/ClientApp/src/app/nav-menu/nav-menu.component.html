@@ -32,6 +32,10 @@
             <a class="nav-link text-dark" [routerLink]="['/fetch-data']">Fetch data</a>
           </li>
 
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isLoggedIn()">
+            <a class="nav-link text-dark" [routerLink]="['/habits']">Habits</a>
+          </li>
+
           <!-- Show login/register if not authenticated -->
           <li *ngIf="!isLoggedIn()" class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/login']">Login</a>
@@ -45,7 +49,7 @@
             <span class="nav-link text-dark">Welcome, {{ getUsername() }}</span>
           </li>
           <li *ngIf="isLoggedIn()" class="nav-item">
-            <a class="nav-link text-dark" style = "cursor: pointer;" (click)="logout()">Logout</a>
+            <a class="nav-link text-dark" style="cursor: pointer;" (click)="logout()">Logout</a>
           </li>
         </ul>
       </div>

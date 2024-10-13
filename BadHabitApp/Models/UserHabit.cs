@@ -26,8 +26,8 @@ namespace BadHabitApp.Models
 		public bool IsActive { get; set; }
 
 		// Navigation properties
-		public ApplicationUser User { get; set; } = new ApplicationUser();
-		public Habit Habit { get; set; } = new Habit();
+		public ApplicationUser User { get; set; }
+		public Habit Habit { get; set; }
 		public ICollection<Relapse> Relapses { get; set; } = new List<Relapse>();
 		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
 	}
