@@ -1,4 +1,4 @@
-name: Angular CI
+name: CI Pipeline
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-frontend:
     runs-on: ubuntu-latest
 
     strategy:
@@ -27,15 +27,42 @@ jobs:
     # Set the correct working directory if package.json is in ClientApp folder
     - name: Install dependencies
       run: npm install
-      working-directory: ./BadHabitApp/ClientApp  # Set this to the path where package.json is located
+      working-directory: ./BadHabitApp/ClientApp  # Adjust this to the actual path
 
-    - name: Run unit tests
+    - name: Run Angular unit tests
       run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-      working-directory: ./BadHabitApp/ClientApp  # Set this to the path where package.json is located
+      working-directory: ./BadHabitApp/ClientApp
 
-    - name: Archive test results
+    - name: Archive frontend test results
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: test-results
+        name: frontend-test-results
         path: ClientApp/coverage/  # Adjust the path to the coverage folder
+
+  build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'  # Ensure this matches your .NET version
+
+    - name: Install dependencies
+      run: dotnet restore ./BadHabitApp
+
+    - name: Build backend
+      run: dotnet build ./BadHabitApp --configuration Release
+
+    - name: Run backend tests
+      run: dotnet test ./BadHabitApp/BadHabitApp.Tests --logger "trx;LogFileName=test_results.trx"
+
+    - name: Archive backend test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-test-results
+        path: ./BadHabitApp/BadHabitApp.Tests/TestResults  # Adjust path if necessary
