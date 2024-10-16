@@ -29,6 +29,10 @@ jobs:
       run: npm install
       working-directory: ./BadHabitApp/ClientApp  # Adjust this to the actual path
 
+    - name: Build frontend
+      run: npm run build
+      working-directory: ./BadHabitApp/ClientApp
+
     - name: Run Angular unit tests
       run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       working-directory: ./BadHabitApp/ClientApp
