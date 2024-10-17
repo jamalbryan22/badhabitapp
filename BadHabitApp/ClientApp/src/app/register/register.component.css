@@ -57,6 +57,12 @@ button {
     background-color: #004d40;
   }
 
+  button:disabled {
+    background-color: #b0bec5; /* A grayish color to indicate disabled state */
+    cursor: not-allowed; /* Show a "not allowed" cursor */
+    opacity: 0.6; /* Make it slightly transparent */
+  }
+
 /* Error and Success messages */
 .error-message {
   color: #e01a76; /* Consistent error message color */

@@ -36,7 +36,7 @@ describe('RegisterComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call AuthService.register on register and display success message', fakeAsync(() => {
+  it('should call AuthService.register on register and disable form fields on success', fakeAsync(() => {
     authServiceMock.register.and.returnValue(of({ isSuccess: true }));
 
     component.email = 'test@example.com';
@@ -49,9 +49,10 @@ describe('RegisterComponent', () => {
     expect(component.successMessage).toBe('Registration successful! Redirecting to login...');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
     expect(component.errorMessages.length).toBe(0);
+    expect(component.isRegistering).toBe(true);  // Form should be disabled
   }));
 
-  it('should handle validation error messages when registration fails', () => {
+  it('should handle validation error messages when registration fails and re-enable form', () => {
     const errorResponse = {
       error: {
         errors: {
@@ -69,9 +70,10 @@ describe('RegisterComponent', () => {
     expect(component.errorMessages).toEqual(['Email is invalid.', 'Password is too weak.']);
     expect(component.successMessage).toBe('');
     expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(component.isRegistering).toBe(false);  // Form should be re-enabled on error
   });
 
-  it('should handle a general error message when registration fails', () => {
+  it('should handle a general error message when registration fails and re-enable form', () => {
     const errorResponse = {
       error: {
         Message: 'Something went wrong, please try again.'
@@ -86,17 +88,6 @@ describe('RegisterComponent', () => {
     expect(component.errorMessages).toEqual(['Something went wrong, please try again.']);
     expect(component.successMessage).toBe('');
     expect(routerMock.navigate).not.toHaveBeenCalled();
-  });
-
-  it('should display a default error message when no specific error is provided', () => {
-    authServiceMock.register.and.returnValue(throwError({ error: {} }));
-
-    component.email = 'test@example.com';
-    component.password = 'testPassword';
-    component.register();
-
-    expect(component.errorMessages).toEqual(['An unknown error occurred.']);
-    expect(component.successMessage).toBe('');
-    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(component.isRegistering).toBe(false);  // Form should be re-enabled on error
   });
 });

@@ -3,11 +3,11 @@
   <form (ngSubmit)="register()">
     <div>
       <label for="email">Email:</label>
-      <input id="email" [(ngModel)]="email" name="email" type="email" required />
+      <input id="email" [(ngModel)]="email" name="email" type="email" required [disabled]="isRegistering" />
     </div>
     <div>
       <label for="password">Password:</label>
-      <input id="password" [(ngModel)]="password" type="password" name="password" required />
+      <input id="password" [(ngModel)]="password" type="password" name="password" required [disabled]="isRegistering" />
     </div>
 
     <!-- Error and Success messages -->
@@ -19,6 +19,6 @@
 
     <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
-    <button type="submit">Register</button>
+    <button type="submit" [disabled]="isRegistering">Register</button> <!-- Button disabled when registering -->
   </form>
 </div>
