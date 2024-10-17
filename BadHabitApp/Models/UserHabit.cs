@@ -11,8 +11,14 @@ namespace BadHabitApp.Models
 		[Required]
 		public string UserId { get; set; } = string.Empty;
 
-		[Required]
-		public int HabitId { get; set; }
+		public int? HabitId { get; set; }  // Nullable for custom habits
+
+		// Fields for custom habits
+		[StringLength(100)]
+		public string? Name { get; set; } = string.Empty;
+
+		[StringLength(500)]
+		public string? Description { get; set; } = string.Empty;
 
 		[Required]
 		public DateTime StartDate { get; set; }
@@ -27,7 +33,7 @@ namespace BadHabitApp.Models
 
 		// Navigation properties
 		public ApplicationUser User { get; set; }
-		public Habit Habit { get; set; }
+		public DefaultHabit Habit { get; set; }
 		public ICollection<Relapse> Relapses { get; set; } = new List<Relapse>();
 		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
 	}

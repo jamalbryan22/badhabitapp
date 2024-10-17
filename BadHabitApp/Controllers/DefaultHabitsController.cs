@@ -10,28 +10,28 @@ namespace BadHabitApp.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	public class HabitsController : ControllerBase
+	public class DefaultHabitsController : ControllerBase
 	{
 		private readonly AppDbContext _context;
 
-		public HabitsController(AppDbContext context)
+		public DefaultHabitsController(AppDbContext context)
 		{
 			_context = context;
 		}
 
-		// GET: api/habits/defaults
-		[HttpGet("defaults")]
-		public async Task<ActionResult<IEnumerable<Habit>>> GetDefaultHabits()
+		// GET: api/defaulthabits
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<DefaultHabit>>> GetDefaultHabits()
 		{
-			var defaultHabits = await _context.Habits.Where(h => h.IsDefault).ToListAsync();
+			var defaultHabits = await _context.DefaultHabits.ToListAsync();
 			return Ok(defaultHabits);
 		}
 
-		// Optionally, GET: api/habits/{id}
+		// GET: api/defaulthabits/{id}
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Habit>> GetHabit(int id)
+		public async Task<ActionResult<DefaultHabit>> GetHabit(int id)
 		{
-			var habit = await _context.Habits.FindAsync(id);
+			var habit = await _context.DefaultHabits.FindAsync(id);
 
 			if (habit == null)
 			{

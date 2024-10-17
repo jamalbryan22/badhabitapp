@@ -1,24 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HabitService, Habit, UserHabit } from './habit.service';
+import { HabitService, DefaultHabit, UserHabit } from './habit.service';
 
 describe('HabitService', () => {
   let service: HabitService;
   let httpMock: HttpTestingController;
 
-  const mockHabit: Habit = {
+  const mockDefaultHabit: DefaultHabit = {
     habitId: 1,
     name: 'Test Habit',
     description: 'This is a test habit',
     defaultCostPerOccurrence: 10,
-    defaultOccurrencesPerDay: 2,
-    isDefault: true
+    defaultOccurrencesPerDay: 2
   };
 
   const mockUserHabit: UserHabit = {
     userHabitId: 1,
+    userId: 'user123',
     habitId: 1,
-    habit: mockHabit,
+    habit: mockDefaultHabit,
     costPerOccurrence: 5,
     occurrencesPerDay: 2,
     isActive: true,
@@ -44,14 +44,14 @@ describe('HabitService', () => {
   });
 
   it('should fetch default habits via GET', () => {
-    service.getDefaultHabits().subscribe((habits: Habit[]) => {
+    service.getDefaultHabits().subscribe((habits: DefaultHabit[]) => {
       expect(habits.length).toBe(1);
-      expect(habits).toEqual([mockHabit]);
+      expect(habits).toEqual([mockDefaultHabit]);
     });
 
-    const req = httpMock.expectOne(`${service['baseUrl']}/habits/defaults`);
+    const req = httpMock.expectOne(`${service['baseUrl']}/defaulthabits`);
     expect(req.request.method).toBe('GET');
-    req.flush([mockHabit]); // Return mock data
+    req.flush([mockDefaultHabit]); // Return mock data
   });
 
   it('should fetch user habits via GET', () => {
@@ -65,29 +65,16 @@ describe('HabitService', () => {
     req.flush([mockUserHabit]); // Return mock data
   });
 
-  it('should create a custom habit via POST', () => {
+  it('should create a user habit via POST', () => {
     const newHabitData = { name: 'New Habit', description: 'Custom Habit' };
 
-    service.createCustomHabit(newHabitData).subscribe((userHabit: UserHabit) => {
+    service.createUserHabit(newHabitData).subscribe((userHabit: UserHabit) => {
       expect(userHabit).toEqual(mockUserHabit);
     });
 
     const req = httpMock.expectOne(`${service['baseUrl']}/userhabits`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newHabitData);
-    req.flush(mockUserHabit); // Return mock data
-  });
-
-  it('should associate a default habit via POST', () => {
-    const habitId = 1;
-
-    service.associateHabit(habitId).subscribe((userHabit: UserHabit) => {
-      expect(userHabit).toEqual(mockUserHabit);
-    });
-
-    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits/associate`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ habitId });
     req.flush(mockUserHabit); // Return mock data
   });
 

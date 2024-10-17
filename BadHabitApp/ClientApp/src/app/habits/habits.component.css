@@ -1,0 +1,24 @@
+/* Ensure the message area is fixed in height */
+.status-messages {
+  height: 40px; /* Adjust as needed */
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.alert {
+  transition: opacity 1s ease-in-out; /* Smooth fade-out effect */
+  opacity: 1;
+}
+
+  .alert.hidden {
+    opacity: 0; /* This class triggers the fade-out */
+  }
+
+.fade-message {
+  transition: opacity 1s ease-in-out;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none; /* Avoid interaction while fading out */
+}

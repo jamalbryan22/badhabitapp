@@ -23,117 +23,107 @@ namespace BadHabitApp.Controllers
 		}
 
 		// Model classes for incoming data
-		public class HabitCreateModel
-		{
-			public string Name { get; set; } = string.Empty;
-			public string Description { get; set; } = string.Empty;
-			public decimal? DefaultCostPerOccurrence { get; set; }
-			public decimal? DefaultOccurrencesPerDay { get; set; }
-		}
-
 		public class UserHabitCreateModel
 		{
-			public int HabitId { get; set; }
+			public int? HabitId { get; set; }  // Nullable for custom habits
+			public string? Name { get; set; } = string.Empty;  // For custom habits
+			public string? Description { get; set; } = string.Empty;  // For custom habits
 			public decimal? CostPerOccurrence { get; set; }
 			public decimal? OccurrencesPerDay { get; set; }
 		}
 
 		// POST: api/userhabits
-		// Create a new custom habit and associate it with the user
+		// Create a new custom habit or associate an existing default habit with the user
 		[HttpPost]
-		public async Task<ActionResult<UserHabit>> CreateCustomHabit([FromBody] HabitCreateModel model)
+		public async Task<ActionResult<UserHabit>> CreateUserHabit([FromBody] UserHabitCreateModel model)
 		{
+
 			if (model == null)
 			{
 				return BadRequest("Habit data is required.");
 			}
 
-			// Create the new habit
-			var habit = new Habit
+			// Check if we are associating a default habit
+			if (model.HabitId.HasValue)
 			{
-				Name = model.Name,
-				Description = model.Description,
-				DefaultCostPerOccurrence = model.DefaultCostPerOccurrence,
-				DefaultOccurrencesPerDay = model.DefaultOccurrencesPerDay,
-				IsDefault = false
-			};
+				// Fetch the default habit from the database
+				var habit = await _context.DefaultHabits.FindAsync(model.HabitId.Value);
+				if (habit == null)
+				{
+					return NotFound("Habit not found.");
+				}
 
-			_context.Habits.Add(habit);
-			await _context.SaveChangesAsync();
+				// Associate the default habit with the user
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				if (string.IsNullOrEmpty(userId))
+				{
+					return Unauthorized();
+				}
 
-			// Associate the habit with the user
-			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (string.IsNullOrEmpty(userId))
-			{
-				return Unauthorized();
+				// Check if the user already has this habit associated
+				var existingUserHabit = await _context.UserHabits
+					.FirstOrDefaultAsync(uh => uh.UserId == userId && uh.HabitId == model.HabitId);
+
+				if (existingUserHabit != null)
+				{
+					return BadRequest("User already has this habit associated.");
+				}
+
+				var userHabit = new UserHabit
+				{
+					UserId = userId,
+					HabitId = model.HabitId.Value,  // Associate the default habit
+					StartDate = DateTime.UtcNow,
+					IsActive = true,
+					CostPerOccurrence = model.CostPerOccurrence ?? habit.DefaultCostPerOccurrence,
+					OccurrencesPerDay = model.OccurrencesPerDay ?? habit.DefaultOccurrencesPerDay
+				};
+
+				_context.UserHabits.Add(userHabit);
+				await _context.SaveChangesAsync();
+
+				return CreatedAtAction("GetUserHabit", new { id = userHabit.UserHabitId }, userHabit);
 			}
-
-			var userHabit = new UserHabit
+			else
 			{
-				UserId = userId,
-				HabitId = habit.HabitId,
-				StartDate = DateTime.UtcNow,
-				IsActive = true,
-				CostPerOccurrence = model.DefaultCostPerOccurrence,
-				OccurrencesPerDay = model.DefaultOccurrencesPerDay
-			};
+				// Custom habit creation - validate Name and Description
+				if (string.IsNullOrWhiteSpace(model.Name))
+				{
+					ModelState.AddModelError(nameof(model.Name), "The Name field is required.");
+				}
+				if (string.IsNullOrWhiteSpace(model.Description))
+				{
+					ModelState.AddModelError(nameof(model.Description), "The Description field is required.");
+				}
 
-			_context.UserHabits.Add(userHabit);
-			await _context.SaveChangesAsync();
+				if (!ModelState.IsValid)
+				{
+					return ValidationProblem(ModelState);
+				}
 
-			return CreatedAtAction("GetUserHabit", new { id = userHabit.UserHabitId }, userHabit);
-		}
+				// Create custom habit
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				if (string.IsNullOrEmpty(userId))
+				{
+					return Unauthorized();
+				}
 
-		// POST: api/userhabits/associate
-		// Associate an existing habit with the user
-		[HttpPost("associate")]
-		public async Task<ActionResult<UserHabit>> AssociateHabit([FromBody] UserHabitCreateModel model)
-		{
-			if (model == null)
-			{
-				return BadRequest("Habit data is required.");
+				var userHabit = new UserHabit
+				{
+					UserId = userId,
+					Name = model.Name,
+					Description = model.Description,
+					StartDate = DateTime.UtcNow,
+					IsActive = true,
+					CostPerOccurrence = model.CostPerOccurrence,
+					OccurrencesPerDay = model.OccurrencesPerDay
+				};
+
+				_context.UserHabits.Add(userHabit);
+				await _context.SaveChangesAsync();
+
+				return CreatedAtAction("GetUserHabit", new { id = userHabit.UserHabitId }, userHabit);
 			}
-
-			// Check if the habit exists
-			var habit = await _context.Habits.FindAsync(model.HabitId);
-			if (habit == null)
-			{
-				return NotFound("Habit not found.");
-			}
-
-			// Get user ID
-			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (string.IsNullOrEmpty(userId))
-			{
-				return Unauthorized();
-			}
-
-			// Check if the user already has this habit
-			var existingUserHabit = await _context.UserHabits
-				.FirstOrDefaultAsync(uh => uh.UserId == userId && uh.HabitId == model.HabitId);
-
-			if (existingUserHabit != null)
-			{
-				return BadRequest("User already has this habit associated.");
-			}
-
-			userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-			// Associate the habit with the user
-			var userHabit = new UserHabit
-			{
-				UserId = userId,
-				HabitId = model.HabitId,
-				StartDate = DateTime.UtcNow,
-				IsActive = true,
-				CostPerOccurrence = model.CostPerOccurrence ?? habit.DefaultCostPerOccurrence,
-				OccurrencesPerDay = model.OccurrencesPerDay ?? habit.DefaultOccurrencesPerDay
-			};
-
-			_context.UserHabits.Add(userHabit);
-			await _context.SaveChangesAsync();
-
-			return CreatedAtAction("GetUserHabit", new { id = userHabit.UserHabitId }, userHabit);
 		}
 
 		// GET: api/userhabits
@@ -146,7 +136,8 @@ namespace BadHabitApp.Controllers
 			{
 				return Unauthorized();
 			}
-            var userHabits = await _context.UserHabits
+
+			var userHabits = await _context.UserHabits
 				.Include(uh => uh.Habit)
 				.Where(uh => uh.UserId == userId)
 				.ToListAsync();
@@ -198,18 +189,6 @@ namespace BadHabitApp.Controllers
 			// Remove the UserHabit
 			_context.UserHabits.Remove(userHabit);
 			await _context.SaveChangesAsync();
-
-			// Optionally, delete the habit if it's custom and not associated with any other user
-			var habit = await _context.Habits.FindAsync(userHabit.HabitId);
-			if (habit != null && !habit.IsDefault)
-			{
-				var isHabitUsedByOthers = await _context.UserHabits.AnyAsync(uh => uh.HabitId == habit.HabitId);
-				if (!isHabitUsedByOthers)
-				{
-					_context.Habits.Remove(habit);
-					await _context.SaveChangesAsync();
-				}
-			}
 
 			return NoContent();
 		}

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BadHabitApp.Models
 {
-	public class Habit
+	public class DefaultHabit
 	{
 		[Key]
 		public int HabitId { get; set; }
@@ -20,8 +20,6 @@ namespace BadHabitApp.Models
 
 		[Column(TypeName = "decimal(10,2)")]
 		public decimal? DefaultOccurrencesPerDay { get; set; }
-
-		public bool IsDefault { get; set; }
 
 		// Navigation properties
 		public ICollection<UserHabit> UserHabits { get; set; } = new List<UserHabit>();

@@ -1,4 +1,14 @@
 <div class="container mt-4">
+  <!-- Success and Error Messages Area (Fixed Height) -->
+  <div class="status-messages" *ngIf="successMessage || errorMessage">
+    <div class="alert alert-success fade-message" *ngIf="successMessage" [class.hidden]="isFadingOut">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-danger" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+  </div>
+
   <!-- User's Tracked Habits -->
   <h2>Your Habits</h2>
   <div *ngIf="userHabits.length === 0">
@@ -17,8 +27,8 @@
       </thead>
       <tbody>
         <tr *ngFor="let userHabit of userHabits">
-          <td>{{ userHabit.habit.name }}</td>
-          <td>{{ userHabit.habit.description }}</td>
+          <td>{{ userHabit.habit ? userHabit.habit.name : userHabit.name }}</td>
+          <td>{{ userHabit.habit ? userHabit.habit.description : userHabit.description }}</td>
           <td>{{ userHabit.costPerOccurrence | currency:'USD':'symbol':'1.2-2' }}</td>
           <td>{{ userHabit.occurrencesPerDay }}</td>
           <td>
@@ -53,22 +63,19 @@
   <form (ngSubmit)="saveHabit()">
     <div class="form-group">
       <label for="name">Habit Name</label>
-      <input [(ngModel)]="newHabit.name" name="name" id="name" class="form-control" required>
+      <input [(ngModel)]="newHabit.name" (input)="onHabitModified()" name="name" id="name" class="form-control" required>
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea [(ngModel)]="newHabit.description" name="description" id="description" class="form-control"></textarea>
+      <textarea [(ngModel)]="newHabit.description" (input)="onHabitModified()" name="description" id="description" class="form-control"></textarea>
     </div>
     <div class="form-group">
       <label for="costPerOccurrence">Cost Per Occurrence</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultCostPerOccurrence" name="costPerOccurrence" id="costPerOccurrence" class="form-control">
+      <input type="number" step="0.01" [(ngModel)]="newHabit.costPerOccurrence" name="costPerOccurrence" id="costPerOccurrence" class="form-control">
     </div>
     <div class="form-group">
       <label for="occurrencesPerDay">Occurrences Per Day</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.defaultOccurrencesPerDay" name="occurrencesPerDay" id="occurrencesPerDay" class="form-control">
-    </div>
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
+      <input type="number" step="0.01" [(ngModel)]="newHabit.occurrencesPerDay" name="occurrencesPerDay" id="occurrencesPerDay" class="form-control">
     </div>
     <button type="submit" class="btn btn-success">Save Habit</button>
   </form>
