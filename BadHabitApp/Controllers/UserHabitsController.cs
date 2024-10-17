@@ -37,6 +37,10 @@ namespace BadHabitApp.Controllers
 		[HttpPost]
 		public async Task<ActionResult<UserHabit>> CreateUserHabit([FromBody] UserHabitCreateModel model)
 		{
+			if (!ModelState.IsValid)
+			{
+				return ValidationProblem(ModelState);
+			}
 
 			if (model == null)
 			{
