@@ -1,13 +1,130 @@
 <div class="register-container">
   <h2>Register</h2>
   <form (ngSubmit)="register()">
-    <div>
-      <label for="email">Email:</label>
-      <input id="email" [(ngModel)]="email" name="email" type="email" required [disabled]="isRegistering" />
+    <div class="form-group">
+      <label for="firstName">First Name:</label>
+      <input id="firstName"
+             [(ngModel)]="firstName"
+             name="firstName"
+             type="text"
+             placeholder="Enter your first name"
+             required
+             [disabled]="isRegistering" />
     </div>
-    <div>
+
+    <!-- Last Name -->
+    <div class="form-group">
+      <label for="lastName">Last Name:</label>
+      <input id="lastName"
+             [(ngModel)]="lastName"
+             name="lastName"
+             type="text"
+             placeholder="Enter your last name"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Date of Birth -->
+    <div class="form-group">
+      <label for="dob">Date of Birth:</label>
+      <input id="dob"
+             [(ngModel)]="dateOfBirth"
+             name="dob"
+             type="date"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input id="email"
+             [(ngModel)]="email"
+             name="email"
+             type="email"
+             placeholder="Enter your email"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
       <label for="password">Password:</label>
-      <input id="password" [(ngModel)]="password" type="password" name="password" required [disabled]="isRegistering" />
+      <input id="password"
+             [(ngModel)]="password"
+             type="password"
+             name="password"
+             placeholder="Enter your password"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password:</label>
+      <input id="confirmPassword"
+             [(ngModel)]="confirmPassword"
+             type="password"
+             name="confirmPassword"
+             placeholder="Confirm your password"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Addiction Type Selection -->
+    <div class="form-group">
+      <label for="addictionType">Type of Addiction:</label>
+      <select id="addictionType" [(ngModel)]="addictionType" name="addictionType" (change)="checkCustomAddiction()" required>
+        <option value="" disabled selected>Select your addiction</option>
+        <option value="caffeine">Caffeine</option>
+        <option value="cannabis">Cannabis</option>
+        <option value="drinking">Drinking</option>
+        <option value="drugs">Drugs</option>
+        <option value="eating disorder">Eating Disorder</option>
+        <option value="gambling">Gambling</option>
+        <option value="heroin">Heroin</option>
+        <option value="junk food">Junk Food</option>
+        <option value="masturbation">Masturbation</option>
+        <option value="nicotine">Nicotine</option>
+        <option value="pills">Pills</option>
+        <option value="pornography">Pornography</option>
+        <option value="self harm">Self Harm</option>
+        <option value="sex">Sex</option>
+        <option value="smoking">Smoking</option>
+        <option value="spending">Spending</option>
+        <option value="technology">Technology</option>
+        <option value="tobacco">Tobacco</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <input *ngIf="isCustomAddictionSelected"
+             [(ngModel)]="customAddiction"
+             type="text"
+             name="customAddiction"
+             placeholder="Enter custom addiction"
+             required />
+    </div>
+
+    <!-- Date Addiction Began -->
+    <div class="form-group">
+      <label for="addictionBeginDate">Date addiction began:</label>
+      <input id="addictionBeginDate"
+             [(ngModel)]="dateAddictionBegan"
+             name="addictionBeginDate"
+             type="date"
+             required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Date Of Last Relapse -->
+    <div class="form-group">
+      <label for="lastRelapse">Date of last relapse:</label>
+      <input id="lastRelapse"
+             [(ngModel)]="dateOfLastRelapse"
+             name="dateOfLastRelapse"
+             type="date"
+             required
+             [disabled]="isRegistering" />
     </div>
 
     <!-- Error and Success messages -->
@@ -22,3 +139,5 @@
     <button type="submit" [disabled]="isRegistering">Register</button> <!-- Button disabled when registering -->
   </form>
 </div>
+
+
