@@ -8,17 +8,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  firstName: string = '';
-  lastName: string = '';
-  dateOfBirth: string = '';
-  email: string = '';
   password: string = '';
-  confirmPassword = '';
-  addictionType = '';
-  customAddiction: string = '';
-  isCustomAddictionSelected = false;
-  dateAddictionBegan: string = '';
-  dateOfLastRelapse: string = ''; 
+  email: string = '';
   errorMessages: string[] = [];
   successMessage: string = '';
   isRegistering: boolean = false;  // New flag to track registration state
@@ -62,10 +53,5 @@ export class RegisterComponent {
     }
 
     return messages;
-  }
-
-  checkCustomAddiction() {
-    // Check if the selected addiction is 'Custom'
-    this.isCustomAddictionSelected = this.addictionType === 'custom';
   }
 }
