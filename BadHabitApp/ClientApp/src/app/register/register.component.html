@@ -1,8 +1,9 @@
 <div class="register-container">
   <h2>Register</h2>
   <form (ngSubmit)="register()">
-    <div class="form-group">
-      <label for="firstName">First Name:</label>
+    <!--<div class="form-group">-->
+<!--      First Name-->
+      <!--<label for="firstName">First Name:</label>
       <input id="firstName"
              [(ngModel)]="firstName"
              name="firstName"
@@ -10,10 +11,10 @@
              placeholder="Enter your first name"
              required
              [disabled]="isRegistering" />
-    </div>
+    </div>-->
 
-    <!-- Last Name -->
-    <div class="form-group">
+<!--     Last Name -->
+<!--    <div class="form-group">
       <label for="lastName">Last Name:</label>
       <input id="lastName"
              [(ngModel)]="lastName"
@@ -22,10 +23,9 @@
              placeholder="Enter your last name"
              required
              [disabled]="isRegistering" />
-    </div>
-
-    <!-- Date of Birth -->
-    <div class="form-group">
+    </div>-->
+<!--Date of Birth -->
+<!--    <div class="form-group">
       <label for="dob">Date of Birth:</label>
       <input id="dob"
              [(ngModel)]="dateOfBirth"
@@ -33,9 +33,9 @@
              type="date"
              required
              [disabled]="isRegistering" />
-    </div>
+    </div>-->
 
-    <!-- Email -->
+<!--     Email -->
     <div class="form-group">
       <label for="email">Email:</label>
       <input id="email"
@@ -46,6 +46,19 @@
              required
              [disabled]="isRegistering" />
     </div>
+
+<!--     Username -->
+<!--    <div class="form-group">
+      <label for="userName">Username:</label>
+      <input id="userName"
+             [(ngModel)]="userName"
+             name="userName"
+             type="text"
+             placeholder="What would you like your username to be?"
+             required
+             [disabled]="isRegistering" />
+    </div>-->
+
 
     <!-- Password -->
     <div class="form-group">
@@ -76,25 +89,25 @@
       <label for="addictionType">Type of Addiction:</label>
       <select id="addictionType" [(ngModel)]="addictionType" name="addictionType" (change)="checkCustomAddiction()" required>
         <option value="" disabled selected>Select your addiction</option>
-        <option value="caffeine">Caffeine</option>
-        <option value="cannabis">Cannabis</option>
-        <option value="drinking">Drinking</option>
-        <option value="drugs">Drugs</option>
-        <option value="eating disorder">Eating Disorder</option>
-        <option value="gambling">Gambling</option>
-        <option value="heroin">Heroin</option>
-        <option value="junk food">Junk Food</option>
-        <option value="masturbation">Masturbation</option>
-        <option value="nicotine">Nicotine</option>
-        <option value="pills">Pills</option>
-        <option value="pornography">Pornography</option>
-        <option value="self harm">Self Harm</option>
-        <option value="sex">Sex</option>
-        <option value="smoking">Smoking</option>
-        <option value="spending">Spending</option>
-        <option value="technology">Technology</option>
-        <option value="tobacco">Tobacco</option>
-        <option value="custom">Custom</option>
+        <option value="Caffeine">Caffeine</option>
+        <option value="Cannabis">Cannabis</option>
+        <option value="Drinking">Drinking</option>
+        <option value="Drugs">Drugs</option>
+        <option value="Eating Disorder">Eating Disorder</option>
+        <option value="Gambling">Gambling</option>
+        <option value="Heroin">Heroin</option>
+        <option value="Junk Food">Junk Food</option>
+        <option value="Masturbation">Masturbation</option>
+        <option value="Nicotine">Nicotine</option>
+        <option value="Pills">Pills</option>
+        <option value="Pornography">Pornography</option>
+        <option value="Self Harm">Self Harm</option>
+        <option value="Sex">Sex</option>
+        <option value="Smoking">Smoking</option>
+        <option value="Spending">Spending</option>
+        <option value="Technology">Technology</option>
+        <option value="Tobacco">Tobacco</option>
+        <option value="Custom">Custom</option>
       </select>
 
       <input *ngIf="isCustomAddictionSelected"
@@ -124,6 +137,66 @@
              name="dateOfLastRelapse"
              type="date"
              required
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Habit Description -->
+    <div class="form-group">
+      <label for="habitDescription">Habit description:</label>
+      <textarea id="habitDescription"
+                [(ngModel)]="habitDescription"
+                name="habitDescription"
+                placeholder="Feel free to describe your habit in detail."
+                maxlength="500"
+                rows="3"
+                [disabled]="isRegistering"></textarea>
+    </div>
+
+    <!-- User Motivation -->
+    <div class="form-group">
+      <label for="userMotivation">User motivation:</label>
+      <textarea id="userMotivation"
+                [(ngModel)]="userMotivation"
+                name="userMotivation"
+                placeholder="What is your motivation for quitting?"
+                maxlength="500"
+                rows="3"
+                [disabled]="isRegistering"></textarea>
+    </div>
+
+    <!-- Reason for Last Relapse -->
+    <div class="form-group">
+      <label for="reasonForLastRelapse">Reason for last relapse:</label>
+      <textarea id="reasonForLastRelapse"
+                [(ngModel)]="reasonForLastRelapse"
+                name="reasonForLastRelapse"
+                placeholder="What was the cause of your most recent relapse"
+                maxlength="500"
+                rows="3"
+                [disabled]="isRegistering"></textarea>
+    </div>
+
+    <!-- Cost Per Occurrence -->
+    <div class="form-group">
+      <label for="costPerOccurrence">Cost per occurrence (USD):</label>
+      <input id="costPerOccurrence"
+             [(ngModel)]="costPerOccurrence"
+             name="costPerOccurrence"
+             type="number"
+             step="0.01"
+             min="0"
+             [disabled]="isRegistering" />
+    </div>
+
+    <!-- Occurrences Per Month -->
+    <div class="form-group">
+      <label for="occurrencesPerDay">Occurrences per Month:</label>
+      <input id="occurrencesPerDay"
+             [(ngModel)]="occurrencesPerMonth"
+             name="occurrencesPerMonth"
+             type="number"
+             step="1.00"
+             min="0"
              [disabled]="isRegistering" />
     </div>
 

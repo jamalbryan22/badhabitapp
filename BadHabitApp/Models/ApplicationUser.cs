@@ -9,9 +9,5 @@ namespace BadHabitApp.Models
 
         [DataType(DataType.Date)]
         public DateTime? LastLogin { get; set; }
-
-		// Navigation properties
-		public ICollection<UserHabit> UserHabits { get; set; } = new List<UserHabit>();
-		public ICollection<UserGoal> UserGoals { get; set; } = new List<UserGoal>();
-	}
+    }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BadHabitApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240926162855_AddJWTIdentitySupportToLoginRegister")]
-    partial class AddJWTIdentitySupportToLoginRegister
+    [Migration("20241029223330_removeGoalRelapseAndDefaultHabit")]
+    partial class removeGoalRelapseAndDefaultHabit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,85 +96,6 @@ namespace BadHabitApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BadHabitApp.Models.Goal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("AchievedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GoalType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("GoalValue")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsAchieved")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("UserHabitId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Goals");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.Habit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AverageCostPerOccurrence")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HabitName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Habits");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.Relapse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comments")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RelapseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserHabitId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Relapses");
-                });
-
             modelBuilder.Entity("BadHabitApp.Models.UserHabit", b =>
                 {
                     b.Property<int>("Id")
@@ -183,26 +104,38 @@ namespace BadHabitApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("CostPerOccurrence")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("AddictionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("FrequencyPerDay")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("CostPerOccurrence")
+                        .HasColumnType("decimal(10,2)");
 
-                    b.Property<int>("HabitId")
-                        .HasColumnType("int");
+                    b.Property<string>("HabitDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastRelapseDate")
+                    b.Property<DateTime>("HabitStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("LastRelapseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("OccurrencesPerMonth")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("ReasonForLastRelapse")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserMotivation")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 

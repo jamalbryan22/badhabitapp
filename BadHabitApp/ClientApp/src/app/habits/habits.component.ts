@@ -119,6 +119,7 @@ export class HabitsComponent implements OnInit {
     this.successMessage = ''; // Reset success message
   }
 
+  // TO-DO IMPLEMENT METHOD
   deleteUserHabit(userHabitId: number): void {
     if (!confirm('Are you sure you want to delete this habit?')) {
       return;

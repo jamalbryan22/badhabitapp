@@ -28,7 +28,7 @@ namespace BadHabitApp.Controllers
 		public async Task<IActionResult> Login([FromBody] LoginModel model)
 		{
 			// Validate user credentials
-			var user = await _userManager.FindByNameAsync(model.Email);
+			var user = await _userManager.FindByEmailAsync(model.Email);
 			if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
 			{
 				// Update LastLogin field and save changes
@@ -74,7 +74,7 @@ namespace BadHabitApp.Controllers
 		public async Task<IActionResult> Register([FromBody] RegisterModel model)
 		{
 			// Check if user already exists
-			var userExists = await _userManager.FindByEmailAsync(model.Email);
+			var userExists = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
 			if (userExists != null)
 			{
 				return BadRequest(new
@@ -109,10 +109,8 @@ namespace BadHabitApp.Controllers
 
 			return Ok(new
 			{
-				token = string.Empty, // No token generated during registration
-				expiration = (DateTime?)null,
-				errors = new List<string>() // No errors during successful registration
+				userId = user.Id
 			});
 		}
-	}
+    }
 }

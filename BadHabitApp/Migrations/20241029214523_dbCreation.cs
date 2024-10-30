@@ -3,49 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace BadHabitApp.Migrations
 {
     /// <inheritdoc />
-    public partial class IdentitySetup : Migration
+    public partial class dbCreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Goals_UserHabits_UserHabitId",
-                table: "Goals");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Relapses_UserHabits_UserHabitId",
-                table: "Relapses");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_UserHabits_Habits_HabitId",
-                table: "UserHabits");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_UserHabits_Users_UserId",
-                table: "UserHabits");
-
-            migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropIndex(
-                name: "IX_UserHabits_HabitId",
-                table: "UserHabits");
-
-            migrationBuilder.DropIndex(
-                name: "IX_UserHabits_UserId",
-                table: "UserHabits");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Relapses_UserHabitId",
-                table: "Relapses");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Goals_UserHabitId",
-                table: "Goals");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -85,6 +52,38 @@ namespace BadHabitApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DefaultHabits",
+                columns: table => new
+                {
+                    HabitId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    DefaultCostPerOccurrence = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
+                    DefaultOccurrencesPerDay = table.Column<decimal>(type: "decimal(10,2)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DefaultHabits", x => x.HabitId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Goals",
+                columns: table => new
+                {
+                    GoalId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    GoalType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsDefault = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Goals", x => x.GoalId);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,6 +192,110 @@ namespace BadHabitApp.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserHabits",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddictionType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    HabitStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastRelapseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HabitDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    UserMotivation = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ReasonForLastRelapse = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    CostPerOccurrence = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
+                    OccurrencesPerMonth = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
+                    DefaultHabitHabitId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserHabits", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserHabits_DefaultHabits_DefaultHabitHabitId",
+                        column: x => x.DefaultHabitHabitId,
+                        principalTable: "DefaultHabits",
+                        principalColumn: "HabitId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Relapses",
+                columns: table => new
+                {
+                    RelapseId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserHabitId = table.Column<int>(type: "int", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Relapses", x => x.RelapseId);
+                    table.ForeignKey(
+                        name: "FK_Relapses_UserHabits_UserHabitId",
+                        column: x => x.UserHabitId,
+                        principalTable: "UserHabits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserGoals",
+                columns: table => new
+                {
+                    UserGoalId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GoalId = table.Column<int>(type: "int", nullable: false),
+                    UserHabitId = table.Column<int>(type: "int", nullable: false),
+                    TargetValue = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
+                    TargetDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompletionDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserGoals", x => x.UserGoalId);
+                    table.ForeignKey(
+                        name: "FK_UserGoals_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserGoals_Goals_GoalId",
+                        column: x => x.GoalId,
+                        principalTable: "Goals",
+                        principalColumn: "GoalId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserGoals_UserHabits_UserHabitId",
+                        column: x => x.UserHabitId,
+                        principalTable: "UserHabits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "DefaultHabits",
+                columns: new[] { "HabitId", "DefaultCostPerOccurrence", "DefaultOccurrencesPerDay", "Description", "Name" },
+                values: new object[,]
+                {
+                    { 1, 0.50m, 15m, "Smoking cigarettes or other tobacco products.", "Smoking" },
+                    { 2, 0m, 20m, "Biting your fingernails.", "Nail Biting" },
+                    { 10, 2.00m, 1m, "Eating snacks late at night.", "Late Night Snacking" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Goals",
+                columns: new[] { "GoalId", "Description", "GoalType", "IsDefault", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Completely stop smoking.", "Quit", true, "Quit Smoking" },
+                    { 10, "Avoid eating after 8 PM.", "Quit", true, "Stop Late Night Snacking" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -231,6 +334,31 @@ namespace BadHabitApp.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Relapses_UserHabitId",
+                table: "Relapses",
+                column: "UserHabitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGoals_GoalId",
+                table: "UserGoals",
+                column: "GoalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGoals_UserHabitId",
+                table: "UserGoals",
+                column: "UserHabitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserGoals_UserId",
+                table: "UserGoals",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserHabits_DefaultHabitHabitId",
+                table: "UserHabits",
+                column: "DefaultHabitHabitId");
         }
 
         /// <inheritdoc />
@@ -252,91 +380,25 @@ namespace BadHabitApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Relapses");
+
+            migrationBuilder.DropTable(
+                name: "UserGoals");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
+            migrationBuilder.DropTable(
+                name: "Goals");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_UserHabits_HabitId",
-                table: "UserHabits",
-                column: "HabitId");
+            migrationBuilder.DropTable(
+                name: "UserHabits");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_UserHabits_UserId",
-                table: "UserHabits",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Relapses_UserHabitId",
-                table: "Relapses",
-                column: "UserHabitId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Goals_UserHabitId",
-                table: "Goals",
-                column: "UserHabitId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
-                column: "Email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Username",
-                table: "Users",
-                column: "Username",
-                unique: true);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Goals_UserHabits_UserHabitId",
-                table: "Goals",
-                column: "UserHabitId",
-                principalTable: "UserHabits",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Relapses_UserHabits_UserHabitId",
-                table: "Relapses",
-                column: "UserHabitId",
-                principalTable: "UserHabits",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_UserHabits_Habits_HabitId",
-                table: "UserHabits",
-                column: "HabitId",
-                principalTable: "Habits",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_UserHabits_Users_UserId",
-                table: "UserHabits",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            migrationBuilder.DropTable(
+                name: "DefaultHabits");
         }
     }
 }

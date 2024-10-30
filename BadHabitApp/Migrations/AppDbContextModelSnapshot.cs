@@ -93,215 +93,48 @@ namespace BadHabitApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BadHabitApp.Models.DefaultHabit", b =>
-                {
-                    b.Property<int>("HabitId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HabitId"));
-
-                    b.Property<decimal?>("DefaultCostPerOccurrence")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal?>("DefaultOccurrencesPerDay")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("HabitId");
-
-                    b.ToTable("DefaultHabits");
-
-                    b.HasData(
-                        new
-                        {
-                            HabitId = 1,
-                            DefaultCostPerOccurrence = 0.50m,
-                            DefaultOccurrencesPerDay = 15m,
-                            Description = "Smoking cigarettes or other tobacco products.",
-                            Name = "Smoking"
-                        },
-                        new
-                        {
-                            HabitId = 2,
-                            DefaultCostPerOccurrence = 0m,
-                            DefaultOccurrencesPerDay = 20m,
-                            Description = "Biting your fingernails.",
-                            Name = "Nail Biting"
-                        },
-                        new
-                        {
-                            HabitId = 10,
-                            DefaultCostPerOccurrence = 2.00m,
-                            DefaultOccurrencesPerDay = 1m,
-                            Description = "Eating snacks late at night.",
-                            Name = "Late Night Snacking"
-                        });
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.Goal", b =>
-                {
-                    b.Property<int>("GoalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GoalId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("GoalType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("GoalId");
-
-                    b.ToTable("Goals");
-
-                    b.HasData(
-                        new
-                        {
-                            GoalId = 1,
-                            Description = "Completely stop smoking.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Quit Smoking"
-                        },
-                        new
-                        {
-                            GoalId = 10,
-                            Description = "Avoid eating after 8 PM.",
-                            GoalType = "Quit",
-                            IsDefault = true,
-                            Name = "Stop Late Night Snacking"
-                        });
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.Relapse", b =>
-                {
-                    b.Property<int>("RelapseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RelapseId"));
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserHabitId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RelapseId");
-
-                    b.HasIndex("UserHabitId");
-
-                    b.ToTable("Relapses");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.UserGoal", b =>
-                {
-                    b.Property<int>("UserGoalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserGoalId"));
-
-                    b.Property<DateTime?>("CompletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("GoalId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TargetDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("TargetValue")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("UserHabitId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserGoalId");
-
-                    b.HasIndex("GoalId");
-
-                    b.HasIndex("UserHabitId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserGoals");
-                });
-
             modelBuilder.Entity("BadHabitApp.Models.UserHabit", b =>
                 {
-                    b.Property<int>("UserHabitId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserHabitId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AddictionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("CostPerOccurrence")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("HabitDescription")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("HabitId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("HabitStartDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<DateTime>("LastRelapseDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal?>("OccurrencesPerDay")
+                    b.Property<decimal?>("OccurrencesPerMonth")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("ReasonForLastRelapse")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserHabitId");
+                    b.Property<string>("UserMotivation")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.HasIndex("HabitId");
-
-                    b.HasIndex("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("UserHabits");
                 });
@@ -439,62 +272,6 @@ namespace BadHabitApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BadHabitApp.Models.Relapse", b =>
-                {
-                    b.HasOne("BadHabitApp.Models.UserHabit", "UserHabit")
-                        .WithMany("Relapses")
-                        .HasForeignKey("UserHabitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserHabit");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.UserGoal", b =>
-                {
-                    b.HasOne("BadHabitApp.Models.Goal", "Goal")
-                        .WithMany("UserGoals")
-                        .HasForeignKey("GoalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BadHabitApp.Models.UserHabit", "UserHabit")
-                        .WithMany("UserGoals")
-                        .HasForeignKey("UserHabitId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("BadHabitApp.Models.ApplicationUser", "User")
-                        .WithMany("UserGoals")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Goal");
-
-                    b.Navigation("User");
-
-                    b.Navigation("UserHabit");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.UserHabit", b =>
-                {
-                    b.HasOne("BadHabitApp.Models.DefaultHabit", "Habit")
-                        .WithMany("UserHabits")
-                        .HasForeignKey("HabitId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("BadHabitApp.Models.ApplicationUser", "User")
-                        .WithMany("UserHabits")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Habit");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -544,30 +321,6 @@ namespace BadHabitApp.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("UserGoals");
-
-                    b.Navigation("UserHabits");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.DefaultHabit", b =>
-                {
-                    b.Navigation("UserHabits");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.Goal", b =>
-                {
-                    b.Navigation("UserGoals");
-                });
-
-            modelBuilder.Entity("BadHabitApp.Models.UserHabit", b =>
-                {
-                    b.Navigation("Relapses");
-
-                    b.Navigation("UserGoals");
                 });
 #pragma warning restore 612, 618
         }
