@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace BadHabitApp.Controllers
 {
@@ -62,7 +63,7 @@ namespace BadHabitApp.Controllers
 
 		// GET: api/userhabits/{id}
 		[HttpGet("{id}")]
-		public async Task<ActionResult<UserHabit>> GetUserHabit(int id)
+		public async Task<ActionResult<UserHabit>> GetUserHabit(string id)
 		{
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (string.IsNullOrEmpty(userId))
@@ -72,7 +73,7 @@ namespace BadHabitApp.Controllers
 
 			var userHabit = await _context.UserHabits
 		/*		.Include(uh => uh.Habit)*/
-				.FirstOrDefaultAsync(uh => uh.Id == id && uh.UserId == userId);
+				.FirstOrDefaultAsync(uh => uh.UserId == userId);
 
 			if (userHabit == null)
 			{
@@ -82,10 +83,48 @@ namespace BadHabitApp.Controllers
 			return Ok(userHabit);
 		}
 
-		// DELETE: api/userhabits/{id}
-		// Delete a habit associated with the user
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteUserHabit(int id)
+        // POST: api/userhabits/{id}/logrelapse
+        [HttpPost("{id}/logrelapse")]
+        public async Task<IActionResult> LogRelapse(string id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var userHabit = await _context.UserHabits
+                .FirstOrDefaultAsync(uh => uh.UserId == userId);
+
+            if (userHabit == null)
+            {
+                return NotFound();
+            }
+
+            string reasonForLastRelapse;
+            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                reasonForLastRelapse = await reader.ReadToEndAsync();
+            }
+
+            if (reasonForLastRelapse == null)
+            {
+                return BadRequest("Reason for relapse is required.");
+            }
+
+            userHabit.LastRelapseDate = DateTime.UtcNow;
+            userHabit.ReasonForLastRelapse = reasonForLastRelapse;
+
+            _context.UserHabits.Update(userHabit);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/userhabits/{id}
+        // Delete a habit associated with the user
+        [HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteUserHabit(string id)
 		{
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (string.IsNullOrEmpty(userId))
@@ -94,7 +133,7 @@ namespace BadHabitApp.Controllers
 			}
 
 			var userHabit = await _context.UserHabits
-				.FirstOrDefaultAsync(uh => uh.Id == id && uh.UserId == userId);
+				.FirstOrDefaultAsync(uh => uh.UserId == id);
 
 			if (userHabit == null)
 			{

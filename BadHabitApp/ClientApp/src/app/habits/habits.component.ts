@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HabitService, DefaultHabit, UserHabit } from '../services/habit.service';
+import { AuthService } from '../services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-habits',
@@ -21,27 +24,82 @@ export class HabitsComponent implements OnInit {
   errorMessage: string = '';   // Error message
   isModified: boolean = false; // Track if the user modifies the default habit
   isFadingOut: boolean = false; // Track fading state for success message
+  habit: any;
+  daysSinceLastRelapse: number = 0;
+  moneySaved: number = 0;
+  currentDate: Date = new Date();
+  reasonForRelapse: string = '';
+  showRelapseModal: boolean = false;
 
-  constructor(private habitService: HabitService) { }
+  constructor(private habitService: HabitService, private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.loadDefaultHabits();
-    this.loadUserHabits();
+    this.loadHabit();
   }
 
-  loadDefaultHabits(): void {
-    this.habitService.getDefaultHabits().subscribe(
-      (habits) => this.defaultHabits = habits,
-      (error) => console.error('Error loading default habits', error)
+  loadHabit(): void {
+    const userId = this.authService.getUserID();
+    if (!userId) {
+      this.errorMessage = 'User not logged in.';
+      return;
+    }
+
+    this.habitService.getUserHabit(userId).subscribe(
+      (habit) => {
+        this.habit = habit;
+        this.calculateInsights();
+      },
+      (error) => {
+        console.error('Error loading habit', error);
+        this.errorMessage = 'Failed to load habit.';
+      }
     );
   }
 
-  loadUserHabits(): void {
-    this.habitService.getUserHabits().subscribe(
-      (userHabits) => this.userHabits = userHabits,
-      (error) => console.error('Error loading user habits', error)
+  calculateInsights(): void {
+    if (this.habit) {
+      const lastRelapseDate = new Date(this.habit.lastRelapseDate);
+      const timeDiff = this.currentDate.getTime() - lastRelapseDate.getTime();
+      this.daysSinceLastRelapse = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+      // Ensure daysSinceLastRelapse is not negative
+      if (this.daysSinceLastRelapse < 0) {
+        this.daysSinceLastRelapse = 0;
+      }
+
+      // Assuming the habit would occur once per day
+      this.moneySaved = this.daysSinceLastRelapse * this.habit.costPerOccurrence;
+    }
+  }
+
+  openRelapseModal(): void {
+    this.reasonForRelapse = '';
+    this.showRelapseModal = true;
+  }
+
+  closeRelapseModal(): void {
+    this.showRelapseModal = false;
+  }
+
+  logRelapse(): void {
+    if (!this.habit) {
+      return;
+    }
+
+    this.habitService.logRelapse(this.habit.id, this.reasonForRelapse).subscribe(
+      () => {
+        this.successMessage = 'Relapse logged successfully.';
+        this.closeRelapseModal();
+        this.loadHabit(); // Reload habit data to update insights
+      },
+      (error) => {
+        console.error('Error logging relapse', error);
+        this.errorMessage = 'Failed to log relapse.';
+      }
     );
   }
+
+  
 
   populateFormWithDefaultHabit(): void {
     if (this.selectedDefaultHabit) {

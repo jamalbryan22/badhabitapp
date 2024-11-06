@@ -1,3 +1,22 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card {
+  margin-top: 20px;
+}
+
+.card-title {
+  font-size: 1.5rem;
+}
+
+.card-text {
+  margin-bottom: 10px;
+}
+
+
+
 /* Ensure the message area is fixed in height */
 .status-messages {
   height: 40px; /* Adjust as needed */

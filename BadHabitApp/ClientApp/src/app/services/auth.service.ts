@@ -65,6 +65,17 @@ export class AuthService {
     return null;
   }
 
+  getUserID(): string | null {
+    const token = this.getToken();
+    if (token) {
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      return (
+        decodedToken?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || null
+      ); // Extract from 'name' claim
+    }
+    return null;
+  }
+
   // Check if the user is authenticated
   isAuthenticated(): boolean {
     const token = this.getToken();

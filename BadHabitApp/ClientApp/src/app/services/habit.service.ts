@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 
 export interface DefaultHabit {
@@ -31,15 +31,24 @@ export class HabitService {
 
   constructor(private http: HttpClient) { }
 
-  // Get default habits
-  getDefaultHabits(): Observable<DefaultHabit[]> {
-    return this.http.get<DefaultHabit[]>(`${this.baseUrl}/defaulthabits`);
+  getUserHabit(userId: string): Observable<UserHabit> {
+    return this.http.get<UserHabit>(`${this.baseUrl}/userhabits/${userId}`)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  // Get user's habits
-  getUserHabits(): Observable<UserHabit[]> {
-    return this.http.get<UserHabit[]>(`${this.baseUrl}/userhabits`);
+  // Log relapse
+  logRelapse(userId: string, reasonForLastRelapse: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'text/plain'
+    });
+    return this.http.post<void>(`${this.baseUrl}/userhabits/${userId}/logrelapse`, reasonForLastRelapse, { headers })
+      .pipe(
+        catchError(this.handleError)
+      );
   }
+
 
   // Create a new user habit (either custom or default)
   createUserHabit(habitData: any): Observable<any> {

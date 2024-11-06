@@ -1,4 +1,69 @@
 <div class="container mt-4">
+  <h2>Your Habit Insights</h2>
+
+  <!-- Success and Error Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="habit">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">{{ habit.addictionType }}</h3>
+        <p class="card-text"><strong>Description:</strong> {{ habit.habitDescription }}</p>
+        <p class="card-text"><strong>Your Motivation:</strong> {{ habit.userMotivation }}</p>
+
+        <hr>
+
+        <h4>Insights</h4>
+        <p class="card-text"><strong>Days Since Last Relapse:</strong> {{ daysSinceLastRelapse }}</p>
+        <p class="card-text"><strong>Money Saved:</strong> {{ moneySaved | currency:'USD':'symbol':'1.2-2' }}</p>
+
+        <p class="card-text"><strong>Reason for Last Relapse:</strong> {{ habit.reasonForLastRelapse }}</p>
+        <p class="card-text"><strong>Habit Start Date:</strong> {{ habit.habitStartDate | date:'MM/dd/yyyy' }}</p>
+
+        <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log Relapse</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!habit">
+    <p>You have not set up a habit yet.</p>
+  </div>
+
+  <!-- Relapse Modal -->
+  <div class="modal" tabindex="-1" [ngClass]="{'show': showRelapseModal}" [ngStyle]="{'display': showRelapseModal ? 'block' : 'none'}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Log Relapse</h5>
+          <button type="button" class="close" (click)="closeRelapseModal()">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="reasonForRelapse">Reason for Relapse</label>
+            <textarea id="reasonForRelapse" class="form-control" [(ngModel)]="reasonForRelapse"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeRelapseModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="logRelapse()">Confirm Relapse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<div class="container mt-4">
   <!-- Success and Error Messages Area (Fixed Height) -->
   <div class="status-messages" *ngIf="successMessage || errorMessage">
     <div class="alert alert-success fade-message" *ngIf="successMessage" [class.hidden]="isFadingOut">
