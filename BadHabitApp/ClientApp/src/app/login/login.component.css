@@ -38,3 +38,22 @@ button {
   button:hover {
     background-color: #004d40;
   }
+
+/* Error and Success messages */
+.error-message {
+  color: #e01a76; /* Consistent error message color */
+  font-size: 0.9rem;
+  margin-top: -0.75rem;
+}
+
+.success-message {
+  color: #4caf50; /* Green for success */
+  font-size: 0.9rem;
+  margin-top: -0.75rem;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%;
+  }
+}
