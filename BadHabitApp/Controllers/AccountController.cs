@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using BadHabitApp.Models;
+using BadHabitApp.Data;
+using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 
 namespace BadHabitApp.Controllers
 {
@@ -14,13 +17,16 @@ namespace BadHabitApp.Controllers
 	{
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly IConfiguration _configuration;
+		private readonly AppDbContext _context;
 
 		public AccountController(
 			UserManager<ApplicationUser> userManager,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			AppDbContext context)
 		{
 			_userManager = userManager;
 			_configuration = configuration;
+			_context = context;
 		}
 
 		// POST: /account/login
@@ -73,33 +79,92 @@ namespace BadHabitApp.Controllers
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterModel model)
 		{
+			var errors = new List<string>();
+
+			if (model == null)
+			{
+				errors.Add("Request body cannot be empty or invalid.");
+				return BadRequest(new { token = string.Empty, expiration = (DateTime?)null, errors });
+			}
+
+			// Validate the model
+			if (!TryValidateModel(model))
+			{
+				errors.AddRange(ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+			}
+
 			// Check if user already exists
 			var userExists = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
 			if (userExists != null)
 			{
-				return BadRequest(new
-				{
-					token = string.Empty,
-					expiration = (DateTime?)null,
-					errors = new List<string> { "User already exists!" }
-				});
+				errors.Add("User already exists!");
 			}
 
-			// Create new user
+			// Create new user object for validation
 			var user = new ApplicationUser
 			{
 				UserName = model.Email,
 				Email = model.Email,
 				SecurityStamp = Guid.NewGuid().ToString()
 			};
-			var result = await _userManager.CreateAsync(user, model.Password);
 
-			// Check if user creation was successful
-			if (!result.Succeeded)
+			// Validate password
+			var passwordValidationResults = new List<IdentityError>();
+			foreach (var validator in _userManager.PasswordValidators)
 			{
-				// Collect Identity error messages
-				var errors = result.Errors.Select(e => e.Description).ToList();
-				return StatusCode(StatusCodes.Status500InternalServerError, new
+				var result = await validator.ValidateAsync(_userManager, user, model.Password);
+				if (!result.Succeeded)
+				{
+					passwordValidationResults.AddRange(result.Errors);
+				}
+			}
+			if (passwordValidationResults.Any())
+			{
+				errors.AddRange(passwordValidationResults.Select(e => e.Description));
+			}
+
+			// Validate user
+			var userValidationResults = new List<IdentityError>();
+			foreach (var validator in _userManager.UserValidators)
+			{
+				var result = await validator.ValidateAsync(_userManager, user);
+				if (!result.Succeeded)
+				{
+					userValidationResults.AddRange(result.Errors);
+				}
+			}
+			if (userValidationResults.Any())
+			{
+				errors.AddRange(userValidationResults.Select(e => e.Description));
+			}
+
+			// Validate the habit model
+			var userHabit = new UserHabit
+			{
+				UserId = user.Id,
+				AddictionType = model.AddictionType,
+				HabitStartDate = model.HabitStartDate.Value, // Safe because [Required] ensures it is not null
+				LastRelapseDate = model.LastRelapseDate.Value, // Safe because [Required] ensures it is not null
+				HabitDescription = model.HabitDescription,
+				UserMotivation = model.UserMotivation,
+				ReasonForLastRelapse = model.ReasonForLastRelapse,
+				CostPerOccurrence = model.CostPerOccurrence,
+				OccurrencesPerMonth = model.OccurrencesPerMonth
+			};
+
+			var habitValidationContext = new ValidationContext(userHabit, null, null);
+			var habitValidationResults = new List<ValidationResult>();
+			bool isHabitValid = Validator.TryValidateObject(userHabit, habitValidationContext, habitValidationResults, true);
+
+			if (!isHabitValid)
+			{
+				errors.AddRange(habitValidationResults.Select(e => e.ErrorMessage));
+			}
+
+			// If any errors occurred, return them
+			if (errors.Count > 0)
+			{
+				return BadRequest(new
 				{
 					token = string.Empty,
 					expiration = (DateTime?)null,
@@ -107,10 +172,62 @@ namespace BadHabitApp.Controllers
 				});
 			}
 
-			return Ok(new
+			// Begin transaction
+			using var transaction = await _context.Database.BeginTransactionAsync();
+
+			try
 			{
-				userId = user.Id
-			});
+				// Create new user
+				var result = await _userManager.CreateAsync(user, model.Password);
+
+				// Check if user creation was successful
+				if (!result.Succeeded)
+				{
+					// Collect Identity error messages
+					errors.AddRange(result.Errors.Select(e => e.Description));
+
+					// Rollback transaction
+					await transaction.RollbackAsync();
+
+					return BadRequest(new
+					{
+						token = string.Empty,
+						expiration = (DateTime?)null,
+						errors = errors
+					});
+				}
+
+				// Add user habit
+				_context.UserHabits.Add(userHabit);
+				await _context.SaveChangesAsync();
+
+				// Commit transaction
+				await transaction.CommitAsync();
+
+				return Ok(new
+				{
+					userId = user.Id
+				});
+			}
+			catch (Exception ex)
+			{
+				// Rollback transaction in case of error
+				await transaction.RollbackAsync();
+
+				// Delete the user if created
+				var createdUser = await _userManager.FindByEmailAsync(model.Email);
+				if (createdUser != null)
+				{
+					await _userManager.DeleteAsync(createdUser);
+				}
+
+				return StatusCode(StatusCodes.Status500InternalServerError, new
+				{
+					token = string.Empty,
+					expiration = (DateTime?)null,
+					errors = new List<string> { "An error occurred during registration.", ex.Message }
+				});
+			}
 		}
     }
 }

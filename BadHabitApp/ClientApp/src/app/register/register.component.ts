@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { HabitService } from '../services/habit.service';
 import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -34,7 +33,7 @@ export class RegisterComponent {
   successMessage: string | null = null;
   isRegistering: boolean = false;
 
-  constructor(private authService: AuthService, private habitService: HabitService, private router: Router, private cdRef: ChangeDetectorRef) { }
+  constructor(private authService: AuthService, private router: Router, private cdRef: ChangeDetectorRef) { }
 
   register() {
     this.errorMessages = []; // Clear previous errors
@@ -51,7 +50,21 @@ export class RegisterComponent {
 
     this.isRegistering = true; // Disable fields during registration
 
-    this.authService.register(this.email, this.password).pipe(
+    // Prepare data to send
+    const registrationData = {
+      email: this.email,
+      password: this.password,
+      addictionType: this.addictionType === 'Custom' ? this.customAddiction : this.addictionType,
+      habitStartDate: this.dateAddictionBegan,
+      lastRelapseDate: this.dateOfLastRelapse,
+      habitDescription: this.habitDescription,
+      userMotivation: this.userMotivation,
+      reasonForLastRelapse: this.reasonForLastRelapse,
+      costPerOccurrence: this.costPerOccurrence,
+      occurrencesPerMonth: this.occurrencesPerMonth
+    };
+
+    this.authService.register(registrationData).pipe(
       catchError(error => {
         this.errorMessages = this.processErrorMessages(error);
 
@@ -66,32 +79,9 @@ export class RegisterComponent {
       })
     ).subscribe(response => {
       if (response) {
-        this.userId = response.userId;
-
-        const habitData = {
-          habitId: null,
-          userId: this.userId,
-          addictionType: this.addictionType,
-          habitStartDate: this.dateAddictionBegan,
-          lastRelapseDate: this.dateOfLastRelapse,
-          habitDescription: this.habitDescription,
-          userMotivation: this.userMotivation,
-          reasonForLastRelapse: this.reasonForLastRelapse,
-          costPerOccurrence: this.costPerOccurrence,
-          occurrencesPerMonth: this.occurrencesPerMonth
-        };
-
-        this.habitService.createUserHabit(habitData).subscribe(
-          () => {
-            this.successMessage = 'Registration successful! Redirecting to login';
-            this.errorMessages = [];
-            setTimeout(() => this.router.navigate(['/login']), 2000);  // Redirect after 2 seconds
-          },
-          () => {
-            this.errorMessages = ['Failed to create habit.'];
-            this.isRegistering = false;
-          }
-        );
+        this.successMessage = 'Registration successful! Redirecting to login';
+        this.errorMessages = [];
+        setTimeout(() => this.router.navigate(['/login']), 2000);  // Redirect after 2 seconds
       }
     });
   }

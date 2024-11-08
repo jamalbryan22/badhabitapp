@@ -14,9 +14,9 @@ export class AuthService {
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) { }
 
-  register(email: string | null, password: string | null): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}/Account/register`, { email, password }, { headers });
+  register(registrationData: any): Observable<any> {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' }); // Ensure headers are set
+    return this.http.post(`${this.baseUrl}/Account/register`, registrationData, { headers });
   }
 
   login(email: string, password: string): Observable<any> {
