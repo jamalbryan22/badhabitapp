@@ -1,9 +1,18 @@
 <div class="register-container">
+  <!-- Error and Success messages at the top -->
+  <div *ngIf="errorMessages.length > 0" class="error-message">
+    <ul>
+      <li *ngFor="let message of errorMessages">{{ message }}</li>
+    </ul>
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
   <h2>Register</h2>
   <form (ngSubmit)="register()">
     <!--<div class="form-group">-->
-<!--      First Name-->
-      <!--<label for="firstName">First Name:</label>
+    <!--      First Name-->
+    <!--<label for="firstName">First Name:</label>
       <input id="firstName"
              [(ngModel)]="firstName"
              name="firstName"
@@ -12,9 +21,8 @@
              required
              [disabled]="isRegistering" />
     </div>-->
-
-<!--     Last Name -->
-<!--    <div class="form-group">
+    <!--     Last Name -->
+    <!--    <div class="form-group">
       <label for="lastName">Last Name:</label>
       <input id="lastName"
              [(ngModel)]="lastName"
@@ -24,8 +32,8 @@
              required
              [disabled]="isRegistering" />
     </div>-->
-<!--Date of Birth -->
-<!--    <div class="form-group">
+    <!--Date of Birth -->
+    <!--    <div class="form-group">
       <label for="dob">Date of Birth:</label>
       <input id="dob"
              [(ngModel)]="dateOfBirth"
@@ -34,8 +42,7 @@
              required
              [disabled]="isRegistering" />
     </div>-->
-
-<!--     Email -->
+    <!--     Email -->
     <div class="form-group">
       <label for="email">Email:</label>
       <input id="email"
@@ -47,8 +54,8 @@
              [disabled]="isRegistering" />
     </div>
 
-<!--     Username -->
-<!--    <div class="form-group">
+    <!--     Username -->
+    <!--    <div class="form-group">
       <label for="userName">Username:</label>
       <input id="userName"
              [(ngModel)]="userName"
@@ -58,8 +65,6 @@
              required
              [disabled]="isRegistering" />
     </div>-->
-
-
     <!-- Password -->
     <div class="form-group">
       <label for="password">Password:</label>
@@ -134,7 +139,7 @@
       <label for="lastRelapse">Date of last relapse:</label>
       <input id="lastRelapse"
              [(ngModel)]="dateOfLastRelapse"
-             name="dateOfLastRelapse"
+             name="lastRelapse"
              type="date"
              required
              [disabled]="isRegistering" />
@@ -200,17 +205,6 @@
              [disabled]="isRegistering" />
     </div>
 
-    <!-- Error and Success messages -->
-    <div *ngIf="errorMessages.length > 0" class="error-message">
-      <ul>
-        <li *ngFor="let message of errorMessages">{{ message }}</li>
-      </ul>
-    </div>
-
-    <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-
     <button type="submit" [disabled]="isRegistering">Register</button> <!-- Button disabled when registering -->
   </form>
 </div>
-
-

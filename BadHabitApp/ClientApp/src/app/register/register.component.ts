@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { HabitService, DefaultHabit, UserHabit } from '../services/habit.service';
+import { HabitService } from '../services/habit.service';
 import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-register',
@@ -29,29 +31,44 @@ export class RegisterComponent {
   costPerOccurrence: number | null = 0;
   occurrencesPerMonth: number | null = 0;
   errorMessages: string[] = [];
-  errorMessage: string | null = null;
   successMessage: string | null = null;
-  isRegistering: boolean = false;  // New flag to track registration state
+  isRegistering: boolean = false;
 
-  constructor(private authService: AuthService, private habitService: HabitService, private router: Router ) { }
+  constructor(private authService: AuthService, private habitService: HabitService, private router: Router, private cdRef: ChangeDetectorRef) { }
 
   register() {
-    this.isRegistering = true;  // Disable fields during registration
+    this.errorMessages = []; // Clear previous errors
 
-    //register user
+    // Check if passwords match
+    if (this.password !== this.confirmPassword) {
+      this.errorMessages.push('Passwords do not match.');
+      this.isRegistering = false; // Ensure fields remain enabled
+
+      // Scroll to the top when an error occurs
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return; // Exit the method early to prevent further execution
+    }
+
+    this.isRegistering = true; // Disable fields during registration
+
     this.authService.register(this.email, this.password).pipe(
       catchError(error => {
-        // Handle error if needed
-        console.error('Registration failed:', error);
-        return of(null); // Return null or an appropriate value
+        this.errorMessages = this.processErrorMessages(error);
+
+        // Scroll to the top when an error occurs
+        if (this.errorMessages.length > 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        this.cdRef.detectChanges(); // Ensure the template updates with the new messages
+        this.isRegistering = false; // Re-enable fields if registration fails
+        return of(null);
       })
     ).subscribe(response => {
       if (response) {
-        // Extract the user ID from the response
-        this.userId = response.userId; 
+        this.userId = response.userId;
 
-        // Create user habit
-        const habitData: any = {
+        const habitData = {
           habitId: null,
           userId: this.userId,
           addictionType: this.addictionType,
@@ -64,15 +81,15 @@ export class RegisterComponent {
           occurrencesPerMonth: this.occurrencesPerMonth
         };
 
-        //post user habit to database
         this.habitService.createUserHabit(habitData).subscribe(
-          (userHabit) => {
+          () => {
             this.successMessage = 'Registration successful! Redirecting to login';
+            this.errorMessages = [];
             setTimeout(() => this.router.navigate(['/login']), 2000);  // Redirect after 2 seconds
           },
-          (error) => {
-            console.error('Error creating habit', error);
-            this.errorMessage = 'Failed to create habit.';
+          () => {
+            this.errorMessages = ['Failed to create habit.'];
+            this.isRegistering = false;
           }
         );
       }
@@ -80,21 +97,18 @@ export class RegisterComponent {
   }
 
   processErrorMessages(error: any): string[] {
-    const messages: string[] = [];
-    if (Array.isArray(error.errors)) {
-      messages.push(...error.errors);
-    } else if (error.errors) {
-      for (const key in error.errors) {
-        if (error.errors.hasOwnProperty(key)) {
-          messages.push(...error.errors[key]);
-        }
+    if (error instanceof HttpErrorResponse) {
+      if (Array.isArray(error.error.errors)) {
+        return error.error.errors;
+      } else if (error.error && typeof error.error === 'object' && error.error.errors) {
+        return ([] as string[]).concat(...Object.values(error.error.errors) as string[][]);
+      } else if (typeof error.error === 'string') {
+        return [error.error];
+      } else if (error.message) {
+        return [error.message];
       }
-    } else if (error.Message) {
-      messages.push(error.Message);
-    } else {
-      messages.push(error.title || 'An unknown error occurred.');
     }
-    return messages;
+    return ['An unknown error occurred.'];
   }
 
   checkCustomAddiction() {
