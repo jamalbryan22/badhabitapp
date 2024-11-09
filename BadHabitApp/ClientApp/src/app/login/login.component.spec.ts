@@ -3,7 +3,7 @@ import { LoginComponent } from './login.component';
 import { AuthService } from '../services/auth.service';
 import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('LoginComponent', () => {
@@ -13,12 +13,12 @@ describe('LoginComponent', () => {
   let routerMock: any;
 
   beforeEach(async () => {
-    authServiceMock = jasmine.createSpyObj('AuthService', ['login', 'forgotPassword']);
+    authServiceMock = jasmine.createSpyObj('AuthService', ['login']);
     routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [FormsModule, ReactiveFormsModule],
+      imports: [FormsModule],
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: Router, useValue: routerMock },
@@ -39,72 +39,37 @@ describe('LoginComponent', () => {
   it('should call AuthService.login on login and redirect on success', fakeAsync(() => {
     authServiceMock.login.and.returnValue(of({ isSuccess: true }));
 
-    component.loginForm.setValue({
-      email: 'testEmail@test.com',
-      password: 'testPassword'
-    });
-
-    component.onSubmit();
+    component.email = 'testEmail@test.com';
+    component.password = 'testPassword';
+    component.login();
 
     tick(); // Fast forward the async call
 
     expect(authServiceMock.login).toHaveBeenCalledWith('testEmail@test.com', 'testPassword');
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/']);
   }));
 
   it('should handle error when login fails', () => {
     authServiceMock.login.and.returnValue(
-      throwError(() => ({ error: { messages: ['Invalid email or password'] } }))
+      throwError({ error: { messages: ['Invalid email or password'] } })
     );
 
-    component.loginForm.setValue({
-      email: 'testEmail@test.com',
-      password: 'testPassword'
-    });
+    component.email = 'testEmail@test.com';
+    component.password = 'testPassword';
+    component.login();
 
-    component.onSubmit();
-
-    expect(console.error).toHaveBeenCalledWith('Login failed', jasmine.anything());
+    expect(component.errorMessages).toEqual(['Invalid email or password']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('should display default error message if no specific messages are provided', () => {
-    authServiceMock.login.and.returnValue(throwError(() => ({})));
+    authServiceMock.login.and.returnValue(throwError({}));
 
-    component.loginForm.setValue({
-      email: 'testEmail@test.com',
-      password: 'testPassword'
-    });
+    component.email = 'testEmail@test.com';
+    component.password = 'testPassword';
+    component.login();
 
-    component.onSubmit();
-
-    expect(console.error).toHaveBeenCalledWith('Login failed', jasmine.anything());
+    expect(component.errorMessages).toEqual(['Incorrect Email or Password.']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
-  });
-
-  it('should call forgotPassword when onForgotPassword is triggered', () => {
-    authServiceMock.forgotPassword.and.returnValue(of({ message: 'Password reset link sent' }));
-
-    component.loginForm.setValue({
-      email: 'testEmail@test.com',
-      password: ''
-    });
-
-    component.onForgotPassword();
-
-    expect(authServiceMock.forgotPassword).toHaveBeenCalledWith('testEmail@test.com');
-  });
-
-  it('should show an alert if no email is provided for password reset', () => {
-    spyOn(window, 'alert');
-
-    component.loginForm.setValue({
-      email: '',
-      password: ''
-    });
-
-    component.onForgotPassword();
-
-    expect(window.alert).toHaveBeenCalledWith('Please enter your email address to proceed.');
   });
 });

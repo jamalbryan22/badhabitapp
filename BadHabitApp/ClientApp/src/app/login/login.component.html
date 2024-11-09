@@ -6,16 +6,17 @@
     </ul>
   </div>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <label for="email">Email:</label>
-    <input id="email" [formControlName]="'email'" name="email" required />
-
-    <label for="password">Password:</label>
-    <input id="password" [formControlName]="'password'" type="password" name="password" required />
+  <h2>Login</h2>
+  <form (ngSubmit)="login()">
+    <div>
+      <label for="email">Email:</label>
+      <input id="email" [(ngModel)]="email" name="email" required />
+    </div>
+    <div>
+      <label for="password">Password:</label>
+      <input id="password" [(ngModel)]="password" type="password" name="password" required />
+    </div>
 
     <button type="submit">Login</button>
   </form>
-
-  <button (click)="onForgotPassword()">Forgot Password?</button>
-  <button (click)="onResetPassword()">Reset Password</button>
-
+</div>

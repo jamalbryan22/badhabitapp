@@ -32,18 +32,6 @@ export class AuthService {
       );
   }
 
-  // Forgot password method
-  forgotPassword(email: string): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}/Account/forgot-password`, { email }, { headers });
-  }
-
-  // Reset password method
-  resetPassword(data: { email: string; token: string; newPassword: string }): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(`${this.baseUrl}/Account/reset-password`, data, { headers });
-  }
-
   // Send the token with each authenticated request
   getProfile(): Observable<any> {
     const token = this.getToken(); // Get the stored JWT token
