@@ -1,28 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HabitService, DefaultHabit, UserHabit } from './habit.service';
+import { HabitService, UserHabit } from './habit.service';
 
 describe('HabitService', () => {
   let service: HabitService;
   let httpMock: HttpTestingController;
 
-  const mockDefaultHabit: DefaultHabit = {
-    habitId: 1,
-    name: 'Test Habit',
-    description: 'This is a test habit',
-    defaultCostPerOccurrence: 10,
-    defaultOccurrencesPerDay: 2
-  };
-
-  const mockUserHabit: UserHabit = {
+  const mockHabit: UserHabit = {
     userHabitId: 1,
     userId: 'user123',
     habitId: 1,
-    habit: mockDefaultHabit,
-    costPerOccurrence: 5,
-    occurrencesPerDay: 2,
+    habit: {
+      habitId: 1,
+      name: 'Smoking',
+      description: 'Smoking cigarettes',
+      defaultCostPerOccurrence: null,
+      defaultOccurrencesPerDay: null,
+    },
+    name: 'Smoking',
+    description: 'Smoking cigarettes',
+    costPerOccurrence: 10,
+    occurrencesPerDay: 1,
     isActive: true,
-    startDate: '2024-01-01'
+    startDate: '2024-11-01T00:00:00Z',
   };
 
   beforeEach(() => {
@@ -43,51 +43,73 @@ describe('HabitService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch default habits via GET', () => {
-    service.getDefaultHabits().subscribe((habits: DefaultHabit[]) => {
-      expect(habits.length).toBe(1);
-      expect(habits).toEqual([mockDefaultHabit]);
+  it('should fetch user habit via GET', () => {
+    const userId = 'user123';
+
+    service.getUserHabit(userId).subscribe((habit) => {
+      expect(habit).toEqual(mockHabit);
     });
 
-    const req = httpMock.expectOne(`${service['baseUrl']}/defaulthabits`);
+    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits/${userId}`);
     expect(req.request.method).toBe('GET');
-    req.flush([mockDefaultHabit]); // Return mock data
+    req.flush(mockHabit); // Return mock data
   });
 
-  it('should fetch user habits via GET', () => {
-    service.getUserHabits().subscribe((userHabits: UserHabit[]) => {
-      expect(userHabits.length).toBe(1);
-      expect(userHabits).toEqual([mockUserHabit]);
+  it('should log relapse via POST', () => {
+    const userId = 'user123';
+    const reason = 'Had a stressful day';
+
+    service.logRelapse(userId, reason).subscribe(() => {
+      expect().nothing();
     });
 
-    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits`);
-    expect(req.request.method).toBe('GET');
-    req.flush([mockUserHabit]); // Return mock data
+    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits/${userId}/logrelapse`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toBe(reason);
+    expect(req.request.headers.get('Content-Type')).toBe('text/plain');
+    req.flush({});
   });
 
   it('should create a user habit via POST', () => {
     const newHabitData = { name: 'New Habit', description: 'Custom Habit' };
+    const mockResponse = { userHabitId: 2, ...newHabitData };
 
-    service.createUserHabit(newHabitData).subscribe((userHabit: UserHabit) => {
-      expect(userHabit).toEqual(mockUserHabit);
+    service.createUserHabit(newHabitData).subscribe((userHabit) => {
+      expect(userHabit).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits`);
+    const req = httpMock.expectOne(`${service['baseUrl']}/UserHabits`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newHabitData);
-    req.flush(mockUserHabit); // Return mock data
+    req.flush(mockResponse);
   });
 
   it('should delete a user habit via DELETE', () => {
     const userHabitId = 1;
 
     service.deleteUserHabit(userHabitId).subscribe(() => {
-      // Test successful delete with no return value
       expect().nothing();
     });
 
     const req = httpMock.expectOne(`${service['baseUrl']}/userhabits/${userHabitId}`);
     expect(req.request.method).toBe('DELETE');
-    req.flush({}); // Simulate success with no response body
+    req.flush({});
+  });
+
+  it('should handle errors', () => {
+    const userId = 'user123';
+    const errorMessage = 'An error occurred';
+
+    service.getUserHabit(userId).subscribe(
+      () => fail('should have failed with an error'),
+      (error) => {
+        expect(error).toContain('Server error');
+      }
+    );
+
+    const req = httpMock.expectOne(`${service['baseUrl']}/userhabits/${userId}`);
+    expect(req.request.method).toBe('GET');
+
+    req.flush({ message: errorMessage }, { status: 500, statusText: 'Server Error' });
   });
 });

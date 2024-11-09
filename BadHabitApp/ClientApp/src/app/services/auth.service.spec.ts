@@ -63,7 +63,7 @@ describe('AuthService', () => {
     const password = 'password123';
     const mockResponse = { message: 'User registered successfully' };
 
-    service.register(email, password).subscribe((response) => {
+    service.register({ email, password }).subscribe((response) => {
       expect(response).toEqual(mockResponse);
     });
 

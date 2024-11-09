@@ -92,6 +92,9 @@ export class RegisterComponent {
         return error.error.errors;
       } else if (error.error && typeof error.error === 'object' && error.error.errors) {
         return ([] as string[]).concat(...Object.values(error.error.errors) as string[][]);
+      } else if (error.error && error.error.Message) {
+        // Handle the case where error.error contains a Message property
+        return [error.error.Message];
       } else if (typeof error.error === 'string') {
         return [error.error];
       } else if (error.message) {
