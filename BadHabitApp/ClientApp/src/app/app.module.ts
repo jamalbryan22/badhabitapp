@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // Import ReactiveFormsModule
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -31,6 +31,7 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     FormsModule,
+    ReactiveFormsModule, // Add this line
     HttpClientModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -52,4 +53,3 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
   ]
 })
 export class AppModule { }
-

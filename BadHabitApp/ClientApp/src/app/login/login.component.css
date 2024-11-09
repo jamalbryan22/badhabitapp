@@ -33,7 +33,12 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 1rem;
+  margin-top: 0.75rem; /* Adds space between buttons */
 }
+
+  button:first-of-type {
+    margin-top: 1.5rem; /* Add more space above the first button if needed */
+  }
 
   button:hover {
     background-color: #004d40;
