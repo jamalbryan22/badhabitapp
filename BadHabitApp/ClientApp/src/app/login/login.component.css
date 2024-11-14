@@ -57,3 +57,14 @@ button {
     width: 90%;
   }
 }
+
+/* Additional styling for the registration button */
+.register-button {
+  margin-top: 1rem; /* Adds space between the buttons */
+  background-color: #00897b; /* Slightly different color to differentiate */
+}
+
+  .register-button:hover {
+    background-color: #00695c; /* Darken the button color on hover */
+  }
+

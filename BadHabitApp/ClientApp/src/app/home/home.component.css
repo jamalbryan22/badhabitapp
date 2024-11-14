@@ -1,0 +1,35 @@
+.landing-container {
+  text-align: center;
+  padding: 3rem;
+  background-color: #e0f7fa;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 3rem auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.get-started-button {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1.2rem;
+}
+
+  .get-started-button:hover {
+    background-color: #004d40;
+  }
+
+.features-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+  .features-list li {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+  }

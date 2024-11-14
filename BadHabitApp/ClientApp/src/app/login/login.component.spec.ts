@@ -41,7 +41,7 @@ describe('LoginComponent', () => {
 
     component.email = 'testEmail@test.com';
     component.password = 'testPassword';
-    component.login();
+    component.onSubmit();
 
     tick(); // Fast forward the async call
 
@@ -56,7 +56,7 @@ describe('LoginComponent', () => {
 
     component.email = 'testEmail@test.com';
     component.password = 'testPassword';
-    component.login();
+    component.onSubmit();
 
     expect(component.errorMessages).toEqual(['Invalid email or password']);
     expect(routerMock.navigate).not.toHaveBeenCalled();
@@ -67,7 +67,7 @@ describe('LoginComponent', () => {
 
     component.email = 'testEmail@test.com';
     component.password = 'testPassword';
-    component.login();
+    component.onSubmit();
 
     expect(component.errorMessages).toEqual(['Incorrect Email or Password.']);
     expect(routerMock.navigate).not.toHaveBeenCalled();

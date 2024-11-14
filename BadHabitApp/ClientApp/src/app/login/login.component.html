@@ -7,7 +7,7 @@
   </div>
 
   <h2>Login</h2>
-  <form (ngSubmit)="login()">
+  <form (ngSubmit)="onSubmit()">
     <div>
       <label for="email">Email:</label>
       <input id="email" [(ngModel)]="email" name="email" required />
@@ -19,4 +19,7 @@
 
     <button type="submit">Login</button>
   </form>
+
+  <!-- Registration Button -->
+  <button class="register-button" (click)="onRegister()">Register</button>
 </div>

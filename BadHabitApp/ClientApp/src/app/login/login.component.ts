@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
@@ -7,25 +7,32 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
   errorMessages: string[] = [];
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
-  login() {
+  ngOnInit(): void { }
+
+  onSubmit(): void {
     this.authService.login(this.email, this.password).subscribe({
-      next: (response: any) => {
-        this.router.navigate(['/']);  // Redirect to home after login
+      next: (response) => {
+        console.log('Login successful', response);
+        this.router.navigate(['/habits']); // Redirect to habits page on successful login
       },
-      error: (error: any) => {
-        console.error('Login failed:', error);
-        this.errorMessages = error?.error?.messages || ['Incorrect Email or Password.'];
-      },
-      complete: () => {
-        console.log('Login request complete.');
+      error: (error) => {
+        console.error('Login failed', error);
+        this.errorMessages = ['Incorrect Email or Password.'];
       }
     });
+  }
+
+  onRegister(): void {
+    this.router.navigate(['/register']); // Navigate to registration page
   }
 }
