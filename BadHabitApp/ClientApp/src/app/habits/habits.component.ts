@@ -30,6 +30,7 @@ export class HabitsComponent implements OnInit {
   currentDate: Date = new Date();
   reasonForRelapse: string = '';
   showRelapseModal: boolean = false;
+  recentRelapses: any[] = []; // Array to hold recent relapses
 
   constructor(private habitService: HabitService, private authService: AuthService, private http: HttpClient) { }
 
@@ -47,6 +48,7 @@ export class HabitsComponent implements OnInit {
     this.habitService.getUserHabit(userId).subscribe(
       (habit) => {
         this.habit = habit;
+        this.recentRelapses = this.habit.relapses.slice(-5).reverse(); // Get the last 5 relapses in descending order
         this.calculateInsights();
       },
       (error) => {
@@ -98,9 +100,7 @@ export class HabitsComponent implements OnInit {
       }
     );
   }
-
-  
-
+ 
   populateFormWithDefaultHabit(): void {
     if (this.selectedDefaultHabit) {
       this.isModified = false;  // Reset the modification flag

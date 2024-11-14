@@ -70,7 +70,7 @@ namespace BadHabitApp.Controllers
 			}
 
 			var userHabit = await _context.UserHabits
-		/*		.Include(uh => uh.Habit)*/
+				.Include(uh => uh.Relapses)
 				.FirstOrDefaultAsync(uh => uh.UserId == userId);
 
 			if (userHabit == null)

@@ -22,8 +22,20 @@
         <p class="card-text"><strong>Days Since Last Relapse:</strong> {{ daysSinceLastRelapse }}</p>
         <p class="card-text"><strong>Money Saved:</strong> {{ moneySaved | currency:'USD':'symbol':'1.2-2' }}</p>
 
-        <p class="card-text"><strong>Reason for Last Relapse:</strong> {{ habit.reasonForLastRelapse }}</p>
         <p class="card-text"><strong>Habit Start Date:</strong> {{ habit.habitStartDate | date:'MM/dd/yyyy' }}</p>
+
+        <hr>
+
+        <h4>Recent Relapse History</h4>
+        <ul *ngIf="recentRelapses.length > 0; else noRelapses">
+          <li *ngFor="let relapse of recentRelapses">
+            <strong>Date:</strong> {{ relapse.relapseDate | date:'MM/dd/yyyy' }} -
+            <strong>Reason:</strong> {{ relapse.reason }}
+          </li>
+        </ul>
+        <ng-template #noRelapses>
+          <p>No recent relapses logged.</p>
+        </ng-template>
 
         <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log Relapse</button>
       </div>

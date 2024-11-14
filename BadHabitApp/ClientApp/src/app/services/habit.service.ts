@@ -38,19 +38,16 @@ export class HabitService {
       );
   }
 
-  // Log relapse
-  logRelapse(userId: string, reasonForLastRelapse: string): Observable<void> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'text/plain'
-    });
-    return this.http.post<void>(`${this.baseUrl}/userhabits/${userId}/logrelapse`, reasonForLastRelapse, { headers })
+  // Log relapse for a specific habit
+  logRelapse(habitId: number, reasonForRelapse: string): Observable<void> {
+    const relapseData = { reason: reasonForRelapse }; // Payload with reason
+    return this.http.post<void>(`${this.baseUrl}/userhabits/${habitId}/logrelapse`, relapseData)
       .pipe(
         catchError(this.handleError)
       );
   }
 
-
-  // Create a new user habit (either custom or default)
+    // Create a new user habit (either custom or default)
   createUserHabit(habitData: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/UserHabits`, habitData)
       .pipe(
