@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HabitService, DefaultHabit, UserHabit } from '../services/habit.service';
+import { HabitService, DefaultHabit, UserHabit, Relapse } from '../services/habit.service';
 import { AuthService } from '../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -30,7 +30,7 @@ export class HabitsComponent implements OnInit {
   currentDate: Date = new Date();
   reasonForRelapse: string = '';
   showRelapseModal: boolean = false;
-  recentRelapses: any[] = []; // Array to hold recent relapses
+  recentRelapses: Relapse[] = [];
 
   constructor(private habitService: HabitService, private authService: AuthService, private http: HttpClient) { }
 
@@ -48,7 +48,17 @@ export class HabitsComponent implements OnInit {
     this.habitService.getUserHabit(userId).subscribe(
       (habit) => {
         this.habit = habit;
-        this.recentRelapses = this.habit.relapses.slice(-5).reverse(); // Get the last 5 relapses in descending order
+        // Parse each reason in recent relapses
+        this.recentRelapses = this.habit.relapses.slice(-5).reverse().map((relapse: Relapse) => {
+          try {
+            // Try to parse the reason as JSON and extract the 'reason' field
+            const parsedReason = JSON.parse(relapse.reason);
+            relapse.reason = parsedReason.reason || relapse.reason;
+          } catch (error) {
+            console.error('Failed to parse reason JSON:', error);
+          }
+          return relapse;
+        });
         this.calculateInsights();
       },
       (error) => {
@@ -59,8 +69,11 @@ export class HabitsComponent implements OnInit {
   }
 
   calculateInsights(): void {
-    if (this.habit) {
-      const lastRelapseDate = new Date(this.habit.lastRelapseDate);
+    if (this.recentRelapses.length > 0) {
+      // Get the most recent relapse date
+      const lastRelapseDate = new Date(this.recentRelapses[0].relapseDate);
+
+      // Calculate the difference in days between today and the last relapse date
       const timeDiff = this.currentDate.getTime() - lastRelapseDate.getTime();
       this.daysSinceLastRelapse = Math.floor(timeDiff / (1000 * 3600 * 24));
 
@@ -69,10 +82,17 @@ export class HabitsComponent implements OnInit {
         this.daysSinceLastRelapse = 0;
       }
 
-      // Assuming the habit would occur once per day
-      this.moneySaved = this.daysSinceLastRelapse * this.habit.costPerOccurrence;
+      // Calculate money saved based on the days since the last relapse
+      this.moneySaved = this.daysSinceLastRelapse * (this.habit.costPerOccurrence || 0);
+    } else {
+      // If there are no relapses, assume it has been since the habit start date
+      const habitStartDate = new Date(this.habit.habitStartDate);
+      const timeDiff = this.currentDate.getTime() - habitStartDate.getTime();
+      this.daysSinceLastRelapse = Math.floor(timeDiff / (1000 * 3600 * 24));
+      this.moneySaved = this.daysSinceLastRelapse * (this.habit.costPerOccurrence || 0);
     }
   }
+
 
   openRelapseModal(): void {
     this.reasonForRelapse = '';

@@ -23,6 +23,12 @@ export interface UserHabit {
   startDate: string;
 }
 
+export interface Relapse {
+  id: number;
+  relapseDate: string;
+  reason: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
