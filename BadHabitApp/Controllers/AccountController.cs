@@ -144,10 +144,8 @@ namespace BadHabitApp.Controllers
                 UserId = user.Id,
                 AddictionType = model.AddictionType,
                 HabitStartDate = model.HabitStartDate ?? DateTime.UtcNow,
-                LastRelapseDate = model.LastRelapseDate ?? DateTime.UtcNow,
                 HabitDescription = model.HabitDescription,
                 UserMotivation = model.UserMotivation,
-                ReasonForLastRelapse = model.ReasonForLastRelapse,
                 CostPerOccurrence = model.CostPerOccurrence,
                 OccurrencesPerMonth = model.OccurrencesPerMonth
             };

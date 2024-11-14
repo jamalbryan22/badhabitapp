@@ -107,10 +107,8 @@ namespace BadHabitApp.Tests.Controllers
 				Password = password,
 				AddictionType = "Smoking",
 				HabitStartDate = DateTime.UtcNow.AddDays(-30),
-				LastRelapseDate = DateTime.UtcNow.AddDays(-5),
 				HabitDescription = "Smoking habit",
 				UserMotivation = "Health",
-				ReasonForLastRelapse = "Stress",
 				CostPerOccurrence = 10,
 				OccurrencesPerMonth = 20
 			};
@@ -201,10 +199,8 @@ namespace BadHabitApp.Tests.Controllers
 				Password = password,
 				AddictionType = "Smoking",
 				HabitStartDate = DateTime.UtcNow.AddDays(-30),
-				LastRelapseDate = DateTime.UtcNow.AddDays(-5),
 				HabitDescription = "Smoking habit",
 				UserMotivation = "Health",
-				ReasonForLastRelapse = "Stress",
 				CostPerOccurrence = 10,
 				OccurrencesPerMonth = 20
 			};
@@ -244,10 +240,8 @@ namespace BadHabitApp.Tests.Controllers
 				Password = "Password123!",
 				AddictionType = "Smoking",
 				HabitStartDate = DateTime.UtcNow.AddDays(-30),
-				LastRelapseDate = DateTime.UtcNow.AddDays(-5),
 				HabitDescription = "Smoking habit",
 				UserMotivation = "Health",
-				ReasonForLastRelapse = "Stress",
 				CostPerOccurrence = 10,
 				OccurrencesPerMonth = 20
 			};

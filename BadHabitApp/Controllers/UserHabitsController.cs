@@ -43,10 +43,8 @@ namespace BadHabitApp.Controllers
                 UserId = model.UserId,
 				AddictionType = model.AddictionType,
 				HabitStartDate = model.HabitStartDate,
-				LastRelapseDate = model.LastRelapseDate,
 				HabitDescription = model.HabitDescription,
 				UserMotivation = model.UserMotivation,
-				ReasonForLastRelapse = model.ReasonForLastRelapse,
 
 				CostPerOccurrence = model.CostPerOccurrence,
 				OccurrencesPerMonth = model.OccurrencesPerMonth
@@ -83,47 +81,142 @@ namespace BadHabitApp.Controllers
 			return Ok(userHabit);
 		}
 
-        // POST: api/userhabits/{id}/logrelapse
-        [HttpPost("{id}/logrelapse")]
-        public async Task<IActionResult> LogRelapse(string id)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
+		[HttpPost("{id}/logrelapse")]
+		public async Task<IActionResult> LogRelapse(int id)
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
 
-            var userHabit = await _context.UserHabits
-                .FirstOrDefaultAsync(uh => uh.UserId == userId);
+			var userHabit = await _context.UserHabits
+				.Include(uh => uh.Relapses)
+				.FirstOrDefaultAsync(uh => uh.Id == id && uh.UserId == userId);
 
-            if (userHabit == null)
-            {
-                return NotFound();
-            }
+			if (userHabit == null)
+			{
+				return NotFound();
+			}
 
-            string reasonForLastRelapse;
-            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
-            {
-                reasonForLastRelapse = await reader.ReadToEndAsync();
-            }
+			string reasonForLastRelapse;
+			using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
+			{
+				reasonForLastRelapse = await reader.ReadToEndAsync();
+			}
 
-            if (reasonForLastRelapse == null)
-            {
-                return BadRequest("Reason for relapse is required.");
-            }
+			if (string.IsNullOrEmpty(reasonForLastRelapse))
+			{
+				return BadRequest("Reason for relapse is required.");
+			}
 
-            userHabit.LastRelapseDate = DateTime.UtcNow;
-            userHabit.ReasonForLastRelapse = reasonForLastRelapse;
+			var relapse = new Relapse
+			{
+				UserHabitId = userHabit.Id,
+				RelapseDate = DateTime.UtcNow,
+				Reason = reasonForLastRelapse
+			};
 
-            _context.UserHabits.Update(userHabit);
-            await _context.SaveChangesAsync();
+			_context.Relapses.Add(relapse);
+			await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+			return NoContent();
+		}
 
-        // DELETE: api/userhabits/{id}
-        // Delete a habit associated with the user
-        [HttpDelete("{id}")]
+		// DELETE: api/userhabits/{habitId}/relapses/{relapseId}
+		[HttpDelete("{habitId}/relapses/{relapseId}")]
+		public async Task<IActionResult> DeleteRelapse(int habitId, int relapseId)
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+
+			var userHabit = await _context.UserHabits
+				.Include(uh => uh.Relapses)
+				.FirstOrDefaultAsync(uh => uh.Id == habitId && uh.UserId == userId);
+
+			if (userHabit == null)
+			{
+				return NotFound();
+			}
+
+			var relapse = userHabit.Relapses.FirstOrDefault(r => r.Id == relapseId);
+			if (relapse == null)
+			{
+				return NotFound();
+			}
+
+			_context.Relapses.Remove(relapse);
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+
+		// DELETE: api/userhabits/{habitId}/relapses
+		[HttpDelete("{habitId}/relapses")]
+		public async Task<IActionResult> DeleteAllRelapses(int habitId)
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+
+			var userHabit = await _context.UserHabits
+				.Include(uh => uh.Relapses)
+				.FirstOrDefaultAsync(uh => uh.Id == habitId && uh.UserId == userId);
+
+			if (userHabit == null)
+			{
+				return NotFound();
+			}
+
+			_context.Relapses.RemoveRange(userHabit.Relapses);
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+
+		// PUT: api/userhabits/{habitId}/relapses/{relapseId}
+		[HttpPut("{habitId}/relapses/{relapseId}")]
+		public async Task<IActionResult> UpdateRelapse(int habitId, int relapseId, [FromBody] Relapse updatedRelapse)
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+
+			var userHabit = await _context.UserHabits
+				.Include(uh => uh.Relapses)
+				.FirstOrDefaultAsync(uh => uh.Id == habitId && uh.UserId == userId);
+
+			if (userHabit == null)
+			{
+				return NotFound();
+			}
+
+			var relapse = userHabit.Relapses.FirstOrDefault(r => r.Id == relapseId);
+			if (relapse == null)
+			{
+				return NotFound();
+			}
+
+			// Update fields
+			relapse.RelapseDate = updatedRelapse.RelapseDate;
+			relapse.Reason = updatedRelapse.Reason;
+
+			_context.Relapses.Update(relapse);
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+
+		// DELETE: api/userhabits/{id}
+		// Delete a habit associated with the user
+		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteUserHabit(string id)
 		{
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

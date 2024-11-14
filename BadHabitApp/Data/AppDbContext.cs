@@ -12,6 +12,7 @@ namespace BadHabitApp.Data
 		}
 
 		public DbSet<UserHabit> UserHabits { get; set; }
+		public DbSet<Relapse> Relapses { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

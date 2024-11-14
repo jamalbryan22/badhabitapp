@@ -134,17 +134,6 @@
              [disabled]="isRegistering" />
     </div>
 
-    <!-- Date Of Last Relapse -->
-    <div class="form-group">
-      <label for="lastRelapse">Date of last relapse:</label>
-      <input id="lastRelapse"
-             [(ngModel)]="dateOfLastRelapse"
-             name="lastRelapse"
-             type="date"
-             required
-             [disabled]="isRegistering" />
-    </div>
-
     <!-- Habit Description -->
     <div class="form-group">
       <label for="habitDescription">Habit description:</label>
@@ -164,18 +153,6 @@
                 [(ngModel)]="userMotivation"
                 name="userMotivation"
                 placeholder="What is your motivation for quitting?"
-                maxlength="500"
-                rows="3"
-                [disabled]="isRegistering"></textarea>
-    </div>
-
-    <!-- Reason for Last Relapse -->
-    <div class="form-group">
-      <label for="reasonForLastRelapse">Reason for last relapse:</label>
-      <textarea id="reasonForLastRelapse"
-                [(ngModel)]="reasonForLastRelapse"
-                name="reasonForLastRelapse"
-                placeholder="What was the cause of your most recent relapse"
                 maxlength="500"
                 rows="3"
                 [disabled]="isRegistering"></textarea>

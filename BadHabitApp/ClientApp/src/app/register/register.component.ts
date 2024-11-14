@@ -12,10 +12,6 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class RegisterComponent {
   userId: string | null = null;
-/*  firstName: string | null = null;
-  lastName: string | null = null;
-  dateOfBirth: Date | null = null;
-  userName: string | null = null;*/
   email: string | null = null;
   password: string | null = null;
   confirmPassword: string | null = null;
@@ -23,10 +19,8 @@ export class RegisterComponent {
   customAddiction: string | null = null;
   isCustomAddictionSelected = false;
   dateAddictionBegan: Date | null = null;
-  dateOfLastRelapse: Date | null = null;
   habitDescription: string | null = null;
   userMotivation: string | null = null;
-  reasonForLastRelapse: string | null = null;
   costPerOccurrence: number | null = 0;
   occurrencesPerMonth: number | null = 0;
   errorMessages: string[] = [];
@@ -56,10 +50,8 @@ export class RegisterComponent {
       password: this.password,
       addictionType: this.addictionType === 'Custom' ? this.customAddiction : this.addictionType,
       habitStartDate: this.dateAddictionBegan,
-      lastRelapseDate: this.dateOfLastRelapse,
       habitDescription: this.habitDescription,
       userMotivation: this.userMotivation,
-      reasonForLastRelapse: this.reasonForLastRelapse,
       costPerOccurrence: this.costPerOccurrence,
       occurrencesPerMonth: this.occurrencesPerMonth
     };

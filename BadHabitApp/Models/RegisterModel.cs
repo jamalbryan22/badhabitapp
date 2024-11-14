@@ -21,17 +21,11 @@ namespace BadHabitApp.Models
 		[Required(ErrorMessage = "Habit Start Date is required.")]
 		public DateTime? HabitStartDate { get; set; }
 
-		[Required(ErrorMessage = "Last Relapse Date is required.")]
-		public DateTime? LastRelapseDate { get; set; }
-
 		[StringLength(500)]
 		public string? HabitDescription { get; set; }
 
 		[StringLength(500)]
 		public string? UserMotivation { get; set; }
-
-		[StringLength(500)]
-		public string? ReasonForLastRelapse { get; set; }
 
 		[Column(TypeName = "decimal(10,2)")]
 		public decimal? CostPerOccurrence { get; set; }
