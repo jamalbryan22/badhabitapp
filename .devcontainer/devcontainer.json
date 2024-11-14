@@ -1,0 +1,19 @@
+{
+    "name": "Codespace with SQL Express",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "forwardPorts": [1433],
+    "postCreateCommand": "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P \"$SA_PASSWORD\" -Q \"CREATE DATABASE BadHabitAppDb\"",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-mssql.mssql"  // SQL Server extension for VS Code
+            ]
+        }
+    },
+    "remoteUser": "codespace",
+    "containerEnv": {
+        "SA_PASSWORD": "${SA_PASSWORD}"
+    }
+}
