@@ -56,7 +56,7 @@ describe('HabitService', () => {
   });
 
   it('should log relapse via POST', () => {
-    const userId = 'user123';
+    const userId = 123;
     const reason = 'Had a stressful day';
 
     service.logRelapse(userId, reason).subscribe(() => {
