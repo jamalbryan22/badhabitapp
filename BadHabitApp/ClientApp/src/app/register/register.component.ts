@@ -23,6 +23,9 @@ export class RegisterComponent {
   userMotivation: string | null = null;
   costPerOccurrence: number | null = 0;
   occurrencesPerMonth: number | null = 0;
+  goalType: string | null = null;
+  goalMetric: string | null = null;
+  goalValue: number | null = null;
   errorMessages: string[] = [];
   successMessage: string | null = null;
   isRegistering: boolean = false;
@@ -53,7 +56,10 @@ export class RegisterComponent {
       habitDescription: this.habitDescription,
       userMotivation: this.userMotivation,
       costPerOccurrence: this.costPerOccurrence,
-      occurrencesPerMonth: this.occurrencesPerMonth
+      occurrencesPerMonth: this.occurrencesPerMonth,
+      goalType: this.goalType,
+      goalMetric: this.goalType === 'reduce' ? this.goalMetric : null,
+      goalValue: this.goalType === 'reduce' ? this.goalValue : null
     };
 
     this.authService.register(registrationData).pipe(
@@ -99,5 +105,13 @@ export class RegisterComponent {
   checkCustomAddiction() {
     // Check if the selected addiction is 'Custom'
     this.isCustomAddictionSelected = this.addictionType === 'Custom';
+  }
+
+  onGoalTypeChange() {
+    // Reset GoalMetric and GoalValue if GoalType is set to "quit"
+    if (this.goalType !== 'reduce') {
+      this.goalMetric = null;
+      this.goalValue = null;
+    }
   }
 }

@@ -13,6 +13,16 @@ namespace BadHabitApp.Models
 		[Required(ErrorMessage = "Password is required.")]
 		public string Password { get; set; } = string.Empty;
 
+		// New goal fields
+		[Required(ErrorMessage = "Goal Type is required.")]
+		[StringLength(10)]
+		public string GoalType { get; set; } = "quit";
+
+		[StringLength(5)]
+		public string? GoalMetric { get; set; }
+
+		public decimal? GoalValue { get; set; }
+
 		// Habit fields
 		[Required(ErrorMessage = "Addiction Type is required.")]
 		[StringLength(100)]

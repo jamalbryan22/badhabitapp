@@ -81,3 +81,44 @@ button {
     width: 90%;
   }
 }
+
+.info-icon {
+  display: inline-block;
+  margin-left: 5px;
+  color: #00796b;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+}
+
+  .info-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    width: 450px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    white-space: normal;
+    z-index: 1;
+  }
+
+  .info-icon:hover::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: calc(100% - 5px);
+    margin-top: 0;
+    width: 0;
+    height: 0;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #f9f9f9 transparent;
+    z-index: 1;
+  }
