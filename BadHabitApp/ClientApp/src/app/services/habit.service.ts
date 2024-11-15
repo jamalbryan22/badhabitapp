@@ -48,9 +48,9 @@ export class HabitService {
   }
 
   // Log relapse for a specific habit
-  logRelapse(habitId: number, reasonForRelapse: string): Observable<void> {
+  logRelapse(userHabitId: number, reasonForRelapse: string): Observable<void> {
     const relapseData = { reason: reasonForRelapse }; // Payload with reason
-    return this.http.post<void>(`${this.baseUrl}/userhabits/${habitId}/logrelapse`, relapseData)
+    return this.http.post<void>(`${this.baseUrl}/userhabits/${userHabitId}/logrelapse`, relapseData)
       .pipe(
         catchError(this.handleError)
       );
