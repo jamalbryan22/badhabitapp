@@ -24,6 +24,23 @@ export class HabitsComponent implements OnInit {
   motivationalMessage: string = '';
   errorMessage: string = '';
   successMessage: string = '';
+  progressValue: number = 0;
+  goalReached: boolean = false;
+  editedHabit: UserHabit = {
+    id: 0,
+    userId: '',
+    addictionType: '',
+    habitStartDate: '',
+    habitDescription: '',
+    userMotivation: '',
+    costPerOccurrence: 0,
+    occurrencesPerMonth: 0,
+    goalType: '',
+    goalMetric: '',
+    goalValue: 0,
+    relapses: []
+  };
+  showEditModal: boolean = false;
 
   constructor(
     private habitService: HabitService,
@@ -54,6 +71,7 @@ export class HabitsComponent implements OnInit {
         this.calculateCumulativeMoneySaved();
         this.checkAchievements();
         this.setMotivationalMessage();
+        this.calculateMonthlyProgress();
       },
       (error) => {
         console.error('Error loading habit', error);
@@ -171,8 +189,29 @@ export class HabitsComponent implements OnInit {
     }
   }
 
-  onSelect(event: any): void {
-    console.log('Selected date', event);
+  calculateMonthlyProgress(): void {
+    if (!this.habit) return;
+
+    const currentMonth = moment().month();
+    const currentYear = moment().year();
+
+    // Filter relapses within the current month
+    const monthlyRelapses = this.habit.relapses.filter((relapse) => {
+      const relapseDate = moment(relapse.relapseDate);
+      return relapseDate.month() === currentMonth && relapseDate.year() === currentYear;
+    });
+
+    if (this.habit.goalMetric === 'freq') {
+      // Frequency-based goal
+      const occurrencesThisMonth = monthlyRelapses.length;
+      this.progressValue = Math.min((occurrencesThisMonth / (this.habit.goalValue || 1)) * 100, 100);
+      this.goalReached = occurrencesThisMonth <= (this.habit.goalValue || 1);
+    } else if (this.habit.goalMetric === 'cost') {
+      // Cost-based goal
+      const totalSpentThisMonth = monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
+      this.progressValue = Math.min((totalSpentThisMonth / (this.habit.goalValue || 1)) * 100, 100);
+      this.goalReached = totalSpentThisMonth <= (this.habit.goalValue || 1);
+    }
   }
 
   openRelapseModal(): void {
@@ -200,6 +239,65 @@ export class HabitsComponent implements OnInit {
         this.errorMessage = 'Failed to log relapse.';
       }
     );
+  }
+
+  openEditModal(): void {
+    if (this.habit) {
+      this.editedHabit = { ...this.habit };
+    } else {
+      // Set default values if `habit` hasn't been loaded yet
+      this.editedHabit = {
+        id: 0,
+        userId: '',
+        addictionType: '',
+        habitStartDate: '',
+        habitDescription: '',
+        userMotivation: '',
+        costPerOccurrence: 0,
+        occurrencesPerMonth: 0,
+        goalType: '',
+        goalMetric: '',
+        goalValue: 0,
+        relapses: []
+      };
+    }
+    this.showEditModal = true;
+  }
+
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editedHabit = {
+      id: 0,
+      userId: '',
+      addictionType: '',
+      habitStartDate: '',
+      habitDescription: '',
+      userMotivation: '',
+      costPerOccurrence: 0,
+      occurrencesPerMonth: 0,
+      goalType: '',
+      goalMetric: '',
+      goalValue: 0,
+      relapses: []
+    };
+  }
+
+  updateHabit(): void {
+    if (!this.editedHabit || !this.editedHabit.id) return;
+
+    this.habitService.updateUserHabit(this.editedHabit.id, this.editedHabit).subscribe(
+      (updatedHabit) => {
+        this.successMessage = 'Habit updated successfully.';
+        this.habit = updatedHabit; // Update the displayed habit with new data
+        this.closeEditModal();
+      },
+      (error) => {
+        this.errorMessage = 'Failed to update habit.';
+        console.error('Error updating habit', error);
+      }
+    );
+    this.closeEditModal()
   }
 
   logOut(): void {

@@ -9,7 +9,6 @@ h2 {
 }
 
 .motivational-message {
-  background-color: #f0f8ff;
   padding: 15px;
   border-radius: 8px;
   text-align: center;
@@ -19,6 +18,9 @@ h2 {
 
 .achievements {
   margin-bottom: 20px;
+  padding: 1rem;
+  background-color: #e6ecea;
+  border-radius: 20px;
 }
 
   .achievements ul {
@@ -27,7 +29,8 @@ h2 {
   }
 
   .achievements li {
-    background-color: #d4edda;
+    background-color: #00a287;
+    color:white;
     padding: 10px;
     margin-bottom: 5px;
     border-radius: 5px;
@@ -45,9 +48,16 @@ h2 {
 
   .stat-item h3 {
     font-size: 3rem;
+    font-weight: bolder;
     margin-bottom: 10px;
+    color: #00a287;
   }
 
+.habit {
+    padding: 2rem;
+    background-color: white;
+    border-radius: 30px;
+}
 .streaks {
   text-align: center;
   margin-bottom: 20px;
@@ -85,4 +95,91 @@ button {
 
 .modal-dialog {
   margin-top: 100px;
+}
+
+.goal-progress {
+  text-align: center;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+.progress-circle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  position: relative;
+}
+
+  .progress-circle svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+.progress-circle-bg {
+  fill: none;
+  stroke: #e6ecea;
+  stroke-width: 3.8;
+}
+
+.progress-circle-fill {
+  fill: none;
+  stroke: #00796b;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.goal-reached .progress-circle-fill {
+  stroke: #00a287;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.habit {
+  position: relative;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 30px;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: #00796b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  margin-top: 100px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
 }

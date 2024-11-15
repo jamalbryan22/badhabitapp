@@ -18,6 +18,9 @@ export interface UserHabit {
   userMotivation?: string;
   costPerOccurrence?: number;
   occurrencesPerMonth?: number;
+  goalType?: string;
+  goalMetric?: string;
+  goalValue?: number;
   relapses: Relapse[];
 }
 
@@ -40,6 +43,12 @@ export class HabitService {
     const relapseData = { reason: reasonForRelapse }; // Payload with reason
     return this.http
       .post<void>(`${this.baseUrl}/userhabits/${habitId}/logrelapse`, relapseData)
+      .pipe(catchError(this.handleError));
+  }
+
+  updateUserHabit(id: number, updatedHabit: UserHabit): Observable<UserHabit> {
+    return this.http
+      .put<UserHabit>(`${this.baseUrl}/userhabits/${id}`, updatedHabit)
       .pipe(catchError(this.handleError));
   }
 
