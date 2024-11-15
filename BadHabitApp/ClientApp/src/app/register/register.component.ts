@@ -114,4 +114,17 @@ export class RegisterComponent {
       this.goalValue = null;
     }
   }
+
+  // Method to restrict input to two decimal places
+  formatCurrencyInput(event: any, field: 'costPerOccurrence' | 'goalValue') {
+    const value = event.target.value;
+
+    // Use regex to ensure only up to two decimal places
+    const formattedValue = parseFloat(value).toFixed(2);
+    if (field === 'costPerOccurrence') {
+      this.costPerOccurrence = parseFloat(formattedValue);
+    } else if (field === 'goalValue' && this.goalMetric === 'cost') {
+      this.goalValue = parseFloat(formattedValue);
+    }
+  }
 }
