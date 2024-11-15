@@ -1,9 +1,9 @@
 .container {
-  max-width: 600px;
   margin: 0 auto;
 }
 
 .card {
+    width: 600px;
   margin-top: 20px;
 }
 

@@ -2,25 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 
-export interface DefaultHabit {
-  habitId: number;
-  name: string;
-  description: string;
-  defaultCostPerOccurrence: number | null;
-  defaultOccurrencesPerDay: number | null;
-}
-
 export interface UserHabit {
   userHabitId: number;
   userId: string;
-  habitId?: number; // Nullable for custom habits
-  habit?: DefaultHabit; // May be undefined for custom habits
-  name?: string;
-  description?: string;
-  costPerOccurrence: number | null;
-  occurrencesPerDay: number | null;
-  isActive: boolean;
-  startDate: string;
+  additionType: string;
+  habitStartDate: string;
+  habitDescription?: string;
+  userMotivation?: string;
+  costPerOccurrence?: number | null;
+  occurrencesPerDay?: number | null;
+  goalType: string;
+  goalMetric?: string;
+  goalValue?: number;
+  relapses?: Relapse[];
 }
 
 export interface Relapse {
@@ -37,8 +31,17 @@ export class HabitService {
 
   constructor(private http: HttpClient) { }
 
-  getUserHabit(userId: string): Observable<UserHabit> {
-    return this.http.get<UserHabit>(`${this.baseUrl}/userhabits/${userId}`)
+  // get list of habit ids associated with the user
+  getHabitIds(userId: string): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/userhabits`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  // get UserHabit object for a specific habit id
+  getUserHabit(userHabitId: number): Observable<UserHabit> {
+    return this.http.get<UserHabit>(`${this.baseUrl}/userhabits/${userHabitId}`)
       .pipe(
         catchError(this.handleError)
       );

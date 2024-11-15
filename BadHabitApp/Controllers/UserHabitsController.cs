@@ -58,9 +58,28 @@ namespace BadHabitApp.Controllers
 			return CreatedAtAction("GetUserHabit", new { id = userHabit.Id }, userHabit);
 		}
 
+		// GET: api/userhabits
+		// This method returns a list of habit ids associated with the user
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<int>>> GetUserHabits()
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+
+			var userHabits = await _context.UserHabits
+				.Where(uh => uh.UserId == userId)
+				.Select(uh => uh.Id)
+				.ToListAsync();
+
+			return Ok(userHabits);
+		}
+
 		// GET: api/userhabits/{id}
 		[HttpGet("{id}")]
-		public async Task<ActionResult<UserHabit>> GetUserHabit(string id)
+		public async Task<ActionResult<UserHabit>> GetUserHabit(int id)
 		{
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (string.IsNullOrEmpty(userId))
@@ -70,11 +89,11 @@ namespace BadHabitApp.Controllers
 
 			var userHabit = await _context.UserHabits
 				.Include(uh => uh.Relapses)
-				.FirstOrDefaultAsync(uh => uh.UserId == userId);
+				.FirstOrDefaultAsync(uh => uh.UserId == userId && uh.Id == id);
 
 			if (userHabit == null)
 			{
-				return NotFound();
+				return NotFound(new { message = "Habit not found or you do not have access to update this habit." });
 			}
 
 			return Ok(userHabit);

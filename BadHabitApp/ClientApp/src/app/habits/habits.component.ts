@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HabitService, DefaultHabit, UserHabit, Relapse } from '../services/habit.service';
+import { HabitService, UserHabit, Relapse } from '../services/habit.service';
 import { AuthService } from '../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,9 +10,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./habits.component.css']
 })
 export class HabitsComponent implements OnInit {
-  defaultHabits: DefaultHabit[] = [];
   userHabits: UserHabit[] = [];
-  selectedDefaultHabit: DefaultHabit | null = null;
   newHabit: any = {
     habitId: null,
     name: '',
@@ -35,38 +33,58 @@ export class HabitsComponent implements OnInit {
   constructor(private habitService: HabitService, private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.loadHabit();
+    this.loadHabits();
   }
 
-  loadHabit(): void {
+  loadHabits(): void {
     const userId = this.authService.getUserID();
     if (!userId) {
       this.errorMessage = 'User not logged in.';
       return;
     }
 
-    this.habitService.getUserHabit(userId).subscribe(
-      (habit) => {
-        this.habit = habit;
-        // Parse each reason in recent relapses
-        this.recentRelapses = this.habit.relapses.slice(-5).reverse().map((relapse: Relapse) => {
-          try {
-            // Try to parse the reason as JSON and extract the 'reason' field
-            const parsedReason = JSON.parse(relapse.reason);
-            relapse.reason = parsedReason.reason || relapse.reason;
-          } catch (error) {
-            console.error('Failed to parse reason JSON:', error);
-          }
-          return relapse;
-        });
-        this.calculateInsights();
+    // Fetch habit IDs for the user
+    this.habitService.getHabitIds(userId).subscribe(
+      (habitIds) => {
+        if (habitIds.length === 0) {
+          this.errorMessage = 'No habits found for the user.';
+          this.userHabits = [];
+          return;
+        }
+
+        // Fetch each habit object
+        const habitRequests = habitIds.map((id) => this.habitService.getUserHabit(id).toPromise());
+        Promise.all(habitRequests)
+          .then((habits) => {
+            // Filter out any undefined values and assign to userHabits
+            this.userHabits = habits.filter((habit): habit is UserHabit => habit !== undefined);
+
+            // Parse the reason field in relapses
+            this.userHabits.forEach((habit) => {
+              if (habit.relapses) {
+                habit.relapses.forEach((relapse) => {
+                  try {
+                    const parsedReason = JSON.parse(relapse.reason);
+                    relapse.reason = parsedReason.reason || relapse.reason;
+                  } catch (error) {
+                    console.error('Error parsing relapse reason:', error);
+                  }
+                });
+              }
+            });
+          })
+          .catch((error) => {
+            console.error('Error loading habits:', error);
+            this.errorMessage = 'Failed to load user habits.';
+          });
       },
       (error) => {
-        console.error('Error loading habit', error);
-        this.errorMessage = 'Failed to load habit.';
+        console.error('Error fetching habit IDs:', error);
+        this.errorMessage = 'Failed to fetch habit IDs.';
       }
     );
   }
+
 
   calculateInsights(): void {
     if (this.recentRelapses.length > 0) {
@@ -112,7 +130,7 @@ export class HabitsComponent implements OnInit {
       () => {
         this.successMessage = 'Relapse logged successfully.';
         this.closeRelapseModal();
-        this.loadHabit(); // Reload habit data to update insights
+        this.loadHabits(); // Reload habit data to update insights
       },
       (error) => {
         console.error('Error logging relapse', error);
@@ -120,67 +138,10 @@ export class HabitsComponent implements OnInit {
       }
     );
   }
- 
-  populateFormWithDefaultHabit(): void {
-    if (this.selectedDefaultHabit) {
-      this.isModified = false;  // Reset the modification flag
-      this.newHabit = {
-        habitId: this.selectedDefaultHabit.habitId,
-        name: this.selectedDefaultHabit.name,  // Pre-fill with default values
-        description: this.selectedDefaultHabit.description,
-        costPerOccurrence: this.selectedDefaultHabit.defaultCostPerOccurrence,
-        occurrencesPerDay: this.selectedDefaultHabit.defaultOccurrencesPerDay
-      };
-    } else {
-      this.resetForm();
-    }
-  }
 
   // Triggered when the user modifies the habit's name or description
   onHabitModified(): void {
     this.isModified = true;
-  }
-
-  saveHabit(): void {
-    // Reset messages
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.isFadingOut = false; // Reset fading state
-
-    // If the user modified the default habit, we create a custom habit
-    const habitData: any = {
-      habitId: this.isModified ? null : this.selectedDefaultHabit ? this.selectedDefaultHabit.habitId : null,
-      name: this.isModified ? this.newHabit.name : this.selectedDefaultHabit ? null : this.newHabit.name,
-      description: this.isModified ? this.newHabit.description : this.selectedDefaultHabit ? null : this.newHabit.description,
-      costPerOccurrence: this.newHabit.costPerOccurrence,
-      occurrencesPerDay: this.newHabit.occurrencesPerDay
-    };
-
-    if (!habitData.habitId && (!habitData.name || !habitData.name.trim())) {
-      this.errorMessage = 'Name is required for custom habits.';
-      return;
-    }
-
-    this.habitService.createUserHabit(habitData).subscribe(
-      (userHabit) => {
-        this.userHabits.push(userHabit);
-        this.resetForm();
-        this.successMessage = 'Habit created and associated successfully.';
-
-        // Start the fade-out after 3 seconds, and fully remove the message after 1 more second (for fade effect)
-        setTimeout(() => {
-          this.isFadingOut = true;
-          setTimeout(() => {
-            this.successMessage = '';
-            this.isFadingOut = false;
-          }, 1000); // Matches the CSS fade-out duration
-        }, 3000);
-      },
-      (error) => {
-        console.error('Error creating habit', error);
-        this.errorMessage = 'Failed to create habit.';
-      }
-    );
   }
 
   resetForm(): void {
@@ -191,7 +152,6 @@ export class HabitsComponent implements OnInit {
       costPerOccurrence: null,
       occurrencesPerDay: null
     };
-    this.selectedDefaultHabit = null;
     this.isModified = false;  // Reset the modification flag
     this.errorMessage = '';   // Reset error message
     this.successMessage = ''; // Reset success message
