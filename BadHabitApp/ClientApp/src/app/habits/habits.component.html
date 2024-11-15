@@ -10,44 +10,65 @@
   </div>
 
   <div *ngIf="habit">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">{{ habit.addictionType }}</h3>
-        <p class="card-text"><strong>Description:</strong> {{ habit.habitDescription }}</p>
-        <p class="card-text"><strong>Your Motivation:</strong> {{ habit.userMotivation }}</p>
+    <!-- Motivational Message -->
+    <div class="motivational-message">
+      <p>{{ motivationalMessage }}</p>
+    </div>
 
-        <hr>
+    <!-- Achievements -->
+    <div *ngIf="achievements.length > 0" class="achievements">
+      <h4>Achievements Unlocked</h4>
+      <ul>
+        <li *ngFor="let achievement of achievements">{{ achievement }}</li>
+      </ul>
+    </div>
 
-        <h4>Insights</h4>
-        <p class="card-text"><strong>Days Since Last Relapse:</strong> {{ daysSinceLastRelapse }}</p>
-        <p class="card-text"><strong>Money Saved:</strong> {{ moneySaved | currency:'USD':'symbol':'1.2-2' }}</p>
-
-        <p class="card-text"><strong>Habit Start Date:</strong> {{ habit.habitStartDate | date:'MM/dd/yyyy' }}</p>
-
-        <hr>
-
-        <h4>Recent Relapse History</h4>
-        <ul *ngIf="recentRelapses.length > 0; else noRelapses">
-          <li *ngFor="let relapse of recentRelapses">
-            <strong>Date:</strong> {{ relapse.relapseDate | date:'MM/dd/yyyy' }} -
-            <strong>Reason:</strong> {{ relapse.reason }}
-          </li>
-        </ul>
-        <ng-template #noRelapses>
-          <p>No recent relapses logged.</p>
-        </ng-template>
-
-        <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log Relapse</button>
+    <!-- Prominent Statistics -->
+    <div class="stats">
+      <div class="stat-item">
+        <h3>{{ daysSinceLastRelapse }}</h3>
+        <p>Days Since Last Relapse</p>
+      </div>
+      <div class="stat-item">
+        <h3>{{ moneySaved | currency: 'USD' }}</h3>
+        <p>Money Saved</p>
       </div>
     </div>
+
+    <!-- Streaks -->
+    <div class="streaks">
+      <p><strong>Current Streak:</strong> {{ streaks.currentStreak }} days</p>
+      <p><strong>Longest Streak:</strong> {{ streaks.longestStreak }} days</p>
+    </div>
+
+
+    <!-- Recent Relapse History -->
+    <h4>Recent Relapse History</h4>
+    <ul *ngIf="recentRelapses.length > 0; else noRelapses">
+      <li *ngFor="let relapse of recentRelapses">
+        <strong>Date:</strong> {{ relapse.relapseDate | date: 'MM/dd/yyyy' }} -
+        <strong>Reason:</strong> {{ relapse.reason }}
+      </li>
+    </ul>
+    <ng-template #noRelapses>
+      <p>No recent relapses logged.</p>
+    </ng-template>
+
+    <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log Relapse</button>
   </div>
 
   <div *ngIf="!habit">
     <p>You have not set up a habit yet.</p>
   </div>
+  <div class="logout-button">
+    <button (click)="logOut()">Log Out</button>
+  </div>
 
   <!-- Relapse Modal -->
-  <div class="modal" tabindex="-1" [ngClass]="{'show': showRelapseModal}" [ngStyle]="{'display': showRelapseModal ? 'block' : 'none'}">
+  <div class="modal"
+       tabindex="-1"
+       [ngClass]="{ show: showRelapseModal }"
+       [ngStyle]="{ display: showRelapseModal ? 'block' : 'none' }">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -59,12 +80,18 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="reasonForRelapse">Reason for Relapse</label>
-            <textarea id="reasonForRelapse" class="form-control" [(ngModel)]="reasonForRelapse"></textarea>
+            <textarea id="reasonForRelapse"
+                      class="form-control"
+                      [(ngModel)]="reasonForRelapse"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeRelapseModal()">Cancel</button>
-          <button type="button" class="btn btn-primary" (click)="logRelapse()">Confirm Relapse</button>
+          <button type="button" class="btn btn-secondary" (click)="closeRelapseModal()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" (click)="logRelapse()">
+            Confirm Relapse
+          </button>
         </div>
       </div>
     </div>
@@ -75,69 +102,67 @@
 
 
 
-<div class="container mt-4">
-  <!-- Success and Error Messages Area (Fixed Height) -->
-  <div class="status-messages" *ngIf="successMessage || errorMessage">
-    <div class="alert alert-success fade-message" *ngIf="successMessage" [class.hidden]="isFadingOut">
-      {{ successMessage }}
+
+
+<!--<div class="container mt-4">-->
+<!-- Success and Error Messages Area (Fixed Height) -->
+<!--<div class="status-messages" *ngIf="successMessage || errorMessage">
+  <div class="alert alert-success fade-message" *ngIf="successMessage" [class.hidden]="isFadingOut">
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>-->
+<!-- User's Tracked Habits -->
+<!--<h2>Your Habits</h2>
+<div *ngIf="userHabits.length === 0">
+  <p>You have no habits associated yet.</p>
+</div>
+<div *ngIf="userHabits.length > 0">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Cost Per Occurrence</th>
+        <th>Occurrences Per Day</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let userHabit of userHabits">
+        <td>{{ userHabit.habit ? userHabit.habit.name : userHabit.name }}</td>
+        <td>{{ userHabit.habit ? userHabit.habit.description : userHabit.description }}</td>
+        <td>{{ userHabit.costPerOccurrence | currency:'USD':'symbol':'1.2-2' }}</td>
+        <td>{{ userHabit.occurrencesPerDay }}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" (click)="deleteUserHabit(userHabit.userHabitId)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>-->
+<!-- Add New Habit Section -->
+<!--<h2>Add a New Habit</h2>-->
+<!-- Step 1: Select a Default Habit -->
+<!--<div *ngIf="defaultHabits.length > 0" class="mb-4">
+  <label for="selectedDefaultHabit">Select Default Habit (Optional)</label>
+  <div class="input-group">
+    <select [(ngModel)]="selectedDefaultHabit" (change)="populateFormWithDefaultHabit()" id="selectedDefaultHabit" class="form-control">
+      <option [ngValue]="null">-- Select a default habit --</option>
+      <option *ngFor="let habit of defaultHabits" [ngValue]="habit">{{ habit.name }}</option>
+    </select>
+    <div class="input-group-append">
+      <span class="input-group-text"><i class="fas fa-chevron-down"></i></span>
     </div>
-    <div class="alert alert-danger" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
   </div>
-
-  <!-- User's Tracked Habits -->
-  <h2>Your Habits</h2>
-  <div *ngIf="userHabits.length === 0">
-    <p>You have no habits associated yet.</p>
-  </div>
-  <div *ngIf="userHabits.length > 0">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Cost Per Occurrence</th>
-          <th>Occurrences Per Day</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let userHabit of userHabits">
-          <td>{{ userHabit.habit ? userHabit.habit.name : userHabit.name }}</td>
-          <td>{{ userHabit.habit ? userHabit.habit.description : userHabit.description }}</td>
-          <td>{{ userHabit.costPerOccurrence | currency:'USD':'symbol':'1.2-2' }}</td>
-          <td>{{ userHabit.occurrencesPerDay }}</td>
-          <td>
-            <button class="btn btn-danger btn-sm" (click)="deleteUserHabit(userHabit.userHabitId)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <hr>
-
-  <!-- Add New Habit Section -->
-  <h2>Add a New Habit</h2>
-
-  <!-- Step 1: Select a Default Habit -->
-  <div *ngIf="defaultHabits.length > 0" class="mb-4">
-    <label for="selectedDefaultHabit">Select Default Habit (Optional)</label>
-    <div class="input-group">
-      <select [(ngModel)]="selectedDefaultHabit" (change)="populateFormWithDefaultHabit()" id="selectedDefaultHabit" class="form-control">
-        <option [ngValue]="null">-- Select a default habit --</option>
-        <option *ngFor="let habit of defaultHabits" [ngValue]="habit">{{ habit.name }}</option>
-      </select>
-      <div class="input-group-append">
-        <span class="input-group-text"><i class="fas fa-chevron-down"></i></span>
-      </div>
-    </div>
-    <small class="text-muted">You can select a default habit to use or modify below.</small>
-  </div>
-
-  <!-- Step 2: Create or Modify a Habit -->
-  <form (ngSubmit)="saveHabit()">
+  <small class="text-muted">You can select a default habit to use or modify below.</small>
+</div>-->
+<!-- Step 2: Create or Modify a Habit -->
+<!--<form (ngSubmit)="saveHabit()">
     <div class="form-group">
       <label for="name">Habit Name</label>
       <input [(ngModel)]="newHabit.name" (input)="onHabitModified()" name="name" id="name" class="form-control" required>
@@ -156,4 +181,4 @@
     </div>
     <button type="submit" class="btn btn-success">Save Habit</button>
   </form>
-</div>
+</div>-->

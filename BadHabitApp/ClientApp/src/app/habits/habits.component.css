@@ -1,43 +1,88 @@
 .container {
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
+  padding: 3rem;
 }
 
-.card {
-  margin-top: 20px;
+h2 {
+  font-weight: bolder;
 }
 
-.card-title {
-  font-size: 1.5rem;
+.motivational-message {
+  background-color: #f0f8ff;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
-.card-text {
-  margin-bottom: 10px;
+.achievements {
+  margin-bottom: 20px;
 }
 
-
-
-/* Ensure the message area is fixed in height */
-.status-messages {
-  height: 40px; /* Adjust as needed */
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.alert {
-  transition: opacity 1s ease-in-out; /* Smooth fade-out effect */
-  opacity: 1;
-}
-
-  .alert.hidden {
-    opacity: 0; /* This class triggers the fade-out */
+  .achievements ul {
+    list-style-type: none;
+    padding: 0;
   }
 
-.fade-message {
-  transition: opacity 1s ease-in-out;
+  .achievements li {
+    background-color: #d4edda;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
 }
 
-.hidden {
-  opacity: 0;
-  pointer-events: none; /* Avoid interaction while fading out */
+.stat-item {
+  text-align: center;
+}
+
+  .stat-item h3 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+
+.streaks {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logout-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+  button:hover {
+    background-color: #005f56;
+  }
+
+/* Modal styles */
+.modal.show {
+  display: block;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  margin-top: 100px;
 }

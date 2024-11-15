@@ -13,10 +13,16 @@
   color: white;
   border: none;
   padding: 1rem 2rem;
-  border-radius: 5px;
+  margin: 1rem;
+  border-radius: 20px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 1.2rem;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
 }
 
   .get-started-button:hover {
