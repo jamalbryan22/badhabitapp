@@ -105,10 +105,7 @@ namespace BadHabitApp.Controllers
 			{
 				UserName = model.Email,
 				Email = model.Email,
-				SecurityStamp = Guid.NewGuid().ToString(),
-				GoalType = model.GoalType,
-				GoalMetric = model.GoalMetric,
-				GoalValue = model.GoalValue
+				SecurityStamp = Guid.NewGuid().ToString()
 			};
 
 			// Validate password
@@ -150,7 +147,10 @@ namespace BadHabitApp.Controllers
                 HabitDescription = model.HabitDescription,
                 UserMotivation = model.UserMotivation,
                 CostPerOccurrence = model.CostPerOccurrence,
-                OccurrencesPerMonth = model.OccurrencesPerMonth
+                OccurrencesPerMonth = model.OccurrencesPerMonth,
+                GoalType = model.GoalType,
+                GoalMetric = model.GoalMetric,
+                GoalValue = model.GoalValue
             };
 
             var habitValidationContext = new ValidationContext(userHabit, null, null);
@@ -230,76 +230,5 @@ namespace BadHabitApp.Controllers
                 });
             }
         }
-
-        // GET: /account/profile
-		[HttpGet("profile")]
-		public async Task<IActionResult> GetProfile()
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (userId == null)
-			{
-				return Unauthorized(new { message = "User not found." });
-			}
-
-			var user = await _userManager.FindByIdAsync(userId);
-			if (user == null)
-			{
-				return NotFound(new { message = "User not found." });
-			}
-
-			return Ok(new
-			{
-				GoalType = user.GoalType,
-				GoalMetric = user.GoalMetric,
-				GoalValue = user.GoalValue
-			});
-		}
-
-		public class UpdateProfileModel
-		{
-			[Required(ErrorMessage = "Goal Type is required.")]
-			[GoalTypeValidation]
-			public string GoalType { get; set; } = "quit";
-
-			[GoalMetricValidation]
-			public string? GoalMetric { get; set; }
-
-			public decimal? GoalValue { get; set; }
-		}
-
-        // PUT: /account/profile
-		[HttpPut("profile")]
-		public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileModel model)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (userId == null)
-			{
-				return Unauthorized(new { message = "User not found." });
-			}
-
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
-
-			var user = await _userManager.FindByIdAsync(userId);
-			if (user == null)
-			{
-				return NotFound(new { message = "User not found." });
-			}
-
-			user.GoalType = model.GoalType;
-			user.GoalMetric = model.GoalMetric;
-			user.GoalValue = model.GoalValue;
-
-			var result = await _userManager.UpdateAsync(user);
-			if (!result.Succeeded)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Updating profile failed." });
-			}
-
-			return Ok(new { message = "Profile updated successfully." });
-		}
-
 	}
 }
