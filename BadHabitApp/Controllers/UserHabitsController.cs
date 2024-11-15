@@ -45,12 +45,11 @@ namespace BadHabitApp.Controllers
 				HabitStartDate = model.HabitStartDate,
 				HabitDescription = model.HabitDescription,
 				UserMotivation = model.UserMotivation,
-
 				CostPerOccurrence = model.CostPerOccurrence,
-				OccurrencesPerMonth = model.OccurrencesPerMonth
-
-				     
-
+				OccurrencesPerMonth = model.OccurrencesPerMonth,
+				GoalType = model.GoalType,
+				GoalMetric = model.GoalMetric,
+				GoalValue = model.GoalValue
             };
 
 			_context.UserHabits.Add(userHabit);
@@ -79,6 +78,55 @@ namespace BadHabitApp.Controllers
 			}
 
 			return Ok(userHabit);
+		}
+
+		// PUT: api/userhabits/{id}
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateUserHabit(int id, [FromBody] UserHabit updatedHabit)
+		{
+			// Validate the current user's identity
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+
+			// Validate the request body
+			if (!ModelState.IsValid)
+			{
+				return ValidationProblem(ModelState);
+			}
+
+			// Find the existing habit for the current user
+			var existingHabit = await _context.UserHabits.FirstOrDefaultAsync(uh => uh.Id == id && uh.UserId == userId);
+			if (existingHabit == null)
+			{
+				return NotFound(new { message = "Habit not found or you do not have access to update this habit." });
+			}
+
+			// Update the properties of the habit
+			existingHabit.AddictionType = updatedHabit.AddictionType;
+			existingHabit.HabitStartDate = updatedHabit.HabitStartDate;
+			existingHabit.HabitDescription = updatedHabit.HabitDescription;
+			existingHabit.UserMotivation = updatedHabit.UserMotivation;
+			existingHabit.CostPerOccurrence = updatedHabit.CostPerOccurrence;
+			existingHabit.OccurrencesPerMonth = updatedHabit.OccurrencesPerMonth;
+			existingHabit.GoalType = updatedHabit.GoalType;
+			existingHabit.GoalMetric = updatedHabit.GoalMetric;
+			existingHabit.GoalValue = updatedHabit.GoalValue;
+
+			// Save changes to the database
+			try
+			{
+				_context.UserHabits.Update(existingHabit);
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateException ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error updating the habit.", error = ex.Message });
+			}
+
+			return Ok(existingHabit);
 		}
 
 		[HttpPost("{id}/logrelapse")]

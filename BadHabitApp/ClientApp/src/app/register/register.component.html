@@ -10,39 +10,7 @@
 
   <h2>Register</h2>
   <form (ngSubmit)="register()">
-    <!--<div class="form-group">-->
-    <!--      First Name-->
-    <!--<label for="firstName">First Name:</label>
-      <input id="firstName"
-             [(ngModel)]="firstName"
-             name="firstName"
-             type="text"
-             placeholder="Enter your first name"
-             required
-             [disabled]="isRegistering" />
-    </div>-->
-    <!--     Last Name -->
-    <!--    <div class="form-group">
-      <label for="lastName">Last Name:</label>
-      <input id="lastName"
-             [(ngModel)]="lastName"
-             name="lastName"
-             type="text"
-             placeholder="Enter your last name"
-             required
-             [disabled]="isRegistering" />
-    </div>-->
-    <!--Date of Birth -->
-    <!--    <div class="form-group">
-      <label for="dob">Date of Birth:</label>
-      <input id="dob"
-             [(ngModel)]="dateOfBirth"
-             name="dob"
-             type="date"
-             required
-             [disabled]="isRegistering" />
-    </div>-->
-    <!--     Email -->
+    <!-- Email -->
     <div class="form-group">
       <label for="email">Email:</label>
       <input id="email"
@@ -54,17 +22,6 @@
              [disabled]="isRegistering" />
     </div>
 
-    <!--     Username -->
-    <!--    <div class="form-group">
-      <label for="userName">Username:</label>
-      <input id="userName"
-             [(ngModel)]="userName"
-             name="userName"
-             type="text"
-             placeholder="What would you like your username to be?"
-             required
-             [disabled]="isRegistering" />
-    </div>-->
     <!-- Password -->
     <div class="form-group">
       <label for="password">Password:</label>
@@ -160,20 +117,31 @@
 
     <!-- Cost Per Occurrence -->
     <div class="form-group">
-      <label for="costPerOccurrence">Cost per occurrence (USD):</label>
-      <input id="costPerOccurrence"
-             [(ngModel)]="costPerOccurrence"
-             name="costPerOccurrence"
-             type="number"
-             step="0.01"
-             min="0"
-             [disabled]="isRegistering" />
+      <label for="costPerOccurrence">
+        Cost per occurrence (USD):
+        <span class="info-icon" title="Cost per Occurrence: Enter the average amount spent each time you engage in the habit.">?</span>
+      </label>
+      <div class="input-group">
+        <span class="currency-symbol">$</span>
+        <input id="costPerOccurrence"
+               [(ngModel)]="costPerOccurrence"
+               name="costPerOccurrence"
+               type="number"
+               step="0.01"
+               min="0"
+               class="currency-input"
+               (input)="formatCurrencyInput($event, 'costPerOccurrence')"
+               [disabled]="isRegistering" />
+      </div>
     </div>
 
     <!-- Occurrences Per Month -->
     <div class="form-group">
-      <label for="occurrencesPerDay">Occurrences per Month:</label>
-      <input id="occurrencesPerDay"
+      <label for="occurrencesPerMonth">
+        Occurrences per Month:
+        <span class="info-icon" title="Occurrences per Month: Enter the average number of times you engage in the habit each month.">?</span>
+      </label>
+      <input id="occurrencesPerMonth"
              [(ngModel)]="occurrencesPerMonth"
              name="occurrencesPerMonth"
              type="number"
@@ -182,6 +150,56 @@
              [disabled]="isRegistering" />
     </div>
 
-    <button type="submit" [disabled]="isRegistering">Register</button> <!-- Button disabled when registering -->
+    <!-- Goal Type -->
+    <div class="form-group">
+      <label for="goalType">
+        Goal Type:
+        <span class="info-icon" title="Goal Type: Choose 'Quit' to stop the habit entirely or 'Reduce' to gradually decrease the habit.">?</span>
+      </label>
+      <select id="goalType" [(ngModel)]="goalType" name="goalType" (change)="onGoalTypeChange()" required>
+        <option value="" disabled selected>Select your goal</option>
+        <option value="quit">Quit</option>
+        <option value="reduce">Reduce</option>
+      </select>
+    </div>
+
+    <!-- Conditional fields for GoalMetric and GoalValue -->
+    <div *ngIf="goalType === 'reduce'">
+      <!-- Goal Metric -->
+      <div class="form-group">
+        <label for="goalMetric">
+          Goal Metric:
+          <span class="info-icon" title="Goal Metric: Choose 'Frequency' to reduce occurrences or 'Cost' to reduce spending on the habit.">?</span>
+        </label>
+        <select id="goalMetric" [(ngModel)]="goalMetric" name="goalMetric" required>
+          <option value="" disabled selected>Select a metric</option>
+          <option value="freq">Frequency</option>
+          <option value="cost">Cost</option>
+        </select>
+      </div>
+
+      <!-- Goal Value with Currency Formatting -->
+      <div class="form-group" *ngIf="goalMetric === 'cost'">
+        <label for="goalValue">
+          Goal Value:
+          <span class="info-icon" title="Goal Value: Enter your target value based on the selected metric (e.g., target monthly spending).">?</span>
+        </label>
+        <div class="input-group">
+          <span class="currency-symbol">$</span>
+          <input id="goalValue"
+                 [(ngModel)]="goalValue"
+                 name="goalValue"
+                 type="number"
+                 step="0.01"
+                 min="0"
+                 placeholder="Enter your target value"
+                 class="currency-input"
+                 (input)="formatCurrencyInput($event, 'goalValue')"
+                 required />
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="isRegistering">Register</button>
   </form>
 </div>

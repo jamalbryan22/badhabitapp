@@ -34,5 +34,15 @@ namespace BadHabitApp.Models
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal? OccurrencesPerMonth { get; set; }
-    }
+
+		[Required]
+		[StringLength(10)]
+		public string GoalType { get; set; } = "quit";
+
+		[StringLength(5)]
+		public string? GoalMetric { get; set; }
+
+		[Column(TypeName = "decimal(10,2)")]
+		public decimal? GoalValue { get; set; }
+	}
 }

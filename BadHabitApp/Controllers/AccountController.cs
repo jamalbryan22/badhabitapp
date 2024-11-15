@@ -100,16 +100,16 @@ namespace BadHabitApp.Controllers
                 errors.Add("User already exists!");
             }
 
-            // Create new user object for validation
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
+			// Create new user object for validation
+			var user = new ApplicationUser
+			{
+				UserName = model.Email,
+				Email = model.Email,
+				SecurityStamp = Guid.NewGuid().ToString()
+			};
 
-            // Validate password
-            var passwordValidationResults = new List<IdentityError>();
+			// Validate password
+			var passwordValidationResults = new List<IdentityError>();
             foreach (var validator in _userManager.PasswordValidators)
             {
                 var result = await validator.ValidateAsync(_userManager, user, model.Password);
@@ -147,7 +147,10 @@ namespace BadHabitApp.Controllers
                 HabitDescription = model.HabitDescription,
                 UserMotivation = model.UserMotivation,
                 CostPerOccurrence = model.CostPerOccurrence,
-                OccurrencesPerMonth = model.OccurrencesPerMonth
+                OccurrencesPerMonth = model.OccurrencesPerMonth,
+                GoalType = model.GoalType,
+                GoalMetric = model.GoalMetric,
+                GoalValue = model.GoalValue
             };
 
             var habitValidationContext = new ValidationContext(userHabit, null, null);
@@ -227,5 +230,5 @@ namespace BadHabitApp.Controllers
                 });
             }
         }
-    }
+	}
 }
