@@ -1,15 +1,25 @@
 <div class="landing-container">
   <h1>Break Bad Habits, Build a Better You</h1>
   <p>Track your habits, monitor your progress, and achieve your goals.</p>
-  <div class="button-container">
-    <button (click)="navigateToRegister()" class="get-started-button">Get Started</button>
-    <button (click)="navigateToLogin()" class="get-started-button">Login</button>
+
+  <!-- Content for logged-in users -->
+  <div *ngIf="isLoggedIn; else notLoggedIn">
+    <p>Welcome back, {{ username | titlecase }}!</p> <!-- Display the username -->
+    <button (click)="navigateToDashboard()" class="get-started-button">Go to Dashboard</button>
   </div>
 
-  <h2>Features</h2>
-  <ul class="features-list">
-    <li>Track your habits effortlessly</li>
-    <li>Visualize progress with charts</li>
-    <li>Receive personalized insights</li>
-  </ul>
+  <!-- Content for users not logged in -->
+  <ng-template #notLoggedIn>
+    <div class="button-container">
+      <button (click)="navigateToRegister()" class="get-started-button">Get Started</button>
+      <button (click)="navigateToLogin()" class="get-started-button">Login</button>
+    </div>
+
+    <h2>Features</h2>
+    <ul class="features-list">
+      <li>Track your habits effortlessly</li>
+      <li>Visualize progress with charts</li>
+      <li>Receive personalized insights</li>
+    </ul>
+  </ng-template>
 </div>
