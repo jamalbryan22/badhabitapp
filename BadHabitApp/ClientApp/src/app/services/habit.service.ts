@@ -47,8 +47,13 @@ export class HabitService {
   }
 
   // Log relapse for a specific habit
-  logRelapse(habitId: number, reasonForRelapse: string): Observable<void> {
-    const relapseData = { reason: reasonForRelapse }; // Payload with reason
+  logRelapse(habitId: number, reasonForRelapse: string, relapseDate?: string): Observable<void> {
+    const relapseData: any = {
+      reason: JSON.stringify({ reason: reasonForRelapse })
+    };
+    if (relapseDate) {
+      relapseData.relapseDate = relapseDate;
+    }
     return this.http
       .post<void>(`${this.baseUrl}/userhabits/${habitId}/logrelapse`, relapseData)
       .pipe(catchError(this.handleError));
@@ -71,6 +76,38 @@ export class HabitService {
   deleteUserHabit(userHabitId: number): Observable<void> {
     return this.http
       .delete<void>(`${this.baseUrl}/userhabits/${userHabitId}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Get all relapses for a specific habit
+  getRelapses(habitId: number): Observable<Relapse[]> {
+    return this.http
+      .get<Relapse[]>(`${this.baseUrl}/userhabits/${habitId}/relapses`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Delete a specific relapse
+  deleteRelapse(habitId: number, relapseId: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.baseUrl}/userhabits/${habitId}/relapses/${relapseId}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Delete all relapses for a specific habit
+  deleteAllRelapses(habitId: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.baseUrl}/userhabits/${habitId}/relapses`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Update a specific relapse
+  updateRelapse(habitId: number, relapseId: number, updatedRelapse: Relapse): Observable<Relapse> {
+    const relapseData: any = {
+      reason: JSON.stringify({ reason: updatedRelapse.reason }),
+      relapseDate: updatedRelapse.relapseDate
+    };
+    return this.http
+      .put<Relapse>(`${this.baseUrl}/userhabits/${habitId}/relapses/${relapseId}`, relapseData)
       .pipe(catchError(this.handleError));
   }
 

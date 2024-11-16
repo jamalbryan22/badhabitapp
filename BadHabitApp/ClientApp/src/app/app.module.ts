@@ -11,6 +11,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HabitsComponent } from './habits/habits.component';
+import { RelapseManagementComponent } from './relapse-management/relapse-management.component';
 
 import { AuthInterceptor } from './services/auth.interceptor.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -25,7 +26,8 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
     HomeComponent,
     LoginComponent,
     RegisterComponent,
-    HabitsComponent
+    HabitsComponent,
+    RelapseManagementComponent
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -36,7 +38,8 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'register', component: RegisterComponent },
       { path: 'login', component: LoginComponent },
-      { path: 'habits', component: HabitsComponent, canActivate: [AuthGuard] }
+      { path: 'habits', component: HabitsComponent, canActivate: [AuthGuard] },
+      { path: 'manage-relapses/:id', component: RelapseManagementComponent, canActivate: [AuthGuard] },
     ])
   ],
   providers: [

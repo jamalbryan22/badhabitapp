@@ -345,4 +345,12 @@ export class HabitsComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/']);
   }
+
+  goToManageRelapses(): void {
+    if (this.habit) {
+      this.router.navigate(['/manage-relapses', this.habit.id]);
+    } else {
+      this.errorMessage = 'Habit not loaded.';
+    }
+  }
 }

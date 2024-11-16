@@ -146,6 +146,7 @@ namespace BadHabitApp.Controllers
 			return Ok(existingHabit);
 		}
 
+		// POST: api/userhabits/{id}/logrelapse
 		[HttpPost("{id}/logrelapse")]
 		public async Task<IActionResult> LogRelapse(int id)
 		{

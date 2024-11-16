@@ -1,0 +1,18 @@
+/* relapse-management.component.css */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h2, h3 {
+  font-weight: bolder;
+}
+
+.table {
+  margin-bottom: 2rem;
+}
+
+.alert {
+  margin-top: 1rem;
+}
