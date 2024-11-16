@@ -59,23 +59,55 @@ export class HabitsComponent implements OnInit {
       return;
     }
 
-    this.habitService.getUserHabit(userId).subscribe(
-      (habit) => {
-        this.habit = habit;
-        this.recentRelapses = this.habit.relapses.sort(
-          (a, b) =>
-            new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
+    this.habitService.getUserHabitIds(userId).subscribe(
+      (habitIds) => {
+        if (!habitIds || habitIds.length === 0) {
+          this.errorMessage = 'No habits found for the user.';
+          return;
+        }
+
+        const firstHabitId = habitIds[0];
+
+        this.habitService.getUserHabit(firstHabitId).subscribe(
+          (habit) => {
+            this.habit = habit;
+
+            if (this.habit.relapses) {
+              this.habit.relapses.forEach((relapse) => {
+                try {
+                  const parsedReason = JSON.parse(relapse.reason);
+                  relapse.reason = parsedReason.reason || JSON.stringify(parsedReason) || 'Unknown reason';
+                } catch (error) {
+                  console.error('Error parsing relapse reason', error);
+                  relapse.reason = 'Invalid reason format';
+                }
+              });
+
+              this.recentRelapses = this.habit.relapses
+                ? this.habit.relapses.sort(
+                  (a, b) =>
+                   new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
+               )
+                : [];
+            } else {
+            this.recentRelapses = [];
+            }
+            this.calculateInsights();
+            this.calculateStreaks();
+            this.calculateCumulativeMoneySaved();
+            this.checkAchievements();
+            this.setMotivationalMessage();
+            this.calculateMonthlyProgress();
+          },
+          (error) => {
+            console.error('Error loading habit', error);
+            this.errorMessage = 'Failed to load habit.';
+          }
         );
-        this.calculateInsights();
-        this.calculateStreaks();
-        this.calculateCumulativeMoneySaved();
-        this.checkAchievements();
-        this.setMotivationalMessage();
-        this.calculateMonthlyProgress();
       },
       (error) => {
-        console.error('Error loading habit', error);
-        this.errorMessage = 'Failed to load habit.';
+        console.error('Error fetching habit IDs', error);
+        this.errorMessage = 'Failed to load habits.';
       }
     );
   }
@@ -195,21 +227,30 @@ export class HabitsComponent implements OnInit {
     const currentMonth = moment().month();
     const currentYear = moment().year();
 
-    // Filter relapses within the current month
-    const monthlyRelapses = this.habit.relapses.filter((relapse) => {
-      const relapseDate = moment(relapse.relapseDate);
-      return relapseDate.month() === currentMonth && relapseDate.year() === currentYear;
-    });
+    // Ensure relapses is defined and filter relapses within the current month
+    const monthlyRelapses = this.habit.relapses
+      ? this.habit.relapses.filter((relapse) => {
+        const relapseDate = moment(relapse.relapseDate);
+        return relapseDate.month() === currentMonth && relapseDate.year() === currentYear;
+      })
+      : [];
 
     if (this.habit.goalMetric === 'freq') {
       // Frequency-based goal
       const occurrencesThisMonth = monthlyRelapses.length;
-      this.progressValue = Math.min((occurrencesThisMonth / (this.habit.goalValue || 1)) * 100, 100);
+      this.progressValue = Math.min(
+        (occurrencesThisMonth / (this.habit.goalValue || 1)) * 100,
+        100
+      );
       this.goalReached = occurrencesThisMonth <= (this.habit.goalValue || 1);
     } else if (this.habit.goalMetric === 'cost') {
       // Cost-based goal
-      const totalSpentThisMonth = monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
-      this.progressValue = Math.min((totalSpentThisMonth / (this.habit.goalValue || 1)) * 100, 100);
+      const totalSpentThisMonth =
+        monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
+      this.progressValue = Math.min(
+        (totalSpentThisMonth / (this.habit.goalValue || 1)) * 100,
+        100
+      );
       this.goalReached = totalSpentThisMonth <= (this.habit.goalValue || 1);
     }
   }

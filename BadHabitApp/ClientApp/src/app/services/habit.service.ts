@@ -18,10 +18,10 @@ export interface UserHabit {
   userMotivation?: string;
   costPerOccurrence?: number;
   occurrencesPerMonth?: number;
-  goalType?: string;
+  goalType: string;
   goalMetric?: string;
   goalValue?: number;
-  relapses: Relapse[];
+  relapses?: Relapse[];
 }
 
 @Injectable({
@@ -32,9 +32,16 @@ export class HabitService {
 
   constructor(private http: HttpClient) { }
 
-  getUserHabit(userId: string): Observable<UserHabit> {
+  // get list of habit ids associated with the user
+  getUserHabitIds(userId: string): Observable<number[]> {
     return this.http
-      .get<UserHabit>(`${this.baseUrl}/userhabits/${userId}`)
+      .get<number[]>(`${this.baseUrl}/userhabits`)
+      .pipe(catchError(this.handleError));
+  }
+
+  getUserHabit(id: number): Observable<UserHabit> {
+    return this.http
+      .get<UserHabit>(`${this.baseUrl}/userhabits/${id}`)
       .pipe(catchError(this.handleError));
   }
 
