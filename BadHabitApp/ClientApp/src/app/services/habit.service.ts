@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 
 export interface Relapse {
   id: number;
+  userHabitId: number;
   relapseDate: string;
   reason: string;
 }

@@ -12,9 +12,6 @@ namespace BadHabitApp.Models
 		[Required]
 		public int UserHabitId { get; set; }
 
-		[ForeignKey(nameof(UserHabitId))]
-		public UserHabit UserHabit { get; set; }
-
 		[Required]
 		public DateTime RelapseDate { get; set; }
 
