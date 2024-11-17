@@ -1,7 +1,7 @@
 <!-- relapse-management.component.html -->
 
 <div class="container mt-4">
-  <h2>Manage Relapses</h2>
+  <h2>Manage {{ actionTerm }}s</h2>
 
    <!-- Back Button -->
   <button class="btn btn-secondary mb-3" (click)="goBack()">Back to Habit Page</button>
@@ -47,7 +47,7 @@
   </table>
 
   <!-- Add new relapse -->
-  <h3>Add New Relapse</h3>
+  <h3>Add New {{ actionTerm }}</h3>
   <div class="form-group">
     <label>Date:</label>
     <input type="date" [(ngModel)]="newRelapseDate" class="form-control">
@@ -57,7 +57,7 @@
     <input type="text" [(ngModel)]="newRelapseReason" class="form-control">
   </div>
 <div class="d-flex mt-3">
-  <button (click)="addRelapse()" class="btn btn-primary mr-2">Add Relapse</button>
-  <button (click)="deleteAllRelapses()" class="btn btn-danger">Delete All Relapses</button>
+  <button (click)="addRelapse()" class="btn btn-primary mr-2">Add {{ actionTerm }}</button>
+  <button (click)="deleteAllRelapses()" class="btn btn-danger">Delete All {{ actionTerm }}s</button>
 </div>
 </div>

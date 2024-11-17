@@ -27,7 +27,7 @@
     <div class="stats">
       <div class="stat-item">
         <h3>{{ daysSinceLastRelapse }}</h3>
-        <p>Days Since Last Relapse</p>
+        <p>Days Since Last {{ actionTerm }}</p>
       </div>
       <div class="stat-item">
         <h3>{{ moneySaved | currency: 'USD' }}</h3>
@@ -64,7 +64,7 @@
     </div>
 
     <!-- Recent Relapse History -->
-    <h4>Recent Relapse History</h4>
+    <h4>Recent {{ actionTerm }} History</h4>
     <ul *ngIf="recentRelapses.length > 0; else noRelapses">
       <li *ngFor="let relapse of recentRelapses">
         <strong>Date:</strong> {{ relapse.relapseDate | date: 'MM/dd/yyyy' }} -
@@ -72,7 +72,7 @@
       </li>
     </ul>
     <ng-template #noRelapses>
-      <p>No recent relapses logged.</p>
+      <p>No recent {{ actionTermLowercase }}s logged.</p>
     </ng-template>
     <!-- Edit Icon -->
     <button class="edit-icon" (click)="openEditModal()">
@@ -188,8 +188,8 @@
     </div>
 
 
-    <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log Relapse</button>
-    <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">Manage Relapses</button>
+    <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log {{ actionTerm }}</button>
+    <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">Manage {{ actionTerm }}s</button>
   </div>
 
   <div *ngIf="!habit">
@@ -207,14 +207,14 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Log Relapse</h5>
+          <h5 class="modal-title">Log {{ actionTerm }}</h5>
           <button type="button" class="close" (click)="closeRelapseModal()">
             <span>&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="reasonForRelapse">Reason for Relapse</label>
+            <label for="reasonForRelapse">Reason for {{ actionTerm }}</label>
             <textarea id="reasonForRelapse"
                       class="form-control"
                       [(ngModel)]="reasonForRelapse"></textarea>
@@ -225,7 +225,7 @@
             Cancel
           </button>
           <button type="button" class="btn btn-primary" (click)="logRelapse()">
-            Confirm Relapse
+            Confirm {{ actionTerm }}
           </button>
         </div>
       </div>

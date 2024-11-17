@@ -336,7 +336,8 @@ export class HabitsComponent implements OnInit {
 
   goToManageRelapses(): void {
     if (this.habit) {
-      this.router.navigate(['/manage-relapses', this.habit.id]);
+      const path = this.habit.goalType === 'reduce' ? 'manage-occurrences' : 'manage-relapses';
+      this.router.navigate([`/${path}`, this.habit.id]);
     } else {
       this.errorMessage = 'Habit not loaded.';
     }
@@ -373,5 +374,13 @@ export class HabitsComponent implements OnInit {
     } else {
       this.editedHabit.goalValue = wholeNumber;
     }
+  }
+
+  get actionTerm(): string {
+    return this.habit?.goalType === 'reduce' ? 'Occurrence' : 'Relapse';
+  }
+
+  get actionTermLowercase(): string {
+    return this.actionTerm.toLowerCase();
   }
 }

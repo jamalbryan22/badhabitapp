@@ -20,6 +20,7 @@ export class RelapseManagementComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
   habitStartDate: string = '';
+  actionTerm: string = 'Relapse';
 
   constructor(
     private habitService: HabitService,
@@ -29,6 +30,13 @@ export class RelapseManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.habitId = Number(this.route.snapshot.paramMap.get('id'));
+    // Determine the active route to set the appropriate term
+    const currentRoute = this.router.url;
+    if (currentRoute.includes('manage-occurrences')) {
+      this.actionTerm = 'Occurrence';
+    } else if (currentRoute.includes('manage-relapses')) {
+      this.actionTerm = 'Relapse';
+    }
     this.loadRelapses();
   }
 

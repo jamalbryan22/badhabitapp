@@ -40,6 +40,7 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
       { path: 'login', component: LoginComponent },
       { path: 'habits', component: HabitsComponent, canActivate: [AuthGuard] },
       { path: 'manage-relapses/:id', component: RelapseManagementComponent, canActivate: [AuthGuard] },
+      { path: 'manage-occurrences/:id', component: RelapseManagementComponent, canActivate: [AuthGuard] },
     ])
   ],
   providers: [
