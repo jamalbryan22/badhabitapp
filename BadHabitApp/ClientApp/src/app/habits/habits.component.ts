@@ -41,6 +41,9 @@ export class HabitsComponent implements OnInit {
     relapses: []
   };
   showEditModal: boolean = false;
+  currentMonthName: string = '';
+  occurrencesThisMonth: number = 0;
+  totalSpentThisMonth: number = 0;
 
   constructor(
     private habitService: HabitService,
@@ -50,6 +53,7 @@ export class HabitsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadHabit();
+    this.currentMonthName = moment().format('MMMM');
   }
 
   loadHabit(): void {
@@ -101,28 +105,50 @@ export class HabitsComponent implements OnInit {
   }
 
   calculateInsights(): void {
+    if (!this.habit) return;
+
+    const today = moment.utc();
+    const startOfMonth = today.clone().startOf('month');
+    const habitStartDate = moment.utc(this.habit.habitStartDate);
+
+    const progressStartDate = habitStartDate.isAfter(startOfMonth) ? habitStartDate : startOfMonth;
+
+    const daysInMonth = today.daysInMonth();
+    const daysSinceProgressStart = today.diff(progressStartDate, 'days') + 1; // +1 to include today
+    const proportionOfMonth = daysSinceProgressStart / daysInMonth;
+
+    // Expected occurrences and cost based on user's baseline adjusted for the period
+    const expectedOccurrences = (this.habit.occurrencesPerMonth || 0) * proportionOfMonth;
+    const expectedCost = expectedOccurrences * (this.habit.costPerOccurrence || 0);
+
+    // Actual occurrences and cost this month
+    const monthlyRelapses = this.habit.relapses
+      ? this.habit.relapses.filter((relapse) => {
+        const relapseDate = moment.utc(relapse.relapseDate);
+        return relapseDate.isBetween(progressStartDate.startOf('day'), today.endOf('day'), null, '[]');
+      })
+      : [];
+
+    const actualOccurrences = monthlyRelapses.length;
+    const actualCost = actualOccurrences * (this.habit.costPerOccurrence || 0);
+
+    // Money saved or lost this month
+    this.moneySaved = expectedCost - actualCost;
+
+    // Days since last relapse
     if (this.recentRelapses.length > 0) {
-      const lastRelapseDate = new Date(
-        this.recentRelapses[this.recentRelapses.length - 1].relapseDate
-      );
-      const timeDiff = this.currentDate.getTime() - lastRelapseDate.getTime();
-      this.daysSinceLastRelapse = Math.floor(timeDiff / (1000 * 3600 * 24));
+      const lastRelapseDate = moment.utc(this.recentRelapses[this.recentRelapses.length - 1].relapseDate);
+      this.daysSinceLastRelapse = today.startOf('day').diff(lastRelapseDate.startOf('day'), 'days');
       if (this.daysSinceLastRelapse < 0) {
         this.daysSinceLastRelapse = 0;
       }
-      this.moneySaved =
-        this.daysSinceLastRelapse * (this.habit?.costPerOccurrence || 0);
     } else {
       if (!this.habit?.habitStartDate) {
         this.daysSinceLastRelapse = 0;
-        this.moneySaved = 0;
         return;
       }
-      const habitStartDate = new Date(this.habit.habitStartDate);
-      const timeDiff = this.currentDate.getTime() - habitStartDate.getTime();
-      this.daysSinceLastRelapse = Math.floor(timeDiff / (1000 * 3600 * 24));
-      this.moneySaved =
-        this.daysSinceLastRelapse * (this.habit?.costPerOccurrence || 0);
+      const habitStartDate = moment.utc(this.habit.habitStartDate);
+      this.daysSinceLastRelapse = today.startOf('day').diff(habitStartDate.startOf('day'), 'days');
     }
   }
 
@@ -212,34 +238,30 @@ export class HabitsComponent implements OnInit {
   calculateMonthlyProgress(): void {
     if (!this.habit) return;
 
-    const currentMonth = moment().month();
-    const currentYear = moment().year();
+    const today = moment.utc();
+    const startOfMonth = today.clone().startOf('month');
+    const habitStartDate = moment.utc(this.habit.habitStartDate);
 
-    // Ensure relapses is defined and filter relapses within the current month
+    const progressStartDate = habitStartDate.isAfter(startOfMonth) ? habitStartDate : startOfMonth;
+
+    // Filter relapses within the progress period
     const monthlyRelapses = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
-        const relapseDate = moment(relapse.relapseDate);
-        return relapseDate.month() === currentMonth && relapseDate.year() === currentYear;
+        const relapseDate = moment.utc(relapse.relapseDate);
+        return relapseDate.isBetween(progressStartDate.startOf('day'), today.endOf('day'), null, '[]');
       })
       : [];
 
     if (this.habit.goalMetric === 'freq') {
       // Frequency-based goal
-      const occurrencesThisMonth = monthlyRelapses.length;
-      this.progressValue = Math.min(
-        (occurrencesThisMonth / (this.habit.goalValue || 1)) * 100,
-        100
-      );
-      this.goalReached = occurrencesThisMonth <= (this.habit.goalValue || 1);
+      this.occurrencesThisMonth = monthlyRelapses.length;
+      this.progressValue = (this.occurrencesThisMonth / (this.habit.goalValue || 1)) * 100;
+      this.goalReached = this.occurrencesThisMonth <= (this.habit.goalValue || 1);
     } else if (this.habit.goalMetric === 'cost') {
       // Cost-based goal
-      const totalSpentThisMonth =
-        monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
-      this.progressValue = Math.min(
-        (totalSpentThisMonth / (this.habit.goalValue || 1)) * 100,
-        100
-      );
-      this.goalReached = totalSpentThisMonth <= (this.habit.goalValue || 1);
+      this.totalSpentThisMonth = monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
+      this.progressValue = (this.totalSpentThisMonth / (this.habit.goalValue || 1)) * 100;
+      this.goalReached = this.totalSpentThisMonth <= (this.habit.goalValue || 1);
     }
   }
 
@@ -257,15 +279,18 @@ export class HabitsComponent implements OnInit {
       return;
     }
 
-    this.habitService.logRelapse(this.habit.id, this.reasonForRelapse).subscribe(
+    // Get current date and time in ISO format
+    const relapseDate = moment().toISOString();
+
+    this.habitService.logRelapse(this.habit.id, this.reasonForRelapse, relapseDate).subscribe(
       () => {
-        this.successMessage = 'Relapse logged successfully.';
+        this.successMessage = 'Occurrence logged successfully.';
         this.closeRelapseModal();
         this.loadHabit();
       },
       (error) => {
         console.error('Error logging relapse', error);
-        this.errorMessage = 'Failed to log relapse.';
+        this.errorMessage = 'Failed to log occurrence.';
       }
     );
   }
@@ -273,6 +298,11 @@ export class HabitsComponent implements OnInit {
   openEditModal(): void {
     if (this.habit) {
       this.editedHabit = { ...this.habit };
+
+      // Format the habitStartDate for the date input
+      if (this.editedHabit.habitStartDate) {
+        this.editedHabit.habitStartDate = moment(this.editedHabit.habitStartDate).format('YYYY-MM-DD');
+      }
     } else {
       // Set default values if `habit` hasn't been loaded yet
       this.editedHabit = {
@@ -292,7 +322,6 @@ export class HabitsComponent implements OnInit {
     }
     this.showEditModal = true;
   }
-
 
   closeEditModal(): void {
     this.showEditModal = false;
@@ -320,13 +349,14 @@ export class HabitsComponent implements OnInit {
         this.successMessage = 'Habit updated successfully.';
         this.habit = updatedHabit; // Update the displayed habit with new data
         this.closeEditModal();
+        this.calculateInsights(); // Recalculate insights after update
+        this.calculateMonthlyProgress(); // Recalculate progress after update
       },
       (error) => {
         this.errorMessage = 'Failed to update habit.';
         console.error('Error updating habit', error);
       }
     );
-    this.closeEditModal()
   }
 
   logOut(): void {

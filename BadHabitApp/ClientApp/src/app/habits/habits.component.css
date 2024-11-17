@@ -202,3 +202,7 @@ button {
 .input-group {
   position: relative;
 }
+
+.goal-exceeded .progress-circle-fill {
+  stroke: red;
+}

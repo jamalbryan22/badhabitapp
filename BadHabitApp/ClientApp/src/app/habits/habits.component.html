@@ -10,6 +10,9 @@
   </div>
 
   <div class="habit" *ngIf="habit">
+    <!-- Month Name -->
+    <h3>{{ currentMonthName }} Insights</h3>
+
     <!-- Motivational Message -->
     <div class="motivational-message">
       <p>{{ motivationalMessage }}</p>
@@ -31,7 +34,7 @@
       </div>
       <div class="stat-item">
         <h3>{{ moneySaved | currency: 'USD' }}</h3>
-        <p>Money Saved</p>
+        <p>{{ moneySaved >= 0 ? 'Money Saved' : 'Money Overspent' }}</p>
       </div>
     </div>
 
@@ -43,12 +46,15 @@
 
     <div class="goal-progress">
       <h4>Monthly Progress</h4>
-      <div class="progress-circle" [class.goal-reached]="goalReached">
+      <div class="progress-circle" [ngClass]="{
+           'goal-reached' : progressValue <= 100,
+          'goal-exceeded': progressValue > 100
+        }">
         <svg viewBox="0 0 36 36">
           <path class="progress-circle-bg"
                 d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831" />
           <path class="progress-circle-fill"
-                [attr.stroke-dasharray]="progressValue + ', 100'"
+                [attr.stroke-dasharray]="(progressValue > 100 ? 100 : progressValue) + ', 100'"
                 d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831" />
         </svg>
         <div class="progress-text">
@@ -56,10 +62,10 @@
         </div>
       </div>
       <p *ngIf="habit.goalMetric === 'freq'">
-        Goal: Under {{ habit.goalValue }} occurrences/month
+        {{ occurrencesThisMonth }} occurrences this month (Goal: {{ habit.goalValue }} occurrences)
       </p>
       <p *ngIf="habit.goalMetric === 'cost'">
-        Goal: Under {{ habit.goalValue | currency }} spent/month
+        {{ totalSpentThisMonth | currency }} spent this month (Goal: {{ habit.goalValue | currency }})
       </p>
     </div>
 
@@ -67,7 +73,7 @@
     <h4>Recent {{ actionTerm }} History</h4>
     <ul *ngIf="recentRelapses.length > 0; else noRelapses">
       <li *ngFor="let relapse of recentRelapses">
-        <strong>Date:</strong> {{ relapse.relapseDate | date: 'MM/dd/yyyy' }} -
+        <strong>Date:</strong> {{ relapse.relapseDate | date: 'short' }} -
         <strong>Reason:</strong> {{ relapse.reason }}
       </li>
     </ul>
