@@ -33,7 +33,7 @@
         <p>Days Since Last {{ actionTerm }}</p>
       </div>
       <div class="stat-item">
-        <h3>{{ moneySaved | currency: 'USD' }}</h3>
+        <h3 [ngClass]="{'negative-amount': moneySaved < 0}">{{ formatMoneySaved(moneySaved) }}</h3>
         <p>{{ moneySaved >= 0 ? 'Money Saved' : 'Money Overspent' }}</p>
       </div>
     </div>

@@ -117,10 +117,6 @@ export class HabitsComponent implements OnInit {
     const daysSinceProgressStart = today.diff(progressStartDate, 'days') + 1; // +1 to include today
     const proportionOfMonth = daysSinceProgressStart / daysInMonth;
 
-    // Expected occurrences and cost based on user's baseline adjusted for the period
-    const expectedOccurrences = (this.habit.occurrencesPerMonth || 0) * proportionOfMonth;
-    const expectedCost = expectedOccurrences * (this.habit.costPerOccurrence || 0);
-
     // Actual occurrences and cost this month
     const monthlyRelapses = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
@@ -132,7 +128,18 @@ export class HabitsComponent implements OnInit {
     const actualOccurrences = monthlyRelapses.length;
     const actualCost = actualOccurrences * (this.habit.costPerOccurrence || 0);
 
-    // Money saved or lost this month
+    let expectedCost: number;
+
+    if (this.habit.goalType === 'reduce' && this.habit.goalMetric === 'cost') {
+      // Use the goalValue as the expected cost
+      expectedCost = this.habit.goalValue ?? 0;
+    } else {
+      // Expected occurrences and cost based on user's baseline adjusted for the period
+      const expectedOccurrences = (this.habit.occurrencesPerMonth || 0) * proportionOfMonth;
+      expectedCost = expectedOccurrences * (this.habit.costPerOccurrence || 0);
+    }
+
+    // Money saved or overspent this month
     this.moneySaved = expectedCost - actualCost;
 
     // Days since last relapse
@@ -347,10 +354,8 @@ export class HabitsComponent implements OnInit {
     this.habitService.updateUserHabit(this.editedHabit.id, this.editedHabit).subscribe(
       (updatedHabit) => {
         this.successMessage = 'Habit updated successfully.';
-        this.habit = updatedHabit; // Update the displayed habit with new data
         this.closeEditModal();
-        this.calculateInsights(); // Recalculate insights after update
-        this.calculateMonthlyProgress(); // Recalculate progress after update
+        this.loadHabit(); // Reload habit data
       },
       (error) => {
         this.errorMessage = 'Failed to update habit.';
@@ -413,4 +418,11 @@ export class HabitsComponent implements OnInit {
   get actionTermLowercase(): string {
     return this.actionTerm.toLowerCase();
   }
+
+  formatMoneySaved(value: number): string {
+    const absValue = Math.abs(value);
+    const formattedCurrency = absValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    return value < 0 ? `(${formattedCurrency})` : formattedCurrency;
+  }
+
 }

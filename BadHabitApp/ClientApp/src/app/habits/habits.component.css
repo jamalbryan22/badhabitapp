@@ -206,3 +206,8 @@ button {
 .goal-exceeded .progress-circle-fill {
   stroke: red;
 }
+
+.stat-item .negative-amount {
+  color: red;
+}
+
