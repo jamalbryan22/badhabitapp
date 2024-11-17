@@ -127,4 +127,17 @@ export class RegisterComponent {
       this.goalValue = parseFloat(formattedValue);
     }
   }
+
+  enforceWholeNumber(event: any) {
+    const value = event.target.value;
+
+    // Ensure the value is a whole number
+    const wholeNumber = Math.floor(Number(value));
+    if (Number(value) !== wholeNumber) {
+      event.target.value = wholeNumber; // Update the displayed value to the whole number
+      this.goalValue = wholeNumber; // Ensure the bound model is updated
+    } else {
+      this.goalValue = wholeNumber;
+    }
+  }
 }

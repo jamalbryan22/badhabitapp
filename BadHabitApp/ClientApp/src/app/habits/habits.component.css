@@ -183,3 +183,22 @@ button {
   display: flex;
   justify-content: space-between;
 }
+
+.currency-symbol {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #333;
+  z-index: 2;
+}
+
+.currency-input {
+  padding-left: 1.5rem;
+  z-index: 1;
+}
+
+.input-group {
+  position: relative;
+}

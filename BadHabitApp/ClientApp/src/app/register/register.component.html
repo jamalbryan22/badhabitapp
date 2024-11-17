@@ -179,12 +179,12 @@
       </div>
 
       <!-- Goal Value with Currency Formatting -->
-      <div class="form-group" *ngIf="goalMetric === 'cost'">
+      <div class="form-group" *ngIf="goalMetric === 'cost' || goalMetric === 'freq'">
         <label for="goalValue">
           Goal Value:
-          <span class="info-icon" title="Goal Value: Enter your target value based on the selected metric (e.g., target monthly spending).">?</span>
+          <span class="info-icon" title="Goal Value: Enter your target value based on the selected metric (e.g., target monthly spending or frequency).">?</span>
         </label>
-        <div class="input-group">
+        <div class="input-group" *ngIf="goalMetric === 'cost'">
           <span class="currency-symbol">$</span>
           <input id="goalValue"
                  [(ngModel)]="goalValue"
@@ -195,6 +195,17 @@
                  placeholder="Enter your target value"
                  class="currency-input"
                  (input)="formatCurrencyInput($event, 'goalValue')"
+                 required />
+        </div>
+        <div class="input-group" *ngIf="goalMetric === 'freq'">
+          <input id="goalValue"
+                 [(ngModel)]="goalValue"
+                 name="goalValue"
+                 type="number"
+                 step="1"
+                 min="0"
+                 placeholder="Enter your target frequency"
+                 (input)="enforceWholeNumber($event)"
                  required />
         </div>
       </div>

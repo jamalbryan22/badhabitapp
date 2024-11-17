@@ -341,4 +341,37 @@ export class HabitsComponent implements OnInit {
       this.errorMessage = 'Habit not loaded.';
     }
   }
+
+  onGoalTypeChange(): void {
+    // Reset GoalMetric and GoalValue if GoalType is not 'reduce'
+    if (this.editedHabit.goalType !== 'reduce') {
+      this.editedHabit.goalMetric = undefined;
+      this.editedHabit.goalValue = undefined;
+    }
+  }
+
+  formatCurrencyInput(event: any, field: 'costPerOccurrence' | 'goalValue'): void {
+    const value = event.target.value;
+
+    // Ensure two decimal places
+    const formattedValue = parseFloat(value).toFixed(2);
+    if (field === 'costPerOccurrence') {
+      this.editedHabit.costPerOccurrence = parseFloat(formattedValue);
+    } else if (field === 'goalValue' && this.editedHabit.goalMetric === 'cost') {
+      this.editedHabit.goalValue = parseFloat(formattedValue);
+    }
+  }
+
+  enforceWholeNumber(event: any): void {
+    const value = event.target.value;
+
+    // Ensure the value is a whole number
+    const wholeNumber = Math.floor(Number(value));
+    if (Number(value) !== wholeNumber) {
+      event.target.value = wholeNumber; // Update the displayed value
+      this.editedHabit.goalValue = wholeNumber; // Update the model
+    } else {
+      this.editedHabit.goalValue = wholeNumber;
+    }
+  }
 }

@@ -91,47 +91,91 @@
           </div>
           <div class="modal-body">
             <form (ngSubmit)="updateHabit()">
+              <!-- Addiction Type -->
               <div class="form-group">
                 <label for="addictionType">Addiction Type</label>
-                <input type="text" id="addictionType" [(ngModel)]="editedHabit.addictionType" name="addictionType" class="form-control" required>
+                <input type="text" id="addictionType" [(ngModel)]="editedHabit.addictionType" name="addictionType" class="form-control" required />
               </div>
+
+              <!-- Start Date -->
               <div class="form-group">
                 <label for="habitStartDate">Start Date</label>
-                <input type="date" id="habitStartDate" [(ngModel)]="editedHabit.habitStartDate" name="habitStartDate" class="form-control" required>
+                <input type="date" id="habitStartDate" [(ngModel)]="editedHabit.habitStartDate" name="habitStartDate" class="form-control" required />
               </div>
+
+              <!-- Description -->
               <div class="form-group">
                 <label for="habitDescription">Description</label>
                 <textarea id="habitDescription" [(ngModel)]="editedHabit.habitDescription" name="habitDescription" class="form-control"></textarea>
               </div>
+
+              <!-- Motivation -->
               <div class="form-group">
                 <label for="userMotivation">Motivation</label>
                 <textarea id="userMotivation" [(ngModel)]="editedHabit.userMotivation" name="userMotivation" class="form-control"></textarea>
               </div>
+
+              <!-- Cost per Occurrence -->
               <div class="form-group">
-                <label for="costPerOccurrence">Cost per Occurrence</label>
-                <input type="number" id="costPerOccurrence" [(ngModel)]="editedHabit.costPerOccurrence" name="costPerOccurrence" class="form-control">
+                <label for="costPerOccurrence">
+                  Cost per Occurrence (USD):
+                  <span class="info-icon" title="Enter the average amount spent per occurrence.">?</span>
+                </label>
+                <div class="input-group">
+                  <span class="currency-symbol">$</span>
+                  <input type="number" id="costPerOccurrence" [(ngModel)]="editedHabit.costPerOccurrence" name="costPerOccurrence" class="form-control currency-input" step="0.01" min="0" (input)="formatCurrencyInput($event, 'costPerOccurrence')" />
+                </div>
               </div>
+
+              <!-- Occurrences per Month -->
               <div class="form-group">
-                <label for="occurrencesPerMonth">Occurrences per Month</label>
-                <input type="number" id="occurrencesPerMonth" [(ngModel)]="editedHabit.occurrencesPerMonth" name="occurrencesPerMonth" class="form-control">
+                <label for="occurrencesPerMonth">
+                  Occurrences per Month:
+                  <span class="info-icon" title="Enter the average number of times the habit occurs per month.">?</span>
+                </label>
+                <input type="number" id="occurrencesPerMonth" [(ngModel)]="editedHabit.occurrencesPerMonth" name="occurrencesPerMonth" class="form-control" step="1" min="0" />
               </div>
+
+              <!-- Goal Type -->
               <div class="form-group">
-                <label for="goalType">Goal Type</label>
-                <select id="goalType" [(ngModel)]="editedHabit.goalType" name="goalType" class="form-control">
+                <label for="goalType">
+                  Goal Type:
+                  <span class="info-icon" title="Choose 'Quit' to stop the habit or 'Reduce' to decrease it.">?</span>
+                </label>
+                <select id="goalType" [(ngModel)]="editedHabit.goalType" name="goalType" class="form-control" (change)="onGoalTypeChange()">
                   <option value="quit">Quit</option>
                   <option value="reduce">Reduce</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label for="goalMetric">Goal Metric</label>
-                <select id="goalMetric" [(ngModel)]="editedHabit.goalMetric" name="goalMetric" class="form-control">
-                  <option value="freq">Frequency</option>
-                  <option value="cost">Cost</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="goalValue">Goal Value</label>
-                <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control">
+
+              <!-- Conditional Fields -->
+              <div *ngIf="editedHabit.goalType === 'reduce'">
+                <!-- Goal Metric -->
+                <div class="form-group">
+                  <label for="goalMetric">
+                    Goal Metric:
+                    <span class="info-icon" title="Choose 'Frequency' to reduce occurrences or 'Cost' to reduce spending.">?</span>
+                  </label>
+                  <select id="goalMetric" [(ngModel)]="editedHabit.goalMetric" name="goalMetric" class="form-control">
+                    <option value="freq">Frequency</option>
+                    <option value="cost">Cost</option>
+                  </select>
+                </div>
+
+                <!-- Goal Value -->
+                <div class="form-group" *ngIf="editedHabit.goalMetric">
+                  <label for="goalValue">
+                    Goal Value:
+                    <span class="info-icon" title="Enter your target value based on the selected metric.">?</span>
+                  </label>
+                  <div class="input-group" *ngIf="editedHabit.goalMetric === 'cost'">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control currency-input" step="0.01" min="0" placeholder="Enter your target value" (input)="formatCurrencyInput($event, 'goalValue')" />
+                  </div>
+                  <div class="input-group" *ngIf="editedHabit.goalMetric === 'freq'">
+                    <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control" step="1" min="0" placeholder="Enter your target frequency" (input)="enforceWholeNumber($event)" />
+                  </div>
+                </div>
               </div>
             </form>
           </div>
@@ -188,88 +232,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-<!--<div class="container mt-4">-->
-<!-- Success and Error Messages Area (Fixed Height) -->
-<!--<div class="status-messages" *ngIf="successMessage || errorMessage">
-  <div class="alert alert-success fade-message" *ngIf="successMessage" [class.hidden]="isFadingOut">
-    {{ successMessage }}
-  </div>
-  <div class="alert alert-danger" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-</div>-->
-<!-- User's Tracked Habits -->
-<!--<h2>Your Habits</h2>
-<div *ngIf="userHabits.length === 0">
-  <p>You have no habits associated yet.</p>
-</div>
-<div *ngIf="userHabits.length > 0">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Cost Per Occurrence</th>
-        <th>Occurrences Per Day</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let userHabit of userHabits">
-        <td>{{ userHabit.habit ? userHabit.habit.name : userHabit.name }}</td>
-        <td>{{ userHabit.habit ? userHabit.habit.description : userHabit.description }}</td>
-        <td>{{ userHabit.costPerOccurrence | currency:'USD':'symbol':'1.2-2' }}</td>
-        <td>{{ userHabit.occurrencesPerDay }}</td>
-        <td>
-          <button class="btn btn-danger btn-sm" (click)="deleteUserHabit(userHabit.userHabitId)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<hr>-->
-<!-- Add New Habit Section -->
-<!--<h2>Add a New Habit</h2>-->
-<!-- Step 1: Select a Default Habit -->
-<!--<div *ngIf="defaultHabits.length > 0" class="mb-4">
-  <label for="selectedDefaultHabit">Select Default Habit (Optional)</label>
-  <div class="input-group">
-    <select [(ngModel)]="selectedDefaultHabit" (change)="populateFormWithDefaultHabit()" id="selectedDefaultHabit" class="form-control">
-      <option [ngValue]="null">-- Select a default habit --</option>
-      <option *ngFor="let habit of defaultHabits" [ngValue]="habit">{{ habit.name }}</option>
-    </select>
-    <div class="input-group-append">
-      <span class="input-group-text"><i class="fas fa-chevron-down"></i></span>
-    </div>
-  </div>
-  <small class="text-muted">You can select a default habit to use or modify below.</small>
-</div>-->
-<!-- Step 2: Create or Modify a Habit -->
-<!--<form (ngSubmit)="saveHabit()">
-    <div class="form-group">
-      <label for="name">Habit Name</label>
-      <input [(ngModel)]="newHabit.name" (input)="onHabitModified()" name="name" id="name" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea [(ngModel)]="newHabit.description" (input)="onHabitModified()" name="description" id="description" class="form-control"></textarea>
-    </div>
-    <div class="form-group">
-      <label for="costPerOccurrence">Cost Per Occurrence</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.costPerOccurrence" name="costPerOccurrence" id="costPerOccurrence" class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="occurrencesPerDay">Occurrences Per Day</label>
-      <input type="number" step="0.01" [(ngModel)]="newHabit.occurrencesPerDay" name="occurrencesPerDay" id="occurrencesPerDay" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-success">Save Habit</button>
-  </form>
-</div>-->
