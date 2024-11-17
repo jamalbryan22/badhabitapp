@@ -49,7 +49,7 @@ export class HabitService {
   // Log relapse for a specific habit
   logRelapse(habitId: number, reasonForRelapse: string, relapseDate?: string): Observable<void> {
     const relapseData: any = {
-      reason: JSON.stringify({ reason: reasonForRelapse })
+      reason: reasonForRelapse
     };
     if (relapseDate) {
       relapseData.relapseDate = relapseDate;
@@ -103,7 +103,7 @@ export class HabitService {
   // Update a specific relapse
   updateRelapse(habitId: number, relapseId: number, updatedRelapse: Relapse): Observable<Relapse> {
     const relapseData: any = {
-      reason: JSON.stringify({ reason: updatedRelapse.reason }),
+      reason: updatedRelapse.reason,
       relapseDate: updatedRelapse.relapseDate
     };
     return this.http

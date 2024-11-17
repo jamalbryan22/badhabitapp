@@ -148,7 +148,7 @@ namespace BadHabitApp.Controllers
 
 		// POST: api/userhabits/{id}/logrelapse
 		[HttpPost("{id}/logrelapse")]
-		public async Task<IActionResult> LogRelapse(int id)
+		public async Task<IActionResult> LogRelapse(int id, [FromBody] RelapseCreateModel relapseData)
 		{
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (string.IsNullOrEmpty(userId))
@@ -165,13 +165,7 @@ namespace BadHabitApp.Controllers
 				return NotFound();
 			}
 
-			string reasonForLastRelapse;
-			using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
-			{
-				reasonForLastRelapse = await reader.ReadToEndAsync();
-			}
-
-			if (string.IsNullOrEmpty(reasonForLastRelapse))
+			if (string.IsNullOrEmpty(relapseData.Reason))
 			{
 				return BadRequest("Reason for relapse is required.");
 			}
@@ -179,8 +173,8 @@ namespace BadHabitApp.Controllers
 			var relapse = new Relapse
 			{
 				UserHabitId = userHabit.Id,
-				RelapseDate = DateTime.UtcNow,
-				Reason = reasonForLastRelapse
+				RelapseDate = relapseData.RelapseDate ?? DateTime.UtcNow,
+				Reason = relapseData.Reason
 			};
 
 			_context.Relapses.Add(relapse);

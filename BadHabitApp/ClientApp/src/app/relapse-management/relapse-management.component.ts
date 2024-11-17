@@ -38,17 +38,6 @@ export class RelapseManagementComponent implements OnInit {
         this.habit = habit;
         this.habitStartDate = habit.habitStartDate;
         if (habit.relapses) {
-          habit.relapses.forEach((relapse) => {
-            // Parse the reason field
-            try {
-              const parsedReason = JSON.parse(relapse.reason);
-              relapse.reason = parsedReason.reason || JSON.stringify(parsedReason) || 'Unknown reason';
-            } catch (error) {
-              console.error('Error parsing relapse reason', error);
-              relapse.reason = 'Invalid reason format';
-            }
-          });
-          // Sort relapses by date
           this.relapses = habit.relapses.sort(
             (a, b) =>
               new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()

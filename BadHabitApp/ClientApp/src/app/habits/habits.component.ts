@@ -73,24 +73,12 @@ export class HabitsComponent implements OnInit {
             this.habit = habit;
 
             if (this.habit.relapses) {
-              this.habit.relapses.forEach((relapse) => {
-                try {
-                  const parsedReason = JSON.parse(relapse.reason);
-                  relapse.reason = parsedReason.reason || JSON.stringify(parsedReason) || 'Unknown reason';
-                } catch (error) {
-                  console.error('Error parsing relapse reason', error);
-                  relapse.reason = 'Invalid reason format';
-                }
-              });
-
-              this.recentRelapses = this.habit.relapses
-                ? this.habit.relapses.sort(
-                  (a, b) =>
-                   new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
-               )
-                : [];
+              this.recentRelapses = this.habit.relapses.sort(
+                (a, b) =>
+                  new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
+              );
             } else {
-            this.recentRelapses = [];
+              this.recentRelapses = [];
             }
             this.calculateInsights();
             this.calculateStreaks();
