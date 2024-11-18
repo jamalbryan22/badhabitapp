@@ -30,7 +30,7 @@ h2 {
 
   .achievements li {
     background-color: #00a287;
-    color:white;
+    color: white;
     padding: 10px;
     margin-bottom: 5px;
     border-radius: 5px;
@@ -54,10 +54,11 @@ h2 {
   }
 
 .habit {
-    padding: 2rem;
-    background-color: white;
-    border-radius: 30px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 30px;
 }
+
 .streaks {
   text-align: center;
   margin-bottom: 20px;
@@ -211,3 +212,38 @@ button {
   color: red;
 }
 
+/* Navigation Arrows */
+.habit-navigation {
+  display: flex;
+  align-items: center;
+}
+
+.nav-arrow {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 2rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+  .nav-arrow:hover {
+    background-color: #005f56;
+    transform: scale(1.1);
+  }
+
+  .nav-arrow[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+.habit-navigation .habit {
+  flex: 1;
+}

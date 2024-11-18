@@ -9,193 +9,214 @@
     {{ errorMessage }}
   </div>
 
-  <div class="habit" *ngIf="habit">
-    <!-- Month Name -->
-    <h3>{{ currentMonthName }} Insights</h3>
-
-    <!-- Motivational Message -->
-    <div class="motivational-message">
-      <p>{{ motivationalMessage }}</p>
-    </div>
-
-    <!-- Achievements -->
-    <div *ngIf="achievements.length > 0" class="achievements">
-      <h4>Achievements Unlocked</h4>
-      <ul>
-        <li *ngFor="let achievement of achievements">{{ achievement }}</li>
-      </ul>
-    </div>
-
-    <!-- Prominent Statistics -->
-    <div class="stats">
-      <div class="stat-item">
-        <h3>{{ daysSinceLastRelapse }}</h3>
-        <p>Days Since Last {{ actionTerm }}</p>
-      </div>
-      <div class="stat-item">
-        <h3 [ngClass]="{'negative-amount': moneySaved < 0}">{{ formatMoneySaved(moneySaved) }}</h3>
-        <p>{{ moneySaved >= 0 ? 'Money Saved' : 'Money Overspent' }}</p>
-      </div>
-    </div>
-
-    <!-- Streaks -->
-    <div class="streaks">
-      <p><strong>Current Streak:</strong> {{ streaks.currentStreak }} days</p>
-      <p><strong>Longest Streak:</strong> {{ streaks.longestStreak }} days</p>
-    </div>
-
-    <div class="goal-progress">
-      <h4>Monthly Progress</h4>
-      <div class="progress-circle" [ngClass]="{
-           'goal-reached' : progressValue <= 100,
-          'goal-exceeded': progressValue > 100
-        }">
-        <svg viewBox="0 0 36 36">
-          <path class="progress-circle-bg"
-                d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831" />
-          <path class="progress-circle-fill"
-                [attr.stroke-dasharray]="(progressValue > 100 ? 100 : progressValue) + ', 100'"
-                d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831" />
-        </svg>
-        <div class="progress-text">
-          <span>{{ progressValue | number: '1.0-0' }}%</span>
-        </div>
-      </div>
-      <p *ngIf="habit.goalMetric === 'freq'">
-        {{ occurrencesThisMonth }} occurrences this month (Goal: {{ habit.goalValue }} occurrences)
-      </p>
-      <p *ngIf="habit.goalMetric === 'cost'">
-        {{ totalSpentThisMonth | currency }} spent this month (Goal: {{ habit.goalValue | currency }})
-      </p>
-    </div>
-
-    <!-- Recent Relapse History -->
-    <h4>Recent {{ actionTerm }} History</h4>
-    <ul *ngIf="recentRelapses.length > 0; else noRelapses">
-      <li *ngFor="let relapse of recentRelapses">
-        <strong>Date:</strong> {{ relapse.relapseDate | date: 'short' }} -
-        <strong>Reason:</strong> {{ relapse.reason }}
-      </li>
-    </ul>
-    <ng-template #noRelapses>
-      <p>No recent {{ actionTermLowercase }}s logged.</p>
-    </ng-template>
-    <!-- Edit Icon -->
-    <button class="edit-icon" (click)="openEditModal()">
-      <i class="fas fa-edit"></i> Edit
+  <div class="habit-navigation">
+    <button class="nav-arrow left-arrow" (click)="goToPreviousMonth()" [disabled]="!canGoToPreviousMonth()">
+      &lt;
     </button>
 
-    <!-- Edit Habit Modal -->
-    <div class="modal" tabindex="-1" [ngClass]="{ show: showEditModal }" [ngStyle]="{ display: showEditModal ? 'block' : 'none' }">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit Habit</h5>
-            <button type="button" class="close" (click)="closeEditModal()">
-              <span>&times;</span>
-            </button>
+    <div class="habit" *ngIf="habit">
+      <!-- Month Name -->
+      <h3>{{ currentMonthName }} Insights</h3>
+
+      <!-- Motivational Message -->
+      <div class="motivational-message">
+        <p>{{ motivationalMessage }}</p>
+      </div>
+
+      <!-- Achievements -->
+      <div *ngIf="achievements.length > 0" class="achievements">
+        <h4>Achievements Unlocked</h4>
+        <ul>
+          <li *ngFor="let achievement of achievements">{{ achievement }}</li>
+        </ul>
+      </div>
+
+      <!-- Prominent Statistics -->
+      <div class="stats">
+        <div class="stat-item">
+          <h3>{{ daysSinceLastRelapse }}</h3>
+          <p>Days Since Last {{ actionTerm }}</p>
+        </div>
+        <div class="stat-item">
+          <h3 [ngClass]="{'negative-amount': moneySaved < 0}">
+            {{ formatMoneySaved(moneySaved) }}
+          </h3>
+          <p>{{ moneySaved >= 0 ? 'Money Saved' : 'Money Overspent' }}</p>
+        </div>
+      </div>
+
+      <!-- Streaks -->
+      <div class="streaks">
+        <p><strong>Current Streak:</strong> {{ streaks.currentStreak }} days</p>
+        <p><strong>Longest Streak:</strong> {{ streaks.longestStreak }} days</p>
+      </div>
+
+      <div class="goal-progress">
+        <h4>Monthly Progress</h4>
+        <div class="progress-circle"
+             [ngClass]="{
+             'goal-reached' : progressValue <= 100,
+            'goal-exceeded': progressValue > 100
+          }"
+        >
+          <svg viewBox="0 0 36 36">
+            <path
+              class="progress-circle-bg"
+              d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831"
+            />
+            <path
+              class="progress-circle-fill"
+              [attr.stroke-dasharray]="(progressValue > 100 ? 100 : progressValue) + ', 100'"
+              d="M18 2.0845a15.9155 15.9155 0 1 1 0 31.831 15.9155 15.9155 0 1 1 0-31.831"
+            />
+          </svg>
+          <div class="progress-text">
+            <span>{{ progressValue | number: '1.0-0' }}%</span>
           </div>
-          <div class="modal-body">
-            <form (ngSubmit)="updateHabit()">
-              <!-- Addiction Type -->
-              <div class="form-group">
-                <label for="addictionType">Addiction Type</label>
-                <input type="text" id="addictionType" [(ngModel)]="editedHabit.addictionType" name="addictionType" class="form-control" required />
-              </div>
+        </div>
+        <p *ngIf="habit.goalMetric === 'freq'">
+          {{ occurrencesThisMonth }} occurrences this month (Goal: {{ habit.goalValue }} occurrences)
+        </p>
+        <p *ngIf="habit.goalMetric === 'cost'">
+          {{ totalSpentThisMonth | currency }} spent this month (Goal: {{ habit.goalValue | currency }})
+        </p>
+      </div>
 
-              <!-- Start Date -->
-              <div class="form-group">
-                <label for="habitStartDate">Start Date</label>
-                <input type="date" id="habitStartDate" [(ngModel)]="editedHabit.habitStartDate" name="habitStartDate" class="form-control" required />
-              </div>
+      <!-- Recent Relapse History -->
+      <h4>Recent {{ actionTerm }} History</h4>
+      <ul *ngIf="recentRelapses.length > 0; else noRelapses">
+        <li *ngFor="let relapse of recentRelapses">
+          <strong>Date:</strong> {{ relapse.relapseDate | date: 'short' }} -
+          <strong>Reason:</strong> {{ relapse.reason }}
+        </li>
+      </ul>
+      <ng-template #noRelapses>
+        <p>No recent {{ actionTermLowercase }}s logged.</p>
+      </ng-template>
+      <!-- Edit Icon -->
+      <button class="edit-icon" (click)="openEditModal()">
+        <i class="fas fa-edit"></i> Edit
+      </button>
 
-              <!-- Description -->
-              <div class="form-group">
-                <label for="habitDescription">Description</label>
-                <textarea id="habitDescription" [(ngModel)]="editedHabit.habitDescription" name="habitDescription" class="form-control"></textarea>
-              </div>
-
-              <!-- Motivation -->
-              <div class="form-group">
-                <label for="userMotivation">Motivation</label>
-                <textarea id="userMotivation" [(ngModel)]="editedHabit.userMotivation" name="userMotivation" class="form-control"></textarea>
-              </div>
-
-              <!-- Cost per Occurrence -->
-              <div class="form-group">
-                <label for="costPerOccurrence">
-                  Cost per Occurrence (USD):
-                  <span class="info-icon" title="Enter the average amount spent per occurrence.">?</span>
-                </label>
-                <div class="input-group">
-                  <span class="currency-symbol">$</span>
-                  <input type="number" id="costPerOccurrence" [(ngModel)]="editedHabit.costPerOccurrence" name="costPerOccurrence" class="form-control currency-input" step="0.01" min="0" (input)="formatCurrencyInput($event, 'costPerOccurrence')" />
-                </div>
-              </div>
-
-              <!-- Occurrences per Month -->
-              <div class="form-group">
-                <label for="occurrencesPerMonth">
-                  Occurrences per Month:
-                  <span class="info-icon" title="Enter the average number of times the habit occurs per month.">?</span>
-                </label>
-                <input type="number" id="occurrencesPerMonth" [(ngModel)]="editedHabit.occurrencesPerMonth" name="occurrencesPerMonth" class="form-control" step="1" min="0" />
-              </div>
-
-              <!-- Goal Type -->
-              <div class="form-group">
-                <label for="goalType">
-                  Goal Type:
-                  <span class="info-icon" title="Choose 'Quit' to stop the habit or 'Reduce' to decrease it.">?</span>
-                </label>
-                <select id="goalType" [(ngModel)]="editedHabit.goalType" name="goalType" class="form-control" (change)="onGoalTypeChange()">
-                  <option value="quit">Quit</option>
-                  <option value="reduce">Reduce</option>
-                </select>
-              </div>
-
-              <!-- Conditional Fields -->
-              <div *ngIf="editedHabit.goalType === 'reduce'">
-                <!-- Goal Metric -->
+      <!-- Edit Habit Modal -->
+      <div class="modal" tabindex="-1" [ngClass]="{ show: showEditModal }" [ngStyle]="{ display: showEditModal ? 'block' : 'none' }">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit Habit</h5>
+              <button type="button" class="close" (click)="closeEditModal()">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form (ngSubmit)="updateHabit()">
+                <!-- Addiction Type -->
                 <div class="form-group">
-                  <label for="goalMetric">
-                    Goal Metric:
-                    <span class="info-icon" title="Choose 'Frequency' to reduce occurrences or 'Cost' to reduce spending.">?</span>
+                  <label for="addictionType">Addiction Type</label>
+                  <input type="text" id="addictionType" [(ngModel)]="editedHabit.addictionType" name="addictionType" class="form-control" required />
+                </div>
+
+                <!-- Start Date -->
+                <div class="form-group">
+                  <label for="habitStartDate">Start Date</label>
+                  <input type="date" id="habitStartDate" [(ngModel)]="editedHabit.habitStartDate" name="habitStartDate" class="form-control" required />
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                  <label for="habitDescription">Description</label>
+                  <textarea id="habitDescription" [(ngModel)]="editedHabit.habitDescription" name="habitDescription" class="form-control"></textarea>
+                </div>
+
+                <!-- Motivation -->
+                <div class="form-group">
+                  <label for="userMotivation">Motivation</label>
+                  <textarea id="userMotivation" [(ngModel)]="editedHabit.userMotivation" name="userMotivation" class="form-control"></textarea>
+                </div>
+
+                <!-- Cost per Occurrence -->
+                <div class="form-group">
+                  <label for="costPerOccurrence">
+                    Cost per Occurrence (USD):
+                    <span class="info-icon" title="Enter the average amount spent per occurrence.">?</span>
                   </label>
-                  <select id="goalMetric" [(ngModel)]="editedHabit.goalMetric" name="goalMetric" class="form-control">
-                    <option value="freq">Frequency</option>
-                    <option value="cost">Cost</option>
+                  <div class="input-group">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="costPerOccurrence" [(ngModel)]="editedHabit.costPerOccurrence" name="costPerOccurrence" class="form-control currency-input" step="0.01" min="0" (input)="formatCurrencyInput($event, 'costPerOccurrence')" />
+                  </div>
+                </div>
+
+                <!-- Occurrences per Month -->
+                <div class="form-group">
+                  <label for="occurrencesPerMonth">
+                    Occurrences per Month:
+                    <span class="info-icon" title="Enter the average number of times the habit occurs per month.">?</span>
+                  </label>
+                  <input type="number" id="occurrencesPerMonth" [(ngModel)]="editedHabit.occurrencesPerMonth" name="occurrencesPerMonth" class="form-control" step="1" min="0" />
+                </div>
+
+                <!-- Goal Type -->
+                <div class="form-group">
+                  <label for="goalType">
+                    Goal Type:
+                    <span class="info-icon" title="Choose 'Quit' to stop the habit or 'Reduce' to decrease it.">?</span>
+                  </label>
+                  <select id="goalType" [(ngModel)]="editedHabit.goalType" name="goalType" class="form-control" (change)="onGoalTypeChange()">
+                    <option value="quit">Quit</option>
+                    <option value="reduce">Reduce</option>
                   </select>
                 </div>
 
-                <!-- Goal Value -->
-                <div class="form-group" *ngIf="editedHabit.goalMetric">
-                  <label for="goalValue">
-                    Goal Value:
-                    <span class="info-icon" title="Enter your target value based on the selected metric.">?</span>
-                  </label>
-                  <div class="input-group" *ngIf="editedHabit.goalMetric === 'cost'">
-                    <span class="currency-symbol">$</span>
-                    <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control currency-input" step="0.01" min="0" placeholder="Enter your target value" (input)="formatCurrencyInput($event, 'goalValue')" />
+                <!-- Conditional Fields -->
+                <div *ngIf="editedHabit.goalType === 'reduce'">
+                  <!-- Goal Metric -->
+                  <div class="form-group">
+                    <label for="goalMetric">
+                      Goal Metric:
+                      <span class="info-icon" title="Choose 'Frequency' to reduce occurrences or 'Cost' to reduce spending.">?</span>
+                    </label>
+                    <select id="goalMetric" [(ngModel)]="editedHabit.goalMetric" name="goalMetric" class="form-control">
+                      <option value="freq">Frequency</option>
+                      <option value="cost">Cost</option>
+                    </select>
                   </div>
-                  <div class="input-group" *ngIf="editedHabit.goalMetric === 'freq'">
-                    <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control" step="1" min="0" placeholder="Enter your target frequency" (input)="enforceWholeNumber($event)" />
+
+                  <!-- Goal Value -->
+                  <div class="form-group" *ngIf="editedHabit.goalMetric">
+                    <label for="goalValue">
+                      Goal Value:
+                      <span class="info-icon" title="Enter your target value based on the selected metric.">?</span>
+                    </label>
+                    <div class="input-group" *ngIf="editedHabit.goalMetric === 'cost'">
+                      <span class="currency-symbol">$</span>
+                      <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control currency-input" step="0.01" min="0" placeholder="Enter your target value" (input)="formatCurrencyInput($event, 'goalValue')" />
+                    </div>
+                    <div class="input-group" *ngIf="editedHabit.goalMetric === 'freq'">
+                      <input type="number" id="goalValue" [(ngModel)]="editedHabit.goalValue" name="goalValue" class="form-control" step="1" min="0" placeholder="Enter your target frequency" (input)="enforceWholeNumber($event)" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
-            <button type="submit" (click)="updateHabit()" class="btn btn-primary">Save Changes</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+              <button type="submit" (click)="updateHabit()" class="btn btn-primary">Save Changes</button>
+            </div>
           </div>
         </div>
       </div>
+
+      <button class="btn btn-warning mt-3" (click)="openRelapseModal()">
+        Log {{ actionTerm }}
+      </button>
+      <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">
+        Manage {{ actionTerm }}s
+      </button>
     </div>
 
-
-    <button class="btn btn-warning mt-3" (click)="openRelapseModal()">Log {{ actionTerm }}</button>
-    <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">Manage {{ actionTerm }}s</button>
+    <button class="nav-arrow right-arrow" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth()">
+      &gt;
+    </button>
   </div>
 
   <div *ngIf="!habit">

@@ -14,6 +14,7 @@ export class HabitsComponent implements OnInit {
   daysSinceLastRelapse: number = 0;
   moneySaved: number = 0;
   currentDate: Date = new Date();
+  viewingMonth: moment.Moment = moment.utc();
   reasonForRelapse: string = '';
   showRelapseModal: boolean = false;
   recentRelapses: Relapse[] = [];
@@ -38,7 +39,7 @@ export class HabitsComponent implements OnInit {
     goalType: '',
     goalMetric: '',
     goalValue: 0,
-    relapses: []
+    relapses: [],
   };
   showEditModal: boolean = false;
   currentMonthName: string = '';
@@ -52,8 +53,9 @@ export class HabitsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.viewingMonth = moment.utc(); // Start with current month
+    this.currentMonthName = this.viewingMonth.format('MMMM');
     this.loadHabit();
-    this.currentMonthName = moment().format('MMMM');
   }
 
   loadHabit(): void {
@@ -77,19 +79,14 @@ export class HabitsComponent implements OnInit {
             this.habit = habit;
 
             if (this.habit.relapses) {
-              this.recentRelapses = this.habit.relapses.sort(
+              this.habit.relapses.sort(
                 (a, b) =>
                   new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
               );
-            } else {
-              this.recentRelapses = [];
             }
-            this.calculateInsights();
-            this.calculateStreaks();
-            this.calculateCumulativeMoneySaved();
-            this.checkAchievements();
-            this.setMotivationalMessage();
-            this.calculateMonthlyProgress();
+
+            // Load insights for the currently viewed month
+            this.loadInsightsForMonth();
           },
           (error) => {
             console.error('Error loading habit', error);
@@ -104,48 +101,101 @@ export class HabitsComponent implements OnInit {
     );
   }
 
+  loadInsightsForMonth(): void {
+    this.currentMonthName = this.viewingMonth.format('MMMM');
+
+    if (this.habit && this.habit.relapses) {
+      const viewingMonthStart = this.viewingMonth.clone().startOf('month');
+      const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
+
+      this.recentRelapses = this.habit.relapses
+        .filter((relapse) => {
+          const relapseDate = moment.utc(relapse.relapseDate);
+          return relapseDate.isBetween(viewingMonthStart, viewingMonthEnd, null, '[]');
+        })
+        .sort(
+          (a, b) =>
+            new Date(a.relapseDate).getTime() - new Date(b.relapseDate).getTime()
+        );
+    } else {
+      this.recentRelapses = [];
+    }
+
+    this.calculateInsights();
+    this.calculateStreaks();
+    this.calculateMonthlyProgress();
+    this.checkAchievements();
+    this.setMotivationalMessage();
+  }
+
   calculateInsights(): void {
     if (!this.habit) return;
 
-    const today = moment.utc();
-    const startOfMonth = today.clone().startOf('month');
+    const viewingMonthStart = this.viewingMonth.clone().startOf('month');
+    const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
     const habitStartDate = moment.utc(this.habit.habitStartDate);
 
-    const progressStartDate = habitStartDate.isAfter(startOfMonth) ? habitStartDate : startOfMonth;
+    const progressStartDate = habitStartDate.isAfter(viewingMonthStart)
+      ? habitStartDate
+      : viewingMonthStart;
 
-    const daysInMonth = today.daysInMonth();
-    const daysSinceProgressStart = today.diff(progressStartDate, 'days') + 1; // +1 to include today
+    const daysInMonth = viewingMonthEnd.diff(viewingMonthStart, 'days') + 1;
+    const daysSinceProgressStart =
+      viewingMonthEnd.diff(progressStartDate, 'days') + 1; // +1 to include the day
     const proportionOfMonth = daysSinceProgressStart / daysInMonth;
 
     // Actual occurrences and cost this month
     const monthlyRelapses = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
         const relapseDate = moment.utc(relapse.relapseDate);
-        return relapseDate.isBetween(progressStartDate.startOf('day'), today.endOf('day'), null, '[]');
+        return relapseDate.isBetween(
+          progressStartDate.startOf('day'),
+          viewingMonthEnd.endOf('day'),
+          null,
+          '[]'
+        );
       })
       : [];
 
     const actualOccurrences = monthlyRelapses.length;
-    const actualCost = actualOccurrences * (this.habit.costPerOccurrence || 0);
+    const actualCost =
+      actualOccurrences * (this.habit.costPerOccurrence || 0);
 
     let expectedCost: number;
 
-    if (this.habit.goalType === 'reduce' && this.habit.goalMetric === 'cost') {
+    if (
+      this.habit.goalType === 'reduce' &&
+      this.habit.goalMetric === 'cost'
+    ) {
       // Use the goalValue as the expected cost
       expectedCost = this.habit.goalValue ?? 0;
     } else {
       // Expected occurrences and cost based on user's baseline adjusted for the period
-      const expectedOccurrences = (this.habit.occurrencesPerMonth || 0) * proportionOfMonth;
-      expectedCost = expectedOccurrences * (this.habit.costPerOccurrence || 0);
+      const expectedOccurrences =
+        (this.habit.occurrencesPerMonth || 0) * proportionOfMonth;
+      expectedCost =
+        expectedOccurrences * (this.habit.costPerOccurrence || 0);
     }
 
     // Money saved or overspent this month
     this.moneySaved = expectedCost - actualCost;
 
-    // Days since last relapse
-    if (this.recentRelapses.length > 0) {
-      const lastRelapseDate = moment.utc(this.recentRelapses[this.recentRelapses.length - 1].relapseDate);
-      this.daysSinceLastRelapse = today.startOf('day').diff(lastRelapseDate.startOf('day'), 'days');
+    // Days since last relapse in the viewing month
+    const relapsesBeforeOrInViewingMonth = this.habit.relapses
+      ? this.habit.relapses.filter((relapse) => {
+        const relapseDate = moment.utc(relapse.relapseDate);
+        return relapseDate.isBefore(viewingMonthEnd.endOf('day'));
+      })
+      : [];
+
+    if (relapsesBeforeOrInViewingMonth.length > 0) {
+      const lastRelapseDate = moment.utc(
+        relapsesBeforeOrInViewingMonth[relapsesBeforeOrInViewingMonth.length - 1]
+          .relapseDate
+      );
+      this.daysSinceLastRelapse = viewingMonthEnd
+        .endOf('day')
+        .diff(lastRelapseDate.startOf('day'), 'days');
       if (this.daysSinceLastRelapse < 0) {
         this.daysSinceLastRelapse = 0;
       }
@@ -154,8 +204,9 @@ export class HabitsComponent implements OnInit {
         this.daysSinceLastRelapse = 0;
         return;
       }
-      const habitStartDate = moment.utc(this.habit.habitStartDate);
-      this.daysSinceLastRelapse = today.startOf('day').diff(habitStartDate.startOf('day'), 'days');
+      this.daysSinceLastRelapse = viewingMonthEnd
+        .endOf('day')
+        .diff(habitStartDate.startOf('day'), 'days');
     }
   }
 
@@ -166,13 +217,22 @@ export class HabitsComponent implements OnInit {
       return;
     }
 
+    const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
+
     let currentStreak = 0;
     let longestStreak = 0;
-    let streakStartDate = moment(this.habit.habitStartDate);
+    let streakStartDate = moment.utc(this.habit.habitStartDate);
     let lastRelapseDate = streakStartDate;
 
-    this.recentRelapses.forEach((relapse) => {
-      const relapseMoment = moment(relapse.relapseDate);
+    const relapsesUpToViewingMonthEnd = this.habit.relapses
+      ? this.habit.relapses.filter((relapse) => {
+        const relapseDate = moment.utc(relapse.relapseDate);
+        return relapseDate.isBefore(viewingMonthEnd.endOf('day'));
+      })
+      : [];
+
+    relapsesUpToViewingMonthEnd.forEach((relapse) => {
+      const relapseMoment = moment.utc(relapse.relapseDate);
       const streakLength = relapseMoment.diff(lastRelapseDate, 'days');
       if (streakLength > longestStreak) {
         longestStreak = streakLength;
@@ -180,7 +240,7 @@ export class HabitsComponent implements OnInit {
       lastRelapseDate = relapseMoment;
     });
 
-    currentStreak = moment().diff(lastRelapseDate, 'days');
+    currentStreak = viewingMonthEnd.diff(lastRelapseDate, 'days');
     if (currentStreak > longestStreak) {
       longestStreak = currentStreak;
     }
@@ -189,30 +249,45 @@ export class HabitsComponent implements OnInit {
     this.streaks.longestStreak = longestStreak;
   }
 
-  calculateCumulativeMoneySaved(): void {
-    if (!this.habit?.habitStartDate) {
-      this.cumulativeMoneySaved = [];
-      this.cumulativeDates = [];
-      return;
-    }
+  calculateMonthlyProgress(): void {
+    if (!this.habit) return;
 
-    this.cumulativeMoneySaved = [];
-    this.cumulativeDates = [];
-    let totalSaved = 0;
-    let date = moment(this.habit.habitStartDate);
-    const endDate = moment();
-    const relapsesSet = new Set(
-      this.recentRelapses.map((r) => moment(r.relapseDate).format('YYYY-MM-DD'))
-    );
+    const viewingMonthStart = this.viewingMonth.clone().startOf('month');
+    const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
+    const habitStartDate = moment.utc(this.habit.habitStartDate);
 
-    while (date.isSameOrBefore(endDate)) {
-      const dateStr = date.format('YYYY-MM-DD');
-      if (!relapsesSet.has(dateStr)) {
-        totalSaved += this.habit?.costPerOccurrence || 0;
-      }
-      this.cumulativeMoneySaved.push(totalSaved);
-      this.cumulativeDates.push(date.format('YYYY-MM-DD'));
-      date.add(1, 'days');
+    const progressStartDate = habitStartDate.isAfter(viewingMonthStart)
+      ? habitStartDate
+      : viewingMonthStart;
+
+    // Filter relapses within the progress period
+    const monthlyRelapses = this.habit.relapses
+      ? this.habit.relapses.filter((relapse) => {
+        const relapseDate = moment.utc(relapse.relapseDate);
+        return relapseDate.isBetween(
+          progressStartDate.startOf('day'),
+          viewingMonthEnd.endOf('day'),
+          null,
+          '[]'
+        );
+      })
+      : [];
+
+    if (this.habit.goalMetric === 'freq') {
+      // Frequency-based goal
+      this.occurrencesThisMonth = monthlyRelapses.length;
+      this.progressValue =
+        (this.occurrencesThisMonth / (this.habit.goalValue || 1)) * 100;
+      this.goalReached =
+        this.occurrencesThisMonth <= (this.habit.goalValue || 1);
+    } else if (this.habit.goalMetric === 'cost') {
+      // Cost-based goal
+      this.totalSpentThisMonth =
+        monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
+      this.progressValue =
+        (this.totalSpentThisMonth / (this.habit.goalValue || 1)) * 100;
+      this.goalReached =
+        this.totalSpentThisMonth <= (this.habit.goalValue || 1);
     }
   }
 
@@ -238,37 +313,8 @@ export class HabitsComponent implements OnInit {
     } else if (this.daysSinceLastRelapse < 30) {
       this.motivationalMessage = 'You are doing amazing! Stay strong.';
     } else {
-      this.motivationalMessage = 'Incredible progress! Keep up the great work.';
-    }
-  }
-
-  calculateMonthlyProgress(): void {
-    if (!this.habit) return;
-
-    const today = moment.utc();
-    const startOfMonth = today.clone().startOf('month');
-    const habitStartDate = moment.utc(this.habit.habitStartDate);
-
-    const progressStartDate = habitStartDate.isAfter(startOfMonth) ? habitStartDate : startOfMonth;
-
-    // Filter relapses within the progress period
-    const monthlyRelapses = this.habit.relapses
-      ? this.habit.relapses.filter((relapse) => {
-        const relapseDate = moment.utc(relapse.relapseDate);
-        return relapseDate.isBetween(progressStartDate.startOf('day'), today.endOf('day'), null, '[]');
-      })
-      : [];
-
-    if (this.habit.goalMetric === 'freq') {
-      // Frequency-based goal
-      this.occurrencesThisMonth = monthlyRelapses.length;
-      this.progressValue = (this.occurrencesThisMonth / (this.habit.goalValue || 1)) * 100;
-      this.goalReached = this.occurrencesThisMonth <= (this.habit.goalValue || 1);
-    } else if (this.habit.goalMetric === 'cost') {
-      // Cost-based goal
-      this.totalSpentThisMonth = monthlyRelapses.length * (this.habit.costPerOccurrence || 0);
-      this.progressValue = (this.totalSpentThisMonth / (this.habit.goalValue || 1)) * 100;
-      this.goalReached = this.totalSpentThisMonth <= (this.habit.goalValue || 1);
+      this.motivationalMessage =
+        'Incredible progress! Keep up the great work.';
     }
   }
 
@@ -289,17 +335,19 @@ export class HabitsComponent implements OnInit {
     // Get current date and time in ISO format
     const relapseDate = moment().toISOString();
 
-    this.habitService.logRelapse(this.habit.id, this.reasonForRelapse, relapseDate).subscribe(
-      () => {
-        this.successMessage = 'Occurrence logged successfully.';
-        this.closeRelapseModal();
-        this.loadHabit();
-      },
-      (error) => {
-        console.error('Error logging relapse', error);
-        this.errorMessage = 'Failed to log occurrence.';
-      }
-    );
+    this.habitService
+      .logRelapse(this.habit.id, this.reasonForRelapse, relapseDate)
+      .subscribe(
+        () => {
+          this.successMessage = 'Occurrence logged successfully.';
+          this.closeRelapseModal();
+          this.loadHabit();
+        },
+        (error) => {
+          console.error('Error logging relapse', error);
+          this.errorMessage = 'Failed to log occurrence.';
+        }
+      );
   }
 
   openEditModal(): void {
@@ -308,7 +356,9 @@ export class HabitsComponent implements OnInit {
 
       // Format the habitStartDate for the date input
       if (this.editedHabit.habitStartDate) {
-        this.editedHabit.habitStartDate = moment(this.editedHabit.habitStartDate).format('YYYY-MM-DD');
+        this.editedHabit.habitStartDate = moment(
+          this.editedHabit.habitStartDate
+        ).format('YYYY-MM-DD');
       }
     } else {
       // Set default values if `habit` hasn't been loaded yet
@@ -324,7 +374,7 @@ export class HabitsComponent implements OnInit {
         goalType: '',
         goalMetric: '',
         goalValue: 0,
-        relapses: []
+        relapses: [],
       };
     }
     this.showEditModal = true;
@@ -344,7 +394,7 @@ export class HabitsComponent implements OnInit {
       goalType: '',
       goalMetric: '',
       goalValue: 0,
-      relapses: []
+      relapses: [],
     };
   }
 
@@ -371,7 +421,8 @@ export class HabitsComponent implements OnInit {
 
   goToManageRelapses(): void {
     if (this.habit) {
-      const path = this.habit.goalType === 'reduce' ? 'manage-occurrences' : 'manage-relapses';
+      const path =
+        this.habit.goalType === 'reduce' ? 'manage-occurrences' : 'manage-relapses';
       this.router.navigate([`/${path}`, this.habit.id]);
     } else {
       this.errorMessage = 'Habit not loaded.';
@@ -421,8 +472,40 @@ export class HabitsComponent implements OnInit {
 
   formatMoneySaved(value: number): string {
     const absValue = Math.abs(value);
-    const formattedCurrency = absValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    const formattedCurrency = absValue.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
     return value < 0 ? `(${formattedCurrency})` : formattedCurrency;
   }
 
+  // Navigation Methods
+  goToPreviousMonth(): void {
+    if (this.habit && this.habit.habitStartDate) {
+      const habitStartDate = moment.utc(this.habit.habitStartDate).startOf('month');
+      if (this.viewingMonth.clone().subtract(1, 'month').isSameOrAfter(habitStartDate)) {
+        this.viewingMonth.subtract(1, 'month');
+        this.loadInsightsForMonth();
+      }
+    }
+  }
+
+  goToNextMonth(): void {
+    const currentMonth = moment.utc().startOf('month');
+    if (this.viewingMonth.isBefore(currentMonth)) {
+      this.viewingMonth.add(1, 'month');
+      this.loadInsightsForMonth();
+    }
+  }
+
+  canGoToPreviousMonth(): boolean {
+    if (!this.habit || !this.habit.habitStartDate) return false;
+    const habitStartDate = moment.utc(this.habit.habitStartDate).startOf('month');
+    return this.viewingMonth.clone().subtract(1, 'month').isSameOrAfter(habitStartDate);
+  }
+
+  canGoToNextMonth(): boolean {
+    const currentMonth = moment.utc().startOf('month');
+    return this.viewingMonth.isBefore(currentMonth);
+  }
 }
