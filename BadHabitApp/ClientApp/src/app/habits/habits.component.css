@@ -33,7 +33,7 @@ h2 {
     color: white;
     padding: 10px;
     margin-bottom: 5px;
-    border-radius: 5px;
+    border-radius: 10px;
   }
 
 .stats {
@@ -161,7 +161,7 @@ button {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  font-size: 18px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -246,4 +246,10 @@ button {
 
 .habit-navigation .habit {
   flex: 1;
+}
+
+.relapse-management {
+    button {
+      margin-right: 20px;
+    }
 }

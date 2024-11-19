@@ -75,7 +75,7 @@
           </div>
         </div>
         <p *ngIf="habit.goalMetric === 'freq'">
-          {{ occurrencesThisMonth }} occurrences this month (Goal: {{ habit.goalValue }} occurrences)
+          {{ occurrencesThisMonth }} occurrence(s) this month (Goal: {{ habit.goalValue }} occurrences)
         </p>
         <p *ngIf="habit.goalMetric === 'cost'">
           {{ totalSpentThisMonth | currency }} spent this month (Goal: {{ habit.goalValue | currency }})
@@ -95,7 +95,7 @@
       </ng-template>
       <!-- Edit Icon -->
       <button class="edit-icon" (click)="openEditModal()">
-        <i class="fas fa-edit"></i> Edit
+        <i class="fas fa-edit"></i> &#9998;
       </button>
 
       <!-- Edit Habit Modal -->
@@ -205,13 +205,14 @@
           </div>
         </div>
       </div>
-
-      <button class="btn btn-warning mt-3" (click)="openRelapseModal()">
-        Log {{ actionTerm }}
-      </button>
-      <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">
-        Manage {{ actionTerm }}s
-      </button>
+      <div class="relapse-management">
+        <button class="btn btn-warning mt-3" (click)="openRelapseModal()">
+          Log {{ actionTerm }}
+        </button>
+        <button class="btn btn-secondary mt-3 ml-2" (click)="goToManageRelapses()">
+          Manage {{ actionTerm }}s
+        </button>
+      </div>
     </div>
 
     <button class="nav-arrow right-arrow" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth()">
