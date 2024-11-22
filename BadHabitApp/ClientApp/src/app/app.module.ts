@@ -12,6 +12,8 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HabitsComponent } from './habits/habits.component';
 import { RelapseManagementComponent } from './relapse-management/relapse-management.component';
+import { FooterComponent } from './footer/footer.component';
+
 
 import { AuthInterceptor } from './services/auth.interceptor.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -27,13 +29,15 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
     LoginComponent,
     RegisterComponent,
     HabitsComponent,
-    RelapseManagementComponent
+    RelapseManagementComponent,
+   
   ],
   bootstrap: [AppComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     FormsModule,
     HttpClientModule,
+    FooterComponent,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'register', component: RegisterComponent },

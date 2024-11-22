@@ -1,0 +1,25 @@
+.footer {
+  background-color: #222;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.footer-nav {
+  margin-top: 10px;
+}
+
+  .footer-nav a {
+    color: #fff;
+    margin: 0 10px;
+    text-decoration: none;
+  }
+
+    .footer-nav a:hover {
+      text-decoration: underline;
+    }
