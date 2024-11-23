@@ -82,6 +82,38 @@
         </p>
       </div>
 
+      <!-- Heatmap -->
+      <h4>Monthly {{ actionTerm }} Heatmap</h4>
+      <div class="heatmap">
+        <!-- Day Labels -->
+        <div class="heatmap-week day-labels">
+          <div class="heatmap-cell">Sun</div>
+          <div class="heatmap-cell">Mon</div>
+          <div class="heatmap-cell">Tue</div>
+          <div class="heatmap-cell">Wed</div>
+          <div class="heatmap-cell">Thu</div>
+          <div class="heatmap-cell">Fri</div>
+          <div class="heatmap-cell">Sat</div>
+        </div>
+        <!-- Heatmap Weeks -->
+        <div class="heatmap-week" *ngFor="let week of heatmapData">
+          <div *ngFor="let dayData of week"
+               class="heatmap-cell"
+               [ngClass]="{ 'empty-cell': !dayData.date }"
+               [style.backgroundColor]="getHeatmapColor(dayData.count)"
+               [attr.title]="
+              dayData.date
+                ? dayData.date.format('MMMM Do') +
+                  ': ' +
+                  dayData.count +
+                  ' occurrence(s)'
+                : ''
+            ">
+            {{ dayData.date ? dayData.date.date() : '' }}
+          </div>
+        </div>
+      </div>
+
       <!-- Recent Relapse History -->
       <h4>Recent {{ actionTerm }} History</h4>
       <ul *ngIf="recentRelapses.length > 0; else noRelapses">

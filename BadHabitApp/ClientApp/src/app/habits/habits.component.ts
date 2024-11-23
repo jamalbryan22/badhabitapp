@@ -46,6 +46,9 @@ export class HabitsComponent implements OnInit {
   occurrencesThisMonth: number = 0;
   totalSpentThisMonth: number = 0;
 
+  heatmapData: { date: moment.Moment | null; count: number }[][] = [];
+  maxHeatmapCount: number = 0;
+
   constructor(
     private habitService: HabitService,
     private authService: AuthService,
@@ -126,6 +129,7 @@ export class HabitsComponent implements OnInit {
     this.calculateMonthlyProgress();
     this.checkAchievements();
     this.setMotivationalMessage();
+    this.generateHeatmapData();
   }
 
   calculateInsights(): void {
@@ -507,5 +511,127 @@ export class HabitsComponent implements OnInit {
   canGoToNextMonth(): boolean {
     const currentMonth = moment.utc().startOf('month');
     return this.viewingMonth.isBefore(currentMonth);
+  }
+
+  generateHeatmapData(): void {
+    if (!this.habit || !this.habit.relapses) {
+      this.heatmapData = [];
+      return;
+    }
+
+    const viewingMonthStart = this.viewingMonth.clone().startOf('month');
+    const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
+
+    // Build an array of weeks, each week is an array of days
+    this.heatmapData = [];
+
+    let currentDate = viewingMonthStart.clone();
+    const startDayOfWeek = currentDate.day();
+
+    // Adjust currentDate to the previous Sunday (start of the week)
+    currentDate.subtract(startDayOfWeek, 'days');
+
+    // Keep looping until we pass the end of the month
+    while (currentDate.isBefore(viewingMonthEnd.clone().endOf('week'))) {
+      const week: { date: moment.Moment | null; count: number }[] = [];
+      for (let i = 0; i < 7; i++) {
+        if (currentDate.isBefore(viewingMonthStart) || currentDate.isAfter(viewingMonthEnd)) {
+          // Day is outside the viewing month
+          week.push({ date: null, count: 0 });
+        } else {
+          // Initialize count to 0
+          week.push({ date: currentDate.clone(), count: 0 });
+        }
+        currentDate.add(1, 'days');
+      }
+      this.heatmapData.push(week);
+    }
+
+    // Now, for each relapse, increment the count on the corresponding day
+    this.habit.relapses.forEach((relapse) => {
+      const relapseDate = moment.utc(relapse.relapseDate);
+      if (
+        relapseDate.isBetween(
+          viewingMonthStart.startOf('day'),
+          viewingMonthEnd.endOf('day'),
+          null,
+          '[]'
+        )
+      ) {
+        // Find the corresponding day in heatmapData
+        const weekIndex = Math.floor(
+          relapseDate.diff(viewingMonthStart.clone().startOf('week'), 'weeks')
+        );
+        const dayOfWeek = relapseDate.day();
+        const week = this.heatmapData[weekIndex];
+        if (week) {
+          const dayData = week[dayOfWeek];
+          if (dayData && dayData.date && dayData.date.isSame(relapseDate, 'day')) {
+            dayData.count += 1;
+          }
+        }
+      }
+    });
+
+    // Calculate the maximum count
+    this.maxHeatmapCount = 0;
+    this.heatmapData.forEach((week) => {
+      week.forEach((dayData) => {
+        if (dayData.count > this.maxHeatmapCount) {
+          this.maxHeatmapCount = dayData.count;
+        }
+      });
+    });
+  }
+
+  getHeatmapColor(count: number): string {
+    if (!count || this.maxHeatmapCount === 0) {
+      return '#ebedf0'; // light gray color for no data
+    }
+    const intensity = count / this.maxHeatmapCount;
+    const color = this.interpolateColor('#ebedf0', '#00a287', intensity);
+    return color;
+  }
+
+  interpolateColor(color1: string, color2: string, factor: number): string {
+    const c1 = this.hexToRgb(color1);
+    const c2 = this.hexToRgb(color2);
+
+    if (!c1 || !c2) {
+      return color1;
+    }
+
+    const result = {
+      r: Math.round(c1.r + factor * (c2.r - c1.r)),
+      g: Math.round(c1.g + factor * (c2.g - c1.g)),
+      b: Math.round(c1.b + factor * (c2.b - c1.b)),
+    };
+
+    return this.rgbToHex(result.r, result.g, result.b);
+  }
+
+  hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function (m: any, r: string, g: string, b: string) {
+      return r + r + g + g + b + b;
+    });
+
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+      : null;
+  }
+
+  rgbToHex(r: number, g: number, b: number): string {
+    return '#' + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+  }
+
+  componentToHex(c: number): string {
+    const hex = c.toString(16);
+    return hex.length == 1 ? '0' + hex : hex;
   }
 }
