@@ -1,9 +1,7 @@
-<!-- relapse-management.component.html -->
-
 <div class="container mt-4">
   <h2>Manage {{ actionTerm }}s</h2>
 
-   <!-- Back Button -->
+  <!-- Back Button -->
   <button class="btn btn-secondary mb-3" (click)="goBack()">Back to Habit Page</button>
 
   <!-- Success and Error Messages -->
@@ -26,7 +24,7 @@
     <tbody>
       <tr *ngFor="let relapse of relapses">
         <!-- Display or edit date -->
-        <td *ngIf="!editRelapse || editRelapse.id !== relapse.id">{{ relapse.relapseDate | date: 'MM/dd/yyyy' }}</td>
+        <td *ngIf="!editRelapse || editRelapse.id !== relapse.id">{{ formatDate(relapse.relapseDate) }}</td>
         <td *ngIf="editRelapse && editRelapse.id === relapse.id">
           <input type="date" [(ngModel)]="editRelapse.relapseDate" class="form-control">
         </td>
@@ -56,8 +54,8 @@
     <label>Reason:</label>
     <input type="text" [(ngModel)]="newRelapseReason" class="form-control">
   </div>
-<div class="d-flex mt-3">
-  <button (click)="addRelapse()" class="btn btn-primary mr-2">Add {{ actionTerm }}</button>
-  <button (click)="deleteAllRelapses()" class="btn btn-danger">Delete All {{ actionTerm }}s</button>
-</div>
+  <div class="d-flex mt-3">
+    <button (click)="addRelapse()" class="btn btn-primary mr-2">Add {{ actionTerm }}</button>
+    <button (click)="deleteAllRelapses()" class="btn btn-danger">Delete All {{ actionTerm }}s</button>
+  </div>
 </div>

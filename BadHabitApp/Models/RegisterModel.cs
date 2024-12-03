@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BadHabitApp.Attributes;
 
 namespace BadHabitApp.Models
 {
@@ -12,6 +13,11 @@ namespace BadHabitApp.Models
 
 		[Required(ErrorMessage = "Password is required.")]
 		public string Password { get; set; } = string.Empty;
+
+		// Added TimeZoneId
+		[Required(ErrorMessage = "Time Zone is required.")]
+		[TimeZoneIdValidation]
+		public string TimeZoneId { get; set; } = "UTC";
 
 		// New goal fields
 		[Required(ErrorMessage = "Goal Type is required.")]

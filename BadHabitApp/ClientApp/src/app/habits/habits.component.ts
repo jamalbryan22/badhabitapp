@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HabitService, UserHabit, Relapse } from '../services/habit.service';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 import { Router } from '@angular/router';
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-habits',
@@ -13,8 +14,7 @@ export class HabitsComponent implements OnInit {
   habit: UserHabit | null = null;
   daysSinceLastRelapse: number = 0;
   moneySaved: number = 0;
-  currentDate: Date = new Date();
-  viewingMonth: moment.Moment = moment.utc();
+  viewingMonth: moment.Moment = moment();
   reasonForRelapse: string = '';
   showRelapseModal: boolean = false;
   recentRelapses: Relapse[] = [];
@@ -49,16 +49,29 @@ export class HabitsComponent implements OnInit {
   heatmapData: { date: moment.Moment | null; count: number }[][] = [];
   maxHeatmapCount: number = 0;
 
+  userTimeZone: string = 'UTC'; // Default time zone
+
   constructor(
     private habitService: HabitService,
     private authService: AuthService,
+    private userService: UserService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.viewingMonth = moment.utc(); // Start with current month
-    this.currentMonthName = this.viewingMonth.format('MMMM');
-    this.loadHabit();
+    this.userService.getUserTimeZone().subscribe(
+      (data) => {
+        this.userTimeZone = data.timeZoneId || 'UTC';
+        this.viewingMonth = moment().tz(this.userTimeZone);
+        this.loadHabit();
+      },
+      (error) => {
+        console.error('Error fetching user time zone', error);
+        this.errorMessage = 'Failed to load user time zone.';
+        this.viewingMonth = moment().tz('UTC');
+        this.loadHabit();
+      }
+    );
   }
 
   loadHabit(): void {
@@ -113,7 +126,7 @@ export class HabitsComponent implements OnInit {
 
       this.recentRelapses = this.habit.relapses
         .filter((relapse) => {
-          const relapseDate = moment.utc(relapse.relapseDate);
+          const relapseDate = moment(relapse.relapseDate).tz(this.userTimeZone);
           return relapseDate.isBetween(viewingMonthStart, viewingMonthEnd, null, '[]');
         })
         .sort(
@@ -137,7 +150,7 @@ export class HabitsComponent implements OnInit {
 
     const viewingMonthStart = this.viewingMonth.clone().startOf('month');
     const viewingMonthEnd = this.viewingMonth.clone().endOf('month');
-    const habitStartDate = moment.utc(this.habit.habitStartDate);
+    const habitStartDate = moment(this.habit.habitStartDate).tz(this.userTimeZone);
 
     const progressStartDate = habitStartDate.isAfter(viewingMonthStart)
       ? habitStartDate
@@ -151,7 +164,7 @@ export class HabitsComponent implements OnInit {
     // Actual occurrences and cost this month
     const monthlyRelapses = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
-        const relapseDate = moment.utc(relapse.relapseDate);
+        const relapseDate = moment(relapse.relapseDate).tz(this.userTimeZone);
         return relapseDate.isBetween(
           progressStartDate.startOf('day'),
           viewingMonthEnd.endOf('day'),
@@ -162,8 +175,7 @@ export class HabitsComponent implements OnInit {
       : [];
 
     const actualOccurrences = monthlyRelapses.length;
-    const actualCost =
-      actualOccurrences * (this.habit.costPerOccurrence || 0);
+    const actualCost = actualOccurrences * (this.habit.costPerOccurrence || 0);
 
     let expectedCost: number;
 
@@ -187,16 +199,16 @@ export class HabitsComponent implements OnInit {
     // Days since last relapse in the viewing month
     const relapsesBeforeOrInViewingMonth = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
-        const relapseDate = moment.utc(relapse.relapseDate);
+        const relapseDate = moment(relapse.relapseDate).tz(this.userTimeZone);
         return relapseDate.isBefore(viewingMonthEnd.endOf('day'));
       })
       : [];
 
     if (relapsesBeforeOrInViewingMonth.length > 0) {
-      const lastRelapseDate = moment.utc(
+      const lastRelapseDate = moment(
         relapsesBeforeOrInViewingMonth[relapsesBeforeOrInViewingMonth.length - 1]
           .relapseDate
-      );
+      ).tz(this.userTimeZone);
       this.daysSinceLastRelapse = viewingMonthEnd
         .endOf('day')
         .diff(lastRelapseDate.startOf('day'), 'days');
@@ -225,18 +237,18 @@ export class HabitsComponent implements OnInit {
 
     let currentStreak = 0;
     let longestStreak = 0;
-    let streakStartDate = moment.utc(this.habit.habitStartDate);
+    let streakStartDate = moment(this.habit.habitStartDate).tz(this.userTimeZone);
     let lastRelapseDate = streakStartDate;
 
     const relapsesUpToViewingMonthEnd = this.habit.relapses
       ? this.habit.relapses.filter((relapse) => {
-        const relapseDate = moment.utc(relapse.relapseDate);
+        const relapseDate = moment(relapse.relapseDate).tz(this.userTimeZone);
         return relapseDate.isBefore(viewingMonthEnd.endOf('day'));
       })
       : [];
 
     relapsesUpToViewingMonthEnd.forEach((relapse) => {
-      const relapseMoment = moment.utc(relapse.relapseDate);
+      const relapseMoment = moment(relapse.relapseDate).tz(this.userTimeZone);
       const streakLength = relapseMoment.diff(lastRelapseDate, 'days');
       if (streakLength > longestStreak) {
         longestStreak = streakLength;
@@ -336,8 +348,8 @@ export class HabitsComponent implements OnInit {
       return;
     }
 
-    // Get current date and time in ISO format
-    const relapseDate = moment().toISOString();
+    // Get current date and time in the user's time zone
+    const relapseDate = moment().tz(this.userTimeZone).toISOString();
 
     this.habitService
       .logRelapse(this.habit.id, this.reasonForRelapse, relapseDate)
@@ -352,6 +364,12 @@ export class HabitsComponent implements OnInit {
           this.errorMessage = 'Failed to log occurrence.';
         }
       );
+  }
+
+  // Formatting dates for display
+  formatDate(dateString: string): string {
+    var tempdate = moment.utc(dateString);
+    return moment(tempdate).tz(this.userTimeZone).format('MM/DD/YYYY');
   }
 
   openEditModal(): void {
@@ -634,4 +652,9 @@ export class HabitsComponent implements OnInit {
     const hex = c.toString(16);
     return hex.length == 1 ? '0' + hex : hex;
   }
+
+  formatTooltipDate(date: moment.Moment): string {
+    return date.clone().tz(this.userTimeZone).format('MMMM Do, YYYY');
+  }
+
 }

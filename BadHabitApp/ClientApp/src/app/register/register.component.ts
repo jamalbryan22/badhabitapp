@@ -30,7 +30,23 @@ export class RegisterComponent {
   successMessage: string | null = null;
   isRegistering: boolean = false;
 
+  timeZones: { id: string, displayName: string }[] = [];
+  timeZoneId: string | null = null;
+
   constructor(private authService: AuthService, private router: Router, private cdRef: ChangeDetectorRef) { }
+
+  ngOnInit() {
+    // Initialize the timeZones array
+    this.timeZones = [
+      { id: 'UTC', displayName: 'UTC' },
+      { id: 'America/New_York', displayName: 'Eastern Time' },
+      { id: 'America/Chicago', displayName: 'Central Time' },
+      { id: 'America/Denver', displayName: 'Mountain Time' },
+      { id: 'America/Los_Angeles', displayName: 'Pacific Time' },
+      { id: 'America/Anchorage', displayName: 'Alaska Time' },
+      { id: 'Pacific/Honolulu', displayName: 'Hawaii Time' }
+    ];
+  }
 
   register() {
     this.errorMessages = []; // Clear previous errors
@@ -51,6 +67,7 @@ export class RegisterComponent {
     const registrationData = {
       email: this.email,
       password: this.password,
+      timeZoneId: this.timeZoneId,
       addictionType: this.addictionType === 'Custom' ? this.customAddiction : this.addictionType,
       habitStartDate: this.dateAddictionBegan,
       habitDescription: this.habitDescription,

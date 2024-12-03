@@ -46,6 +46,15 @@
              [disabled]="isRegistering" />
     </div>
 
+    <!-- Time Zone Selection -->
+    <div class="form-group">
+      <label for="timeZoneId">Time Zone:</label>
+      <select id="timeZoneId" [(ngModel)]="timeZoneId" name="timeZoneId" required>
+        <option value="" disabled selected>Select your time zone</option>
+        <option *ngFor="let tz of timeZones" [value]="tz.id">{{ tz.displayName }}</option>
+      </select>
+    </div>
+
     <!-- Addiction Type Selection -->
     <div class="form-group">
       <label for="addictionType">Type of Addiction:</label>

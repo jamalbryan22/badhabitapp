@@ -103,7 +103,7 @@
                [style.backgroundColor]="getHeatmapColor(dayData.count)"
                [attr.title]="
               dayData.date
-                ? dayData.date.format('MMMM Do') +
+                ? formatTooltipDate(dayData.date) +
                   ': ' +
                   dayData.count +
                   ' occurrence(s)'
@@ -118,13 +118,14 @@
       <h4>Recent {{ actionTerm }} History</h4>
       <ul *ngIf="recentRelapses.length > 0; else noRelapses">
         <li *ngFor="let relapse of recentRelapses">
-          <strong>Date:</strong> {{ relapse.relapseDate | date: 'short' }} -
+          <strong>Date:</strong> {{ formatDate(relapse.relapseDate) }} -
           <strong>Reason:</strong> {{ relapse.reason }}
         </li>
       </ul>
       <ng-template #noRelapses>
         <p>No recent {{ actionTermLowercase }}s logged.</p>
       </ng-template>
+
       <!-- Edit Icon -->
       <button class="edit-icon" (click)="openEditModal()">
         <i class="fas fa-edit"></i> &#9998;
@@ -237,6 +238,7 @@
           </div>
         </div>
       </div>
+
       <div class="relapse-management">
         <button class="btn btn-warning mt-3" (click)="openRelapseModal()">
           Log {{ actionTerm }}

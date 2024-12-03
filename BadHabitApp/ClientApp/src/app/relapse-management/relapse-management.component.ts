@@ -1,14 +1,13 @@
-// relapse-management.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { HabitService, Relapse, UserHabit } from '../services/habit.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as moment from 'moment';
+import { UserService } from '../services/user.service';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-relapse-management',
   templateUrl: './relapse-management.component.html',
-  styleUrls: ['./relapse-management.component.css']
+  styleUrls: ['./relapse-management.component.css'],
 })
 export class RelapseManagementComponent implements OnInit {
   habitId: number = 0;
@@ -21,15 +20,18 @@ export class RelapseManagementComponent implements OnInit {
   successMessage: string = '';
   habitStartDate: string = '';
   actionTerm: string = 'Relapse';
+  userTimeZone: string = 'UTC';
 
   constructor(
     private habitService: HabitService,
     private route: ActivatedRoute,
+    private userService: UserService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.habitId = Number(this.route.snapshot.paramMap.get('id'));
+
     // Determine the active route to set the appropriate term
     const currentRoute = this.router.url;
     if (currentRoute.includes('manage-occurrences')) {
@@ -37,7 +39,20 @@ export class RelapseManagementComponent implements OnInit {
     } else if (currentRoute.includes('manage-relapses')) {
       this.actionTerm = 'Relapse';
     }
-    this.loadRelapses();
+
+    // Fetch the user's time zone before loading relapses
+    this.userService.getUserTimeZone().subscribe(
+      (data) => {
+        this.userTimeZone = data.timeZoneId || 'UTC';
+        this.loadRelapses();
+      },
+      (error) => {
+        console.error('Error fetching user time zone', error);
+        this.errorMessage = 'Failed to load user time zone.';
+        this.userTimeZone = 'UTC';
+        this.loadRelapses();
+      }
+    );
   }
 
   loadRelapses(): void {
@@ -76,18 +91,25 @@ export class RelapseManagementComponent implements OnInit {
       return;
     }
 
-    this.habitService.logRelapse(this.habitId, this.newRelapseReason, this.newRelapseDate).subscribe(
-      () => {
-        this.successMessage = 'Relapse added successfully.';
-        this.newRelapseReason = '';
-        this.newRelapseDate = '';
-        this.loadRelapses();
-      },
-      (error) => {
-        this.errorMessage = 'Failed to add relapse.';
-        console.error(error);
-      }
-    );
+    // Convert date to ISO string in the user's time zone
+    const relapseDate = moment(this.newRelapseDate)
+      .tz(this.userTimeZone)
+      .toISOString();
+
+    this.habitService
+      .logRelapse(this.habitId, this.newRelapseReason, relapseDate)
+      .subscribe(
+        () => {
+          this.successMessage = `${this.actionTerm} added successfully.`;
+          this.newRelapseReason = '';
+          this.newRelapseDate = '';
+          this.loadRelapses();
+        },
+        (error) => {
+          this.errorMessage = `Failed to add ${this.actionTerm.toLowerCase()}.`;
+          console.error(error);
+        }
+      );
   }
 
   deleteRelapse(relapseId: number): void {
@@ -149,11 +171,19 @@ export class RelapseManagementComponent implements OnInit {
     );
   }
 
+  // Formatting dates for display
+  formatDate(dateString: string): string {
+    var tempdate = moment.utc(dateString);
+    return moment(tempdate).tz(this.userTimeZone).format('MM/DD/YYYY');
+  }
+
   // Validate the date
   isValidDate(dateStr: string): boolean {
-    const date = moment(dateStr, 'YYYY-MM-DD', true);
-    const habitStartDate = moment(this.habitStartDate, 'YYYY-MM-DD', true);
-    const today = moment().endOf('day');
+    const date = moment(dateStr, 'YYYY-MM-DD', true).tz(this.userTimeZone);
+    const habitStartDate = moment(this.habitStartDate, 'YYYY-MM-DD', true).tz(
+      this.userTimeZone
+    );
+    const today = moment().tz(this.userTimeZone).endOf('day');
 
     if (!date.isValid()) {
       return false;

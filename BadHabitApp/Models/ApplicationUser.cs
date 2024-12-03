@@ -10,5 +10,10 @@ namespace BadHabitApp.Models
 
 		[DataType(DataType.Date)]
 		public DateTime? LastLogin { get; set; }
+
+		// Added TimeZoneId property
+		[Required]
+		[StringLength(100)]
+		public string TimeZoneId { get; set; } = "UTC";
 	}
 }
