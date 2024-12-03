@@ -59,6 +59,7 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\src\app\guards\" />
+    <Folder Include="ClientApp\src\app\data\" />
   </ItemGroup>
 
   <ItemGroup>

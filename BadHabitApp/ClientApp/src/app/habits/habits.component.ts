@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HabitService, UserHabit, Relapse } from '../services/habit.service';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { motivationalMessages } from '../data/motivational-messages';
 import { Router } from '@angular/router';
 import * as moment from 'moment-timezone';
 
@@ -352,16 +353,24 @@ export class HabitsComponent implements OnInit {
   }
 
   setMotivationalMessage(): void {
+    let messages: string[] = [];
+
     if (this.daysSinceLastRelapse === 0) {
-      this.motivationalMessage = 'Every setback is a setup for a comeback!';
-    } else if (this.daysSinceLastRelapse < 7) {
-      this.motivationalMessage = 'Great start! Keep going one day at a time.';
-    } else if (this.daysSinceLastRelapse < 30) {
-      this.motivationalMessage = 'You are doing amazing! Stay strong.';
+      messages = motivationalMessages[0];
+    } else if (this.daysSinceLastRelapse === 1) {
+      messages = motivationalMessages[1];
+    } else if (this.daysSinceLastRelapse >= 1 && this.daysSinceLastRelapse < 7) {
+      messages = motivationalMessages['1-6'];
+    } else if (this.daysSinceLastRelapse >= 7 && this.daysSinceLastRelapse < 30) {
+      messages = motivationalMessages['7-29'];
+    } else if (this.daysSinceLastRelapse >= 30 && this.daysSinceLastRelapse < 100) {
+      messages = motivationalMessages['30-99'];
     } else {
-      this.motivationalMessage =
-        'Incredible progress! Keep up the great work.';
+      messages = motivationalMessages['100+'];
     }
+
+    // Select a random message from the array
+    this.motivationalMessage = messages[Math.floor(Math.random() * messages.length)];
   }
 
   openRelapseModal(): void {
