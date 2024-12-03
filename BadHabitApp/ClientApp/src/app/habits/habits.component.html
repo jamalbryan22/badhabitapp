@@ -51,7 +51,7 @@
         <p><strong>Longest Streak:</strong> {{ streaks.longestStreak }} days</p>
       </div>
 
-      <div class="goal-progress">
+      <div class="goal-progress" *ngIf="habit.goalType === 'reduce'">
         <h4>Monthly Progress</h4>
         <div class="progress-circle"
              [ngClass]="{
